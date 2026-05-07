@@ -1,0 +1,290 @@
+# 📅 Vibenex — Tiến Độ Phát Triển (27 Ngày)
+
+> Bắt đầu: **08/05/2026** → Dự kiến hoàn thành: **03/06/2026**
+> Mỗi ngày chia 2 phần: **Backend (BE)** buổi sáng → **Frontend (FE)** buổi chiều
+
+---
+
+## Phase 1: Project Setup & Foundation (Day 1–2)
+
+### 📆 Day 1 — Project Init + Backend Foundation
+- [ ] **BE**: `nest new vibenex-backend`, cấu hình TypeScript, ESLint
+- [ ] **BE**: Docker Compose (PostgreSQL 16), `.env` config
+- [ ] **BE**: Prisma init, tạo toàn bộ schema (User, Post, Comment, Like, Story, Follow, Conversation, Message, Notification)
+- [ ] **BE**: `prisma migrate dev` + `prisma generate`
+- [ ] **BE**: PrismaService module
+- [ ] **FE**: `flutter create vibenex` tại `c:\Mobile\Social_media`
+- [ ] **FE**: Setup `pubspec.yaml` (tất cả dependencies)
+- [ ] **FE**: Tạo folder structure (core/, features/, l10n/)
+
+### 📆 Day 2 — Core Infrastructure
+- [ ] **FE**: `DioClient` (clone từ E-commerce, đổi baseUrl)
+- [ ] **FE**: `GetIt` + `Injectable` DI setup
+- [ ] **FE**: `AppConstants` (baseUrl, tokenKeys)
+- [ ] **FE**: `AppTheme` (light + dark) + `ThemeNotifier`
+- [ ] **FE**: `LocaleProvider` + ARB files (vi/en) với các key cơ bản
+- [ ] **FE**: `GoRouter` skeleton + `AuthNotifier`
+- [ ] **FE**: `ErrorMapper` utility
+- [ ] **FE**: Shared widgets: `CustomButton`, `CustomTextField`, `AvatarWidget`, `LoadingOverlay`, `ShimmerLoading`
+- [ ] **FE**: `l10n.yaml` config + `flutter gen-l10n`
+
+> **✅ Milestone 1**: Project chạy được, hiển thị blank app với theme + routing
+
+---
+
+## Phase 2: Authentication (Day 3–4)
+
+### 📆 Day 3 — Auth Backend + Models
+- [ ] **BE**: Auth module — `register` endpoint (hash password bcrypt)
+- [ ] **BE**: Auth module — `login` endpoint (JWT access + refresh token)
+- [ ] **BE**: Auth module — `refresh` endpoint
+- [ ] **BE**: Auth module — `forgot-password` endpoint (mock)
+- [ ] **BE**: JWT strategy, AuthGuard, `@CurrentUser()` decorator
+- [ ] **BE**: Swagger setup + test tất cả auth endpoints
+- [ ] **FE**: Auth domain layer — `AuthRepository` (abstract), models (Freezed: `LoginRequest`, `RegisterRequest`, `AuthResponse`)
+- [ ] **FE**: Auth data layer — Retrofit API service, Repository impl
+
+### 📆 Day 4 — Auth UI + Flow
+- [ ] **FE**: Auth UseCases: `LoginUseCase`, `RegisterUseCase`, `LogoutUseCase`, `CheckAuthUseCase`
+- [ ] **FE**: `AuthBloc` + Events + States
+- [ ] **FE**: `SplashPage` (Lottie animation + auto-login check)
+- [ ] **FE**: `OnboardingPage` (3 slides + SharedPreferences flag)
+- [ ] **FE**: `LoginPage` (form + validation + error display)
+- [ ] **FE**: `RegisterPage` (form + username unique check)
+- [ ] **FE**: `ForgotPasswordPage`
+- [ ] **FE**: GoRouter redirect logic (auth guard)
+- [ ] **FE**: Wire up `main.dart` (MultiBlocProvider + AuthBloc)
+- [ ] **Test**: Register → Login → Auto-login → Logout flow
+
+> **✅ Milestone 2**: User có thể register, login, auto-login, logout hoàn chỉnh
+
+---
+
+## Phase 3: User Profile (Day 5–7)
+
+### 📆 Day 5 — Profile Backend
+- [ ] **BE**: Users module — `GET /users/me` (current user profile)
+- [ ] **BE**: Users module — `GET /users/:id` (other user profile)
+- [ ] **BE**: Users module — `PATCH /users/me` (update name, username, bio)
+- [ ] **BE**: Upload module — Multer config (images → `uploads/` folder)
+- [ ] **BE**: Users module — `POST /users/me/avatar` (upload + save URL)
+- [ ] **BE**: Users module — `POST /users/me/cover` (upload + save URL)
+- [ ] **BE**: Users module — `GET /users/search?q=` (ILIKE search)
+- [ ] **BE**: Serve static files (`/uploads/...`)
+
+### 📆 Day 6 — Profile Frontend (Domain + Data)
+- [ ] **FE**: User domain — `UserModel` (Freezed), `UserRepository` (abstract)
+- [ ] **FE**: User data — Retrofit API, Repository impl
+- [ ] **FE**: UseCases: `GetMyProfile`, `GetUserProfile`, `UpdateProfile`, `UploadAvatar`, `UploadCover`
+- [ ] **FE**: `UserBloc` / `ProfileBloc` + Events + States
+
+### 📆 Day 7 — Profile UI
+- [ ] **FE**: `ProfilePage` — cover + avatar + stats + bio + post grid placeholder
+- [ ] **FE**: `EditProfilePage` — form + image picker + upload
+- [ ] **FE**: `UserTile` widget (avatar + name + username + action button)
+- [ ] **FE**: Avatar tap → Bottom sheet (Camera/Gallery/Remove)
+- [ ] **FE**: Image compression utility
+- [ ] **FE**: Hook vào Router + Bottom Nav
+- [ ] **Test**: View profile → Edit → Upload avatar/cover → Verify
+
+> **✅ Milestone 3**: Profile hoàn chỉnh (xem, sửa, upload ảnh)
+
+---
+
+## Phase 4: Post & Feed System (Day 8–12) ⭐
+
+### 📆 Day 8 — Post Backend
+- [ ] **BE**: Posts module — `POST /posts` (multipart: content + images/video)
+- [ ] **BE**: Posts module — `GET /posts` (paginated feed, include author info)
+- [ ] **BE**: Posts module — `GET /posts/:id` (detail + author)
+- [ ] **BE**: Posts module — `GET /posts/user/:userId` (user's posts)
+- [ ] **BE**: Posts module — `DELETE /posts/:id` (owner only)
+- [ ] **BE**: Image/video upload handling (multiple files)
+- [ ] **BE**: Video thumbnail generation (hoặc client gửi thumbnail)
+
+### 📆 Day 9 — Like + Comment Backend
+- [ ] **BE**: `POST /posts/:id/like` — toggle like (create/delete + update count atomically)
+- [ ] **BE**: `GET /posts/:id/like-status` — check if current user liked
+- [ ] **BE**: Comments module — `GET /posts/:postId/comments` (paginated)
+- [ ] **BE**: Comments module — `POST /posts/:postId/comments` (add + update count)
+- [ ] **BE**: Comments module — `DELETE /comments/:id` (owner only + update count)
+
+### 📆 Day 10 — Feed Frontend (Domain + Data + BLoC)
+- [ ] **FE**: Post domain — `PostModel`, `CommentModel` (Freezed)
+- [ ] **FE**: Post data — Retrofit API, `PostRepository`, `CommentRepository`
+- [ ] **FE**: UseCases: `GetFeed`, `CreatePost`, `DeletePost`, `ToggleLike`, `GetComments`, `AddComment`
+- [ ] **FE**: `FeedBloc` (LoadFeed, LoadMore, Refresh) + States (loading, loaded, error, hasMore)
+- [ ] **FE**: `PostBloc` (CreatePost, DeletePost, ToggleLike)
+- [ ] **FE**: `CommentBloc` (LoadComments, AddComment, DeleteComment)
+
+### 📆 Day 11 — Feed UI
+- [ ] **FE**: `PostCard` widget (author header, content, media, action bar)
+- [ ] **FE**: `ImageGrid` widget (1/2/3/4 image layouts)
+- [ ] **FE**: `VideoPlayerWidget` (inline player, autoplay on scroll)
+- [ ] **FE**: `FeedScreen` (ListView + PostCard + pull-to-refresh + infinite scroll)
+- [ ] **FE**: Double-tap like animation (heart scale + particles)
+- [ ] **FE**: Shimmer loading skeleton cho feed
+
+### 📆 Day 12 — Create Post + Post Detail
+- [ ] **FE**: `CreatePostScreen` (text input + media picker + preview + upload progress)
+- [ ] **FE**: `PostDetailScreen` (full post + comment list + comment input)
+- [ ] **FE**: `CommentTile` widget
+- [ ] **FE**: Post menu (⋯) — Delete (own) / Report
+- [ ] **FE**: Full-screen image viewer (PhotoView + swipe)
+- [ ] **Test**: Create post (text/image/video) → Feed → Like → Comment → Delete
+
+> **✅ Milestone 4**: Feed hoàn chỉnh — tạo, xem, like, comment, xoá post
+
+---
+
+## Phase 4.5: Story System (Day 13–15)
+
+### 📆 Day 13 — Story Backend
+- [ ] **BE**: Stories module — `POST /stories` (multipart: image/video + caption)
+- [ ] **BE**: Stories module — `GET /stories` (active only: `expiresAt > NOW()`, group by author)
+- [ ] **BE**: Stories module — `POST /stories/:id/view` (mark viewed, increment viewCount)
+- [ ] **BE**: Stories module — `DELETE /stories/:id` (owner only)
+- [ ] **BE**: Stories module — `GET /stories/me` (my stories + view list)
+
+### 📆 Day 14 — Story Frontend (BLoC + Data)
+- [ ] **FE**: Story domain — `StoryModel` (Freezed), `StoryRepository`
+- [ ] **FE**: Story data — Retrofit API, Repository impl
+- [ ] **FE**: `StoryBloc` (LoadStories, CreateStory, ViewStory, DeleteStory)
+- [ ] **FE**: `CreateStoryScreen` (camera/gallery → preview → caption → post)
+
+### 📆 Day 15 — Story UI
+- [ ] **FE**: `StoryCircle` widget (avatar + gradient ring animated)
+- [ ] **FE**: Story bar (horizontal scroll list, tích hợp vào FeedScreen)
+- [ ] **FE**: `StoryViewerScreen` (full-screen, progress bars, tap/swipe navigation)
+- [ ] **FE**: `StoryProgressBar` widget (segmented animated bar)
+- [ ] **FE**: Auto-advance timer (5s image, video duration)
+- [ ] **Test**: Create story → View → Progress → Auto-advance → Swipe users
+
+> **✅ Milestone 5**: Story system hoạt động — tạo, xem, auto-expire
+
+---
+
+## Phase 5: Follow & Search (Day 16–18)
+
+### 📆 Day 16 — Follow Backend
+- [ ] **BE**: Follow module — `POST /follow/:userId` (follow + atomic count update)
+- [ ] **BE**: Follow module — `DELETE /follow/:userId` (unfollow + atomic count update)
+- [ ] **BE**: Follow module — `GET /follow/:userId/status` (check isFollowing)
+- [ ] **BE**: Users module — `GET /users/:userId/followers` (paginated)
+- [ ] **BE**: Users module — `GET /users/:userId/following` (paginated)
+
+### 📆 Day 17 — Follow + Search Frontend
+- [ ] **FE**: Follow domain — `FollowRepository`, UseCases
+- [ ] **FE**: Follow data — Retrofit API, Repository impl
+- [ ] **FE**: `FollowBloc` (Follow, Unfollow, CheckStatus, LoadFollowers, LoadFollowing)
+- [ ] **FE**: Search domain — `SearchBloc` (debounce, history)
+- [ ] **FE**: Search data — local history (SharedPreferences)
+
+### 📆 Day 18 — Follow + Search UI
+- [ ] **FE**: `SearchScreen` (search bar + history + results)
+- [ ] **FE**: `FollowersPage` (2 tabs: Followers | Following)
+- [ ] **FE**: Follow/Unfollow button states + animation
+- [ ] **FE**: Tích hợp Follow vào `ProfilePage` (other user)
+- [ ] **FE**: Tích hợp post count + follower/following count vào Profile
+- [ ] **Test**: Search → Tap user → Profile → Follow → Check count → Unfollow
+
+> **✅ Milestone 6**: Social features hoàn chỉnh — search, follow, profile stats
+
+---
+
+## Phase 6: Real-time Chat (Day 19–22)
+
+### 📆 Day 19 — Chat Backend (REST)
+- [ ] **BE**: Chat module — `POST /conversations/:userId` (get or create)
+- [ ] **BE**: Chat module — `GET /conversations` (my conversations, sort by lastMessageAt)
+- [ ] **BE**: Chat module — `GET /conversations/:id/messages` (paginated)
+- [ ] **BE**: Chat module — `POST /conversations/:id/messages` (send, fallback REST)
+- [ ] **BE**: Chat module — `PATCH /conversations/:id/read` (mark all as read)
+
+### 📆 Day 20 — Chat Backend (WebSocket)
+- [ ] **BE**: Install `@nestjs/websockets` + `socket.io`
+- [ ] **BE**: `ChatGateway` — WebSocket gateway with JWT auth
+- [ ] **BE**: Events: `joinRoom`, `sendMessage`, `typing`, `leaveRoom`
+- [ ] **BE**: Broadcast: `newMessage`, `userTyping`
+- [ ] **BE**: Test WebSocket với Postman/wscat
+
+### 📆 Day 21 — Chat Frontend (BLoC + Data)
+- [ ] **FE**: Add `socket_io_client` dependency
+- [ ] **FE**: Chat domain — `ConversationModel`, `MessageModel` (Freezed)
+- [ ] **FE**: Chat data — Retrofit API (REST) + SocketService (realtime)
+- [ ] **FE**: `ChatRepository` impl
+- [ ] **FE**: `ChatBloc` (LoadRooms, OpenRoom, SendMessage, ReceiveMessage, Typing)
+
+### 📆 Day 22 — Chat UI
+- [ ] **FE**: `ChatListPage` (conversation list + unread badge + last message preview)
+- [ ] **FE**: `ChatRoomPage` (message bubbles + input bar + image send)
+- [ ] **FE**: `ChatBubble` widget (sent/received styles + time + read status)
+- [ ] **FE**: Typing indicator ("đang nhập...")
+- [ ] **FE**: Unread badge trên Bottom Nav (Chat tab)
+- [ ] **FE**: Auto-scroll to bottom khi có tin nhắn mới
+- [ ] **FE**: Tích hợp "Message" button trên other user's profile
+- [ ] **Test**: Open chat → Send text → Receive realtime → Send image → Typing indicator
+
+> **✅ Milestone 7**: Chat realtime hoạt động hoàn chỉnh
+
+---
+
+## Phase 7: Notifications & Polish (Day 23–27)
+
+### 📆 Day 23 — Notification Backend
+- [ ] **BE**: Notification module — `GET /notifications` (paginated, my notifications)
+- [ ] **BE**: Notification module — `PATCH /notifications/:id/read`
+- [ ] **BE**: Notification module — `PATCH /notifications/read-all`
+- [ ] **BE**: Tích hợp tạo notification khi: Like, Comment, Follow
+- [ ] **BE**: Include notification count endpoint `GET /notifications/unread-count`
+
+### 📆 Day 24 — Notification Frontend
+- [ ] **FE**: Notification domain — `NotificationModel` (Freezed), Repository
+- [ ] **FE**: `NotificationBloc` (Load, MarkRead, MarkAllRead)
+- [ ] **FE**: `NotificationsPage` (list + unread highlight + tap navigation)
+- [ ] **FE**: `NotificationTile` widget (icon by type + content + time)
+- [ ] **FE**: Notification bell icon + badge trên Feed AppBar
+- [ ] **FE**: Tap notification → navigate to Post Detail / Profile
+
+### 📆 Day 25 — Settings + Extras
+- [ ] **FE**: `SettingsPage` (theme toggle, language switch, logout, delete account)
+- [ ] **BE**: `DELETE /users/me` (delete account + cascade)
+- [ ] **BE**: `PATCH /auth/change-password` (old + new password)
+- [ ] **FE**: `ChangePasswordPage`
+- [ ] **FE**: Onboarding hoàn thiện (illustrations + animations)
+
+### 📆 Day 26 — UI Polish
+- [ ] **FE**: Shimmer loading cho tất cả list screens
+- [ ] **FE**: Empty state widgets (illustrations + messages)
+- [ ] **FE**: Error state widgets (retry buttons)
+- [ ] **FE**: Page transition animations (slide, fade)
+- [ ] **FE**: Hero animations (avatar list → profile)
+- [ ] **FE**: Haptic feedback (like, follow, send message)
+- [ ] **FE**: Offline banner (connectivity_plus)
+- [ ] **FE**: Pull-to-refresh custom indicators
+
+### 📆 Day 27 — Testing & Final Polish
+- [ ] **Full flow test**: Register → Login → Create post → Like → Comment → Follow → Chat → Notification
+- [ ] **i18n review**: Kiểm tra tất cả strings Vi/En
+- [ ] **Dark mode review**: Kiểm tra tất cả screens trong dark mode
+- [ ] **Edge cases**: Long text, no network, empty states, rapid taps
+- [ ] **Performance**: Lazy loading, image caching, dispose controllers
+- [ ] **Code cleanup**: Remove debug prints, unused imports
+- [ ] **README.md**: Setup instructions, architecture overview
+
+> **✅ Milestone 8 (FINAL)**: Vibenex hoàn chỉnh, sẵn sàng demo 🎉
+
+---
+
+## Tóm Tắt Milestones
+
+| Day | Milestone | Deliverable |
+|---|---|---|
+| Day 2 | ✅ M1 | App chạy được + theme + routing |
+| Day 4 | ✅ M2 | Auth hoàn chỉnh (register/login/logout) |
+| Day 7 | ✅ M3 | Profile (xem/sửa/upload ảnh) |
+| Day 12 | ✅ M4 | Feed + Post + Like + Comment |
+| Day 15 | ✅ M5 | Story system (tạo/xem/expire) |
+| Day 18 | ✅ M6 | Search + Follow |
+| Day 22 | ✅ M7 | Chat realtime |
+| Day 27 | ✅ M8 | Notifications + Polish → **DONE** |

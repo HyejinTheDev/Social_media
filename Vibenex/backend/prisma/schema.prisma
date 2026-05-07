@@ -1,0 +1,169 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==================== ENUMS ====================
+
+enum MediaType {
+  TEXT
+  IMAGE
+  VIDEO
+}
+
+enum NotificationType {
+  LIKE
+  COMMENT
+  FOLLOW
+  MENTION
+  MESSAGE
+}
+
+// ==================== MODELS ====================
+
+model User {
+  id             String         @id @default(uuid())
+  email          String         @unique
+  password       String
+  name           String
+  username       String         @unique
+  bio            String?
+  avatar         String?
+  coverPhoto     String?
+  followersCount Int            @default(0)
+  followingCount Int            @default(0)
+  postsCount     Int            @default(0)
+  isVerified     Boolean        @default(false)
+  posts          Post[]
+  comments       Comment[]
+  stories        Story[]
+  likes          Like[]
+  sentMessages   Message[]      @relation("sender")
+  conversations1 Conversation[] @relation("participant1")
+  conversations2 Conversation[] @relation("participant2")
+  followers      Follow[]       @relation("following")
+  following      Follow[]       @relation("follower")
+  notifications  Notification[]
+  storyViews     StoryView[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Post {
+  id                String    @id @default(uuid())
+  authorId          String
+  author            User      @relation(fields: [authorId], references: [id])
+  content           String
+  imageUrls         String[]
+  videoUrl          String?
+  videoThumbnailUrl String?
+  mediaType         MediaType @default(TEXT)
+  likesCount        Int       @default(0)
+  commentsCount     Int       @default(0)
+  sharesCount       Int       @default(0)
+  likes             Like[]
+  comments          Comment[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+}
+
+model Story {
+  id        String      @id @default(uuid())
+  authorId  String
+  author    User        @relation(fields: [authorId], references: [id])
+  mediaUrl  String
+  mediaType MediaType
+  caption   String?
+  viewCount Int         @default(0)
+  views     StoryView[]
+  expiresAt DateTime
+  createdAt DateTime    @default(now())
+}
+
+model StoryView {
+  id       String   @id @default(uuid())
+  storyId  String
+  story    Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  viewerId String
+  viewer   User     @relation(fields: [viewerId], references: [id])
+  viewedAt DateTime @default(now())
+
+  @@unique([storyId, viewerId])
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String
+  follower    User     @relation("follower", fields: [followerId], references: [id])
+  followingId String
+  following   User     @relation("following", fields: [followingId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}
+
+model Conversation {
+  id             String    @id @default(uuid())
+  participant1Id String
+  participant2Id String
+  participant1   User      @relation("participant1", fields: [participant1Id], references: [id])
+  participant2   User      @relation("participant2", fields: [participant2Id], references: [id])
+  lastMessage    String?
+  lastMessageAt  DateTime?
+  messages       Message[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([participant1Id, participant2Id])
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  senderId       String
+  sender         User         @relation("sender", fields: [senderId], references: [id])
+  content        String
+  imageUrl       String?
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id])
+  type      NotificationType
+  title     String
+  body      String
+  data      Json?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+}

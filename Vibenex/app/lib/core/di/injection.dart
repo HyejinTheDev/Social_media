@@ -1,0 +1,24 @@
+import 'package:get_it/get_it.dart';
+import '../network/dio_client.dart';
+import '../../features/auth/data/datasources/auth_api_service.dart';
+import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/bloc/auth_bloc.dart';
+
+final getIt = GetIt.instance;
+
+Future<void> configureDependencies() async {
+  // ─── Core ───
+  getIt.registerLazySingleton<DioClient>(() => DioClient());
+
+  // ─── Auth ───
+  getIt.registerLazySingleton<AuthApiService>(
+    () => AuthApiService(getIt<DioClient>().dio),
+  );
+  getIt.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(api: getIt<AuthApiService>()),
+  );
+  getIt.registerFactory<AuthBloc>(
+    () => AuthBloc(authRepository: getIt<AuthRepository>()),
+  );
+}

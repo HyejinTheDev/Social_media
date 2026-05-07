@@ -1,0 +1,437 @@
+# 📱 Vibenex — Social Media App Implementation Plan
+
+## Tổng quan
+
+Xây dựng **Vibenex** — Social Media App hoàn chỉnh sử dụng cùng tech stack với E-commerce project:
+- **Backend**: NestJS + Prisma + PostgreSQL + Docker
+- **Frontend**: Flutter + BLoC + Dio + Retrofit + GoRouter + GetIt/Injectable
+- **Features**: Posts (text/image/video), Stories 24h, Follow/Follower, Chat realtime, Notifications, i18n (Vi/En), Dark/Light mode
+
+> [!IMPORTANT]
+> Kiến trúc và patterns được clone từ E-commerce: DioClient với token refresh, feature-based folder structure, Freezed models, UseCases, GoRouter auth redirect, ThemeNotifier, LocaleProvider.
+
+---
+
+## Confirmed Decisions
+
+| Decision | Answer |
+|---|---|
+| **App Name** | Vibenex |
+| **Backend** | NestJS + Prisma + PostgreSQL (same as E-commerce) |
+| **Frontend** | Flutter + BLoC + Dio + Retrofit |
+| **i18n** | ✅ Tiếng Việt + English |
+| **Dark Mode** | ✅ Light/Dark theme toggle |
+| **Story 24h** | ✅ Instagram-style stories |
+| **Video Posts** | ✅ Text + Image + Video |
+| **Scope** | Full 7 phases |
+
+---
+
+## Technology Stack
+
+### Backend (NestJS)
+
+| Category | Technology |
+|---|---|
+| Framework | NestJS ^10.0.0 |
+| ORM | Prisma ^5.10.0 |
+| Database | PostgreSQL 16 (Docker) |
+| Auth | @nestjs/jwt + @nestjs/passport + passport-jwt |
+| Upload | Multer (images/videos) |
+| Validation | class-validator + class-transformer |
+| API Docs | @nestjs/swagger |
+| Realtime | WebSocket Gateway (@nestjs/websockets + socket.io) |
+
+### Frontend (Flutter)
+
+| Category | Technology |
+|---|---|
+| Framework | Flutter ^3.9.0 |
+| State | flutter_bloc ^8.1.4 |
+| DI | get_it + injectable |
+| Network | dio ^5.4.1 + retrofit ^4.1.0 |
+| Models | freezed_annotation + json_annotation |
+| Code Gen | build_runner + freezed + json_serializable + retrofit_generator + injectable_generator |
+| Navigation | go_router ^13.2.0 |
+| Storage | shared_preferences + flutter_secure_storage |
+| UI | google_fonts, cached_network_image, shimmer, lottie, flutter_svg |
+| Media | image_picker, video_player, video_compress |
+| i18n | flutter_localizations + intl |
+| Realtime | socket_io_client (for chat) |
+
+---
+
+## Project Structure
+
+### Backend (`backend/`)
+
+```
+backend/
+├── docker-compose.yml
+├── package.json
+├── prisma/
+│   └── schema.prisma
+└── src/
+    ├── main.ts
+    ├── app.module.ts
+    ├── auth/           # JWT auth, login, register, refresh
+    ├── users/          # Profile CRUD, search, avatar/cover upload
+    ├── posts/          # Create/delete/list posts, like/unlike
+    ├── comments/       # CRUD comments on posts
+    ├── stories/        # Create/list/delete stories, mark viewed
+    ├── follow/         # Follow/unfollow, list followers/following
+    ├── chat/           # WebSocket gateway, conversations, messages
+    ├── notifications/  # CRUD notifications
+    ├── upload/         # Multer file upload (images/videos)
+    ├── common/         # Guards, decorators, filters, pipes
+    └── prisma/         # PrismaService
+```
+
+### Frontend (`app/lib/`)
+
+```
+lib/
+├── main.dart
+├── core/
+│   ├── constants/        # AppConstants (baseUrl, keys)
+│   ├── network/          # DioClient (token refresh interceptor)
+│   ├── di/               # GetIt + Injectable setup
+│   ├── router/           # GoRouter + AuthNotifier
+│   ├── theme/            # AppTheme, ThemeNotifier
+│   ├── l10n/             # LocaleProvider
+│   ├── utils/            # ErrorMapper, Validators
+│   └── widgets/          # Shared widgets (buttons, inputs, avatar)
+├── features/
+│   ├── auth/             # Login, Register, ForgotPassword
+│   ├── feed/             # Feed screen (posts + stories bar)
+│   ├── post/             # Create/detail post, PostCard widget
+│   ├── story/            # Create/view stories
+│   ├── search/           # User search
+│   ├── profile/          # View/edit profile, followers list
+│   ├── follow/           # Follow BLoC + repository
+│   ├── chat/             # Chat list + chat room (socket.io)
+│   ├── notifications/    # Notification list
+│   ├── onboarding/       # Splash + onboarding
+│   └── settings/         # Theme toggle, language, logout
+└── l10n/
+    ├── app_en.arb
+    └── app_vi.arb
+```
+
+Each feature follows E-commerce pattern:
+```
+feature/
+├── bloc/           # BLoC + Events + States
+├── data/
+│   ├── datasources/  # Retrofit API service
+│   └── repositories/ # Repository impl
+├── domain/
+│   ├── models/       # Freezed models
+│   ├── repositories/ # Abstract repository
+│   └── usecases/     # UseCase classes
+└── presentation/
+    ├── pages/
+    └── widgets/
+```
+
+---
+
+## Database Schema (Prisma)
+
+```prisma
+// ==================== ENUMS ====================
+enum MediaType {
+  TEXT
+  IMAGE
+  VIDEO
+}
+
+enum NotificationType {
+  LIKE
+  COMMENT
+  FOLLOW
+  MENTION
+  MESSAGE
+}
+
+// ==================== MODELS ====================
+model User {
+  id              String         @id @default(uuid())
+  email           String         @unique
+  password        String
+  name            String
+  username        String         @unique
+  bio             String?
+  avatar          String?
+  coverPhoto      String?
+  followersCount  Int            @default(0)
+  followingCount  Int            @default(0)
+  postsCount      Int            @default(0)
+  isVerified      Boolean        @default(false)
+  posts           Post[]
+  comments        Comment[]
+  stories         Story[]
+  likes           Like[]
+  sentMessages    Message[]      @relation("sender")
+  conversations1  Conversation[] @relation("participant1")
+  conversations2  Conversation[] @relation("participant2")
+  followers       Follow[]       @relation("following")
+  following       Follow[]       @relation("follower")
+  notifications   Notification[]
+  storyViews      StoryView[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model Post {
+  id                String    @id @default(uuid())
+  authorId          String
+  author            User      @relation(fields: [authorId], references: [id])
+  content           String
+  imageUrls         String[]
+  videoUrl          String?
+  videoThumbnailUrl String?
+  mediaType         MediaType @default(TEXT)
+  likesCount        Int       @default(0)
+  commentsCount     Int       @default(0)
+  sharesCount       Int       @default(0)
+  likes             Like[]
+  comments          Comment[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+}
+
+model Story {
+  id        String      @id @default(uuid())
+  authorId  String
+  author    User        @relation(fields: [authorId], references: [id])
+  mediaUrl  String
+  mediaType MediaType
+  caption   String?
+  viewCount Int         @default(0)
+  views     StoryView[]
+  expiresAt DateTime
+  createdAt DateTime    @default(now())
+}
+
+model StoryView {
+  id       String   @id @default(uuid())
+  storyId  String
+  story    Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  viewerId String
+  viewer   User     @relation(fields: [viewerId], references: [id])
+  viewedAt DateTime @default(now())
+
+  @@unique([storyId, viewerId])
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String
+  follower    User     @relation("follower", fields: [followerId], references: [id])
+  followingId String
+  following   User     @relation("following", fields: [followingId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}
+
+model Conversation {
+  id             String    @id @default(uuid())
+  participant1Id String
+  participant2Id String
+  participant1   User      @relation("participant1", fields: [participant1Id], references: [id])
+  participant2   User      @relation("participant2", fields: [participant2Id], references: [id])
+  lastMessage    String?
+  lastMessageAt  DateTime?
+  messages       Message[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([participant1Id, participant2Id])
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  senderId       String
+  sender         User         @relation("sender", fields: [senderId], references: [id])
+  content        String
+  imageUrl       String?
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+}
+
+model Notification {
+  id         String           @id @default(uuid())
+  userId     String
+  user       User             @relation(fields: [userId], references: [id])
+  type       NotificationType
+  title      String
+  body       String
+  data       Json?
+  isRead     Boolean          @default(false)
+  createdAt  DateTime         @default(now())
+}
+```
+
+---
+
+## Backend API Endpoints
+
+### Auth
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/auth/register` | Register (email, password, name, username) |
+| POST | `/auth/login` | Login → accessToken + refreshToken |
+| POST | `/auth/refresh` | Refresh token |
+| POST | `/auth/forgot-password` | Send reset email |
+
+### Users
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/users/me` | Current user profile |
+| GET | `/users/:id` | Get user by ID |
+| PATCH | `/users/me` | Update profile |
+| POST | `/users/me/avatar` | Upload avatar |
+| POST | `/users/me/cover` | Upload cover photo |
+| GET | `/users/search?q=` | Search users |
+
+### Posts
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/posts` | Feed (paginated, newest first) |
+| GET | `/posts/user/:userId` | User's posts |
+| GET | `/posts/:id` | Post detail |
+| POST | `/posts` | Create post (multipart: content + files) |
+| DELETE | `/posts/:id` | Delete own post |
+| POST | `/posts/:id/like` | Toggle like |
+| GET | `/posts/:id/like-status` | Check if liked |
+
+### Comments
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/posts/:postId/comments` | List comments |
+| POST | `/posts/:postId/comments` | Add comment |
+| DELETE | `/comments/:id` | Delete own comment |
+
+### Stories
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/stories` | Active stories (grouped by user) |
+| POST | `/stories` | Create story (multipart) |
+| POST | `/stories/:id/view` | Mark as viewed |
+| DELETE | `/stories/:id` | Delete own story |
+
+### Follow
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/follow/:userId` | Follow user |
+| DELETE | `/follow/:userId` | Unfollow user |
+| GET | `/follow/:userId/status` | Check follow status |
+| GET | `/users/:userId/followers` | List followers |
+| GET | `/users/:userId/following` | List following |
+
+### Chat
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/conversations` | My conversations |
+| POST | `/conversations/:userId` | Get/create conversation |
+| GET | `/conversations/:id/messages` | Messages (paginated) |
+| **WebSocket** | `chat` gateway | Send/receive messages realtime |
+
+### Notifications
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/notifications` | My notifications |
+| PATCH | `/notifications/:id/read` | Mark as read |
+| PATCH | `/notifications/read-all` | Mark all as read |
+
+---
+
+## Phased Development Plan
+
+### Phase 1: Project Setup (Day 1–2)
+- Flutter project init at `c:\Mobile\Social_media`
+- Backend NestJS init with Prisma + PostgreSQL Docker
+- Clone core patterns from E-commerce: DioClient, DI, Router, Theme, i18n, ErrorMapper
+- Shared widgets library
+
+### Phase 2: Authentication (Day 3–4)
+- Backend: Auth module (register, login, JWT, refresh token)
+- Frontend: AuthBloc, LoginPage, RegisterPage, ForgotPasswordPage
+- Same patterns as E-commerce (UseCases, AuthRepository, GoRouter redirect)
+
+### Phase 3: User Profile (Day 5–7)
+- Backend: Users module (CRUD, avatar/cover upload)
+- Frontend: ProfileBloc, ProfilePage, EditProfilePage
+
+### Phase 4: Post & Feed System (Day 8–12) ⭐
+- Backend: Posts + Comments + Likes modules (multipart upload for images/video)
+- Frontend: FeedBloc, PostBloc, CommentBloc
+- Screens: FeedScreen, CreatePostScreen, PostDetailScreen
+- Widgets: PostCard, ImageGrid, VideoPlayerWidget
+
+### Phase 4.5: Story System (Day 13–15)
+- Backend: Stories module (auto-expire query, view tracking)
+- Frontend: StoryBloc, CreateStoryScreen, StoryViewerScreen
+- Widgets: StoryCircle (gradient ring), StoryProgressBar
+
+### Phase 5: Follow & Search (Day 16–18)
+- Backend: Follow module (atomic follow/unfollow with count update)
+- Frontend: FollowBloc, SearchBloc, FollowersPage, SearchPage
+
+### Phase 6: Real-time Messaging (Day 19–22)
+- Backend: Chat WebSocket gateway + conversations module
+- Frontend: ChatBloc with socket_io_client, ChatListPage, ChatRoomPage
+
+### Phase 7: Notifications & Polish (Day 23–27)
+- Backend: Notifications module (triggered on like/comment/follow)
+- Frontend: NotificationBloc, NotificationsPage
+- Polish: Shimmer loading, animations, empty states, error states
+
+---
+
+## Verification Plan
+
+### Automated
+```bash
+# Backend
+cd backend && npm run start:dev
+npx prisma studio  # Visual DB inspection
+
+# Frontend
+flutter test
+flutter run
+```
+
+### Manual
+- Auth flow: Register → Login → Token refresh → Logout
+- Post flow: Create (text/image/video) → Feed → Like → Comment → Delete
+- Story flow: Create → View → Auto-expire after 24h
+- Follow flow: Search → Follow → Check counts → Unfollow
+- Chat flow: Open conversation → Send message → Realtime receive
+- i18n: Switch Vi ↔ En, verify all strings
+- Theme: Toggle dark/light mode

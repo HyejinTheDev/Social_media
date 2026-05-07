@@ -1,0 +1,415 @@
+# 📱 Vibenex — Chi Tiết Tính Năng
+
+---
+
+## 1. 🔐 Authentication (Xác thực)
+
+### 1.1 Splash Screen
+- Logo Vibenex + animation (Lottie)
+- Check token trong SecureStorage → auto-login hoặc → Login
+- Check first-time user → Onboarding
+
+### 1.2 Onboarding (3 slides)
+- Slide 1: "Chia sẻ khoảnh khắc" — minh họa tạo post
+- Slide 2: "Kết nối bạn bè" — minh họa follow/chat
+- Slide 3: "Khám phá thế giới" — minh họa feed/stories
+- Nút "Bắt đầu" → Login
+
+### 1.3 Register
+- **Fields**: Họ tên, Username (unique check realtime), Email, Password, Confirm Password
+- **Validation**: Email format, password ≥8 ký tự (chữ + số), username chỉ chữ thường + số + underscore
+- **Flow**: Register → Auto login → Home
+- **Error**: Email đã tồn tại, username đã tồn tại → hiển thị lỗi cụ thể
+
+### 1.4 Login
+- **Fields**: Email + Password
+- **Remember me**: Lưu email vào SharedPreferences
+- **Flow**: Login → nhận accessToken + refreshToken → lưu SecureStorage → Home
+- **Error**: Sai email/password → "Email hoặc mật khẩu không đúng"
+
+### 1.5 Forgot Password
+- Input email → gọi API → hiển thị "Đã gửi link đặt lại mật khẩu"
+- (Backend gửi email hoặc mock cho MVP)
+
+### 1.6 Token Management
+- AccessToken: 15 phút, RefreshToken: 7 ngày
+- DioClient interceptor tự động refresh khi gặp 401
+- Refresh fail → force logout, xoá token, về Login
+
+---
+
+## 2. 👤 User Profile
+
+### 2.1 My Profile
+- **Header**: Cover photo (tap để đổi) + Avatar (tap để đổi) + Tên + @username
+- **Stats bar**: `Posts | Followers | Following` — tap vào số để xem danh sách
+- **Bio**: Hiển thị bio (max 150 ký tự)
+- **Action buttons**: "Edit Profile" + "Settings" (gear icon)
+- **Post grid**: Grid 3 cột (ảnh thumbnail) hoặc List view toggle
+- Tab: `📷 Posts | 🎬 Reels/Videos` (nếu có video posts)
+
+### 2.2 Other User's Profile
+- Giống My Profile nhưng thay nút Edit bằng:
+  - **Follow/Unfollow** button (toggle state)
+  - **Message** button → mở chat
+- Nếu đã follow: nút "Following" (outlined) + "Message"
+- Nếu chưa follow: nút "Follow" (filled primary)
+
+### 2.3 Edit Profile
+- **Avatar**: Tap → Bottom sheet (Camera / Gallery / Remove)
+- **Cover**: Tap → Bottom sheet (Camera / Gallery / Remove)
+- **Fields**: Họ tên, Username, Bio (max 150), Email (read-only)
+- **Save**: Validate → API call → success toast
+- **Image upload**: Compress trước khi upload (max 1MB)
+
+### 2.4 Followers/Following List
+- 2 tabs: "Followers" | "Following"
+- Mỗi item: Avatar + Tên + @username + Follow/Unfollow button
+- Tap vào user → mở profile
+- Infinite scroll pagination
+
+---
+
+## 3. 📝 Post System
+
+### 3.1 Create Post
+- **Text input**: Placeholder "Bạn đang nghĩ gì?" — multiline, max 2000 ký tự
+- **Media picker** (bottom toolbar):
+  - 📷 Image: multi-select, max 4 ảnh, preview grid
+  - 🎬 Video: single video, max 60s, preview với thumbnail
+  - Sau khi chọn → hiển thị preview, có nút X để xoá từng ảnh/video
+- **Post button**: Disabled nếu không có text lẫn media
+- **Flow**: Compress media → Upload files → Create post → Dismiss + refresh feed
+- **Loading**: Show progress indicator khi uploading
+
+### 3.2 Post Card (trong Feed)
+```
+┌─────────────────────────────┐
+│ [Avatar] Tên User    • 2h  │  ← Tap avatar/tên → profile
+│          @username    [⋯]  │  ← Menu: Report / Delete (own)
+├─────────────────────────────┤
+│                             │
+│  Nội dung text của post...  │  ← Expandable nếu > 3 dòng
+│                             │
+├─────────────────────────────┤
+│  ┌───────────────────────┐  │
+│  │                       │  │  ← Image grid hoặc Video player
+│  │    Media Content      │  │  ← Double tap → Like animation ❤️
+│  │                       │  │
+│  └───────────────────────┘  │
+├─────────────────────────────┤
+│  ❤️ 24  💬 5  🔄 2         │  ← Counts
+│  [♡ Like] [💬 Comment] [↗ Share] │  ← Action buttons
+└─────────────────────────────┘
+```
+
+### 3.3 Image Grid Layout
+- **1 ảnh**: Full width, aspect ratio gốc (max height 400)
+- **2 ảnh**: 2 cột ngang bằng nhau
+- **3 ảnh**: 1 lớn bên trái + 2 nhỏ xếp dọc bên phải
+- **4 ảnh**: Grid 2×2
+- Tap ảnh → Full-screen viewer (pinch zoom, swipe giữa các ảnh)
+
+### 3.4 Video Post
+- Inline video player (autoplay khi scroll vào view, mute mặc định)
+- Controls: Play/Pause, Mute/Unmute, Fullscreen, Progress bar
+- Thumbnail hiển thị trước khi play
+- Tự pause khi scroll ra khỏi viewport
+
+### 3.5 Post Detail
+- Full post view + tất cả comments
+- Comment input ở bottom (TextField + Send button)
+- Pull-to-refresh để load comments mới
+- Swipe down để dismiss
+
+### 3.6 Like System
+- Tap ❤️ button → toggle like (optimistic UI update)
+- Double tap on image → like animation (heart scale up + fade out)
+- Haptic feedback khi like
+- API: toggle like + update likesCount atomically
+
+### 3.7 Comment System
+- **Add comment**: Text input + Send button
+- **Comment item**: Avatar + Username + Content + Time + Reply button
+- **Delete**: Long press own comment → confirm dialog → delete
+- **Pagination**: Load 20 comments/lần, "Load more" button
+- **Real-time**: (Optional) Pull-to-refresh
+
+### 3.8 Share
+- Share button → Bottom sheet: "Copy link" / "Share to..." (native share)
+
+### 3.9 Delete Post
+- Menu (⋯) → "Delete" → Confirm dialog → API delete → remove from feed
+- Chỉ owner mới thấy option Delete
+
+---
+
+## 4. 📖 Story System
+
+### 4.1 Story Bar (trên Feed)
+```
+┌─────────────────────────────────────────┐
+│ [+ Your] [User1] [User2] [User3] [...] │  ← Horizontal scroll
+│  Story    ○       ○       ○             │
+└─────────────────────────────────────────┘
+```
+- Đầu tiên là "Your Story" (nút + để tạo, hoặc hiển thị story của mình)
+- Mỗi circle: Avatar + gradient ring (chưa xem = rainbow, đã xem = grey)
+- Tap → StoryViewer
+
+### 4.2 Create Story
+- **Picker**: Camera (chụp trực tiếp) hoặc Gallery
+- **Media**: Image hoặc Video (max 30s)
+- **Caption**: Optional text overlay (max 100 ký tự)
+- **Preview**: Full-screen preview trước khi post
+- **Post**: Upload media → Create story (expiresAt = now + 24h) → Done
+
+### 4.3 Story Viewer
+- **Full-screen**: Media hiển thị full screen
+- **Progress bar**: Segmented bar ở top (mỗi segment = 1 story)
+  - Image: 5 giây/segment
+  - Video: duration của video
+- **Navigation**:
+  - Tap phải → next story
+  - Tap trái → previous story
+  - Swipe trái → next user's stories
+  - Swipe phải → previous user's stories
+  - Swipe xuống → dismiss
+- **Header**: Avatar + Username + Time ago + Close button
+- **Caption**: Hiển thị ở bottom nếu có
+- **View count**: Chỉ owner thấy "👁 12 views" ở bottom left
+- Tự động chuyển story tiếp theo khi hết thời gian
+- Mark as viewed khi hiển thị
+
+### 4.4 Story Expiry
+- Backend: Query `WHERE expiresAt > NOW()`
+- Expired stories không hiển thị
+- (Optional) Cron job cleanup data cũ
+
+---
+
+## 5. 🔍 Search & Explore
+
+### 5.1 Search Screen
+- **Search bar**: Auto-focus, debounce 300ms
+- **Search history**: Hiển thị khi chưa nhập (lưu local, max 10)
+- **Results**: List UserTile (Avatar + Tên + @username + Follow button)
+- **Empty state**: "Không tìm thấy người dùng"
+- **Clear history**: Nút "Xoá lịch sử tìm kiếm"
+
+### 5.2 User Search Logic
+- Backend: `WHERE name ILIKE '%query%' OR username ILIKE '%query%'`
+- Exclude current user from results
+- Paginated (20/lần)
+
+---
+
+## 6. 👥 Follow System
+
+### 6.1 Follow/Unfollow
+- **Follow**: Tap button → optimistic UI → API call → tạo notification cho target
+- **Unfollow**: Tap "Following" → confirm "Bỏ theo dõi?" → API call
+- **Atomic**: Backend dùng transaction:
+  1. Create/Delete Follow record
+  2. Increment/Decrement cả followersCount và followingCount
+
+### 6.2 Follow States
+- **Chưa follow**: Button "Follow" (filled, primary color)
+- **Đã follow**: Button "Following" (outlined) → tap → "Unfollow?"
+- **Đang loading**: Button disabled + spinner
+
+---
+
+## 7. 💬 Real-time Chat
+
+### 7.1 Chat List
+- Danh sách conversations, sort by lastMessageAt DESC
+- Mỗi item:
+  ```
+  [Avatar] Tên User
+           Last message preview...   2m ago
+           (unread badge nếu có)
+  ```
+- Pull-to-refresh
+- Empty state: "Chưa có cuộc trò chuyện nào"
+- Swipe to delete conversation (confirm dialog)
+
+### 7.2 Chat Room
+- **Header**: Avatar + Tên + Online status (green dot)
+- **Messages**: Bubble layout
+  - Sent (phải, primary color): Nội dung + Time + Read status (✓✓)
+  - Received (trái, surface color): Nội dung + Time
+- **Input bar**: TextField + 📷 Image button + ➤ Send button
+- **Image message**: Tap → full-screen viewer
+- **Real-time**: Socket.IO connection
+  - `sendMessage` event → server broadcast → recipient receives
+  - `typing` event → show "đang nhập..." indicator
+- **Pagination**: Load 30 messages/lần, scroll up to load more
+- **Auto-scroll**: Scroll to bottom khi có tin nhắn mới (nếu đang ở bottom)
+- **Mark as read**: Khi mở conversation → mark all unread as read
+
+### 7.3 WebSocket Events
+```
+Client → Server:
+  - joinRoom(conversationId)
+  - sendMessage({ conversationId, content, type })
+  - typing({ conversationId })
+  - leaveRoom(conversationId)
+
+Server → Client:
+  - newMessage(message)
+  - userTyping({ userId, conversationId })
+  - messageRead({ conversationId })
+```
+
+### 7.4 Unread Badge
+- Bottom nav "Chat" tab hiển thị badge số tin nhắn chưa đọc
+- Update realtime khi nhận message mới
+
+---
+
+## 8. 🔔 Notifications
+
+### 8.1 Notification Types
+
+| Type | Trigger | Nội dung | Tap Action |
+|---|---|---|---|
+| LIKE | A like post B | "**A** đã thích bài viết của bạn" | → Post Detail |
+| COMMENT | A comment post B | "**A** đã bình luận: 'nội dung...'" | → Post Detail |
+| FOLLOW | A follow B | "**A** đã bắt đầu theo dõi bạn" | → A's Profile |
+| MENTION | A mention @B | "**A** đã nhắc đến bạn" | → Post Detail |
+
+### 8.2 Notification Screen
+- List notifications, sort by createdAt DESC
+- Unread: background highlight (light primary)
+- Read: normal background
+- Tap → navigate tới target (post/profile)
+- "Mark all as read" button ở header
+- Pull-to-refresh
+- Infinite scroll pagination
+
+### 8.3 Notification Badge
+- Bottom nav bell icon hiển thị badge đếm unread
+- Refresh mỗi lần vào app hoặc pull-to-refresh feed
+
+---
+
+## 9. ⚙️ Settings
+
+### 9.1 Settings Screen
+- **Account section**:
+  - Edit Profile → EditProfilePage
+  - Change Password → ChangePasswordPage
+- **Preferences section**:
+  - Dark Mode toggle (switch)
+  - Language (Vi/En) dropdown
+- **About section**:
+  - App version
+  - Terms of Service
+  - Privacy Policy
+- **Danger zone**:
+  - Logout → confirm dialog → clear tokens → Login
+  - Delete Account → double confirm → API delete → Login
+
+---
+
+## 10. 🎨 UI/UX Details
+
+### 10.1 Theme
+- **Light**: White background, dark text, primary = Indigo/Purple gradient
+- **Dark**: Dark surface (#121212), light text, primary accent
+- Material 3 design tokens
+- Smooth transition animation khi toggle theme
+
+### 10.2 Animations
+- **Page transitions**: Slide from right (push), fade (tab switch)
+- **Like**: Heart scale up (1.0 → 1.5 → 1.0) + particle effect
+- **Follow**: Button morph animation (filled → outlined)
+- **Pull-to-refresh**: Custom refresh indicator
+- **Shimmer**: Skeleton loading cho feed, profile, chat list
+- **Hero**: Avatar animation từ list → profile
+- **Story ring**: Rotating gradient animation
+
+### 10.3 Empty States
+- Feed trống: Illustration + "Theo dõi mọi người để xem bài viết"
+- Search no result: "Không tìm thấy người dùng"
+- Chat trống: "Bắt đầu cuộc trò chuyện đầu tiên"
+- Notifications trống: "Chưa có thông báo nào"
+- Profile no posts: "Chưa có bài viết nào"
+
+### 10.4 Error States
+- Network error: Banner "Không có kết nối mạng" + Retry button
+- Server error: "Đã có lỗi xảy ra" + Retry button
+- 401 expired: Auto logout + "Phiên đăng nhập hết hạn"
+
+### 10.5 Bottom Navigation
+| Index | Icon | Label | Badge |
+|---|---|---|---|
+| 0 | 🏠 home | Trang chủ | — |
+| 1 | 🔍 search | Tìm kiếm | — |
+| 2 | ➕ add_circle | Tạo bài | — |
+| 3 | 💬 chat | Tin nhắn | Unread count |
+| 4 | 👤 person | Hồ sơ | — |
+
+> [!NOTE]
+> Notification bell sẽ nằm ở AppBar của Feed screen (góc phải), không phải tab riêng.
+
+---
+
+## 11. 🌐 Internationalization (i18n)
+
+### Supported Locales
+- `vi` (Tiếng Việt) — default
+- `en` (English)
+
+### Key Translations (ví dụ)
+| Key | Vietnamese | English |
+|---|---|---|
+| feed_title | Bảng tin | Feed |
+| create_post | Tạo bài viết | Create Post |
+| follow | Theo dõi | Follow |
+| following | Đang theo dõi | Following |
+| unfollow_confirm | Bỏ theo dõi người này? | Unfollow this user? |
+| like | Thích | Like |
+| comment | Bình luận | Comment |
+| share | Chia sẻ | Share |
+| search_placeholder | Tìm kiếm người dùng... | Search users... |
+| settings | Cài đặt | Settings |
+| dark_mode | Chế độ tối | Dark Mode |
+| logout | Đăng xuất | Logout |
+| delete_account | Xoá tài khoản | Delete Account |
+
+---
+
+## 12. 📱 Screen Flow
+
+```mermaid
+graph TD
+    A[Splash] --> B{Has Token?}
+    B -->|No + First time| C[Onboarding]
+    B -->|No| D[Login]
+    B -->|Yes| E[Home/Feed]
+    C --> D
+    D --> F[Register]
+    D --> G[Forgot Password]
+    D -->|Success| E
+
+    E --> H[Story Bar → Story Viewer]
+    E --> I[Post Card → Post Detail]
+    E --> J[🔔 Notifications]
+    I --> K[Comments]
+    I --> L[Author Profile]
+
+    M[Search Tab] --> L
+    L --> N[Followers/Following]
+    L --> O[Message → Chat Room]
+
+    P[Create Tab] --> Q[Create Post]
+    P --> R[Create Story]
+
+    S[Chat Tab] --> T[Chat List → Chat Room]
+
+    U[Profile Tab] --> V[Edit Profile]
+    U --> W[Settings]
+    W --> X[Logout → Login]
+```
