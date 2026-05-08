@@ -9,6 +9,14 @@ import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
 import '../../features/profile/bloc/profile_bloc.dart';
 
+import '../../features/post/data/datasources/post_api_service.dart';
+import '../../features/post/data/repositories/post_repository_impl.dart';
+import '../../features/post/domain/repositories/post_repository.dart';
+import '../../features/post/domain/usecases/post_usecases.dart';
+import '../../features/post/bloc/feed/feed_bloc.dart';
+import '../../features/post/bloc/post/post_bloc.dart';
+import '../../features/post/bloc/comment/comment_bloc.dart';
+
 final getIt = GetIt.instance;
 
 Future<void> configureDependencies() async {
@@ -39,4 +47,38 @@ Future<void> configureDependencies() async {
   getIt.registerFactory<ProfileBloc>(
     () => ProfileBloc(repository: getIt<ProfileRepository>()),
   );
+
+  // ─── Post & Feed ───
+  getIt.registerLazySingleton<PostApiService>(
+    () => PostApiService(getIt<DioClient>().dio),
+  );
+  getIt.registerLazySingleton<PostRepository>(
+    () => PostRepositoryImpl(
+      api: getIt<PostApiService>(),
+      dio: getIt<DioClient>().dio,
+    ),
+  );
+
+  // UseCases
+  getIt.registerLazySingleton(() => GetFeedUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetUserPostsUseCase(getIt()));
+  getIt.registerLazySingleton(() => CreatePostUseCase(getIt()));
+  getIt.registerLazySingleton(() => DeletePostUseCase(getIt()));
+  getIt.registerLazySingleton(() => ToggleLikeUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetCommentsUseCase(getIt()));
+  getIt.registerLazySingleton(() => AddCommentUseCase(getIt()));
+  getIt.registerLazySingleton(() => DeleteCommentUseCase(getIt()));
+
+  // Blocs
+  getIt.registerFactory(() => FeedBloc(getFeed: getIt()));
+  getIt.registerFactory(() => PostBloc(
+    createPost: getIt(),
+    deletePost: getIt(),
+    toggleLike: getIt(),
+  ));
+  getIt.registerFactory(() => CommentBloc(
+    getComments: getIt(),
+    addComment: getIt(),
+    deleteComment: getIt(),
+  ));
 }

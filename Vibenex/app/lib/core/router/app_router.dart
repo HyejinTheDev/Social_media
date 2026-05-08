@@ -10,6 +10,13 @@ import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/bloc/profile_bloc.dart';
+import '../../features/post/presentation/pages/feed_screen.dart';
+import '../../features/post/presentation/pages/create_post_screen.dart';
+import '../../features/post/presentation/pages/post_detail_screen.dart';
+import '../../features/post/presentation/pages/full_screen_image_viewer.dart';
+import '../../features/post/domain/models/post_models.dart';
+import '../../features/post/bloc/feed/feed_bloc.dart';
+import '../../features/post/bloc/post/post_bloc.dart';
 
 class AuthNotifier extends ChangeNotifier {
   bool _isAuthenticated = false;
@@ -62,12 +69,48 @@ class AppRouter {
           child: ProfilePage(userId: state.pathParameters['id']),
         ),
       ),
+      // Post feature routes
+      GoRoute(
+        path: '/post/create',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, __) => const CreatePostScreen(),
+      ),
+      GoRoute(
+        path: '/post/detail',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, state) {
+          final post = state.extra as PostModel;
+          return PostDetailScreen(post: post);
+        },
+      ),
+      GoRoute(
+        path: '/image-viewer',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return FullScreenImageViewer(
+            imageUrls: extra['imageUrls'] as List<String>,
+            initialIndex: extra['initialIndex'] as int? ?? 0,
+          );
+        },
+      ),
       // Shell with bottom nav
       ShellRoute(
         navigatorKey: shellNavigatorKey,
         builder: (_, __, child) => _ShellWithNav(child: child),
         routes: [
-          GoRoute(path: '/feed', pageBuilder: (_, __) => const NoTransitionPage(child: Scaffold(body: Center(child: Text('Feed'))))),
+          GoRoute(
+            path: '/feed',
+            pageBuilder: (_, __) => NoTransitionPage(
+              child: MultiBlocProvider(
+                providers: [
+                  BlocProvider(create: (_) => getIt<FeedBloc>()),
+                  BlocProvider(create: (_) => getIt<PostBloc>()),
+                ],
+                child: const FeedScreen(),
+              ),
+            ),
+          ),
           GoRoute(path: '/search', pageBuilder: (_, __) => const NoTransitionPage(child: Scaffold(body: Center(child: Text('Search'))))),
           GoRoute(path: '/chat', pageBuilder: (_, __) => const NoTransitionPage(child: Scaffold(body: Center(child: Text('Chat'))))),
           GoRoute(path: '/profile', pageBuilder: (_, __) => NoTransitionPage(child: ProfilePage())),

@@ -1,7 +1,6 @@
 import {
   Controller, Get, Patch, Post, Body, Param, Query,
   UseGuards, Request, UseInterceptors, UploadedFile,
-  ParseFilePipe, MaxFileSizeValidator, FileTypeValidator,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiQuery } from '@nestjs/swagger';
@@ -12,21 +11,23 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 
-// Multer storage factory
-const createStorage = (destination: string) =>
-  diskStorage({
+// Multer storage factory with built-in image filter
+const createStorage = (destination: string) => ({
+  storage: diskStorage({
     destination: `./uploads/${destination}`,
     filename: (_, file, cb) => {
       const uniqueName = `${uuidv4()}${extname(file.originalname)}`;
       cb(null, uniqueName);
     },
-  });
-
-const imageValidators = new ParseFilePipe({
-  validators: [
-    new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }), // 5MB
-    new FileTypeValidator({ fileType: /^image\/(jpeg|png|webp|jpg)$/ }),
-  ],
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (_, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Chỉ hỗ trợ file ảnh (JPG, PNG, WebP)'), false);
+    }
+  },
 });
 
 @ApiTags('Users')
@@ -53,22 +54,22 @@ export class UsersController {
   @Post('me/avatar')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @UseInterceptors(FileInterceptor('file', { storage: createStorage('avatars') }))
+  @UseInterceptors(FileInterceptor('file', createStorage('avatars')))
   @ApiOperation({ summary: 'Upload avatar' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({ schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } })
-  uploadAvatar(@Request() req: any, @UploadedFile(imageValidators) file: Express.Multer.File) {
+  uploadAvatar(@Request() req: any, @UploadedFile() file: Express.Multer.File) {
     return this.usersService.updateAvatar(req.user.sub, file.filename);
   }
 
   @Post('me/cover')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @UseInterceptors(FileInterceptor('file', { storage: createStorage('covers') }))
+  @UseInterceptors(FileInterceptor('file', createStorage('covers')))
   @ApiOperation({ summary: 'Upload cover photo' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({ schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } })
-  uploadCover(@Request() req: any, @UploadedFile(imageValidators) file: Express.Multer.File) {
+  uploadCover(@Request() req: any, @UploadedFile() file: Express.Multer.File) {
     return this.usersService.updateCover(req.user.sub, file.filename);
   }
 

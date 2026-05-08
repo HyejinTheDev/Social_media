@@ -22,18 +22,23 @@ const uuid_1 = require("uuid");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const users_service_1 = require("./users.service");
 const update_user_dto_1 = require("./dto/update-user.dto");
-const createStorage = (destination) => (0, multer_1.diskStorage)({
-    destination: `./uploads/${destination}`,
-    filename: (_, file, cb) => {
-        const uniqueName = `${(0, uuid_1.v4)()}${(0, path_1.extname)(file.originalname)}`;
-        cb(null, uniqueName);
+const createStorage = (destination) => ({
+    storage: (0, multer_1.diskStorage)({
+        destination: `./uploads/${destination}`,
+        filename: (_, file, cb) => {
+            const uniqueName = `${(0, uuid_1.v4)()}${(0, path_1.extname)(file.originalname)}`;
+            cb(null, uniqueName);
+        },
+    }),
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (_, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        }
+        else {
+            cb(new Error('Chỉ hỗ trợ file ảnh (JPG, PNG, WebP)'), false);
+        }
     },
-});
-const imageValidators = new common_1.ParseFilePipe({
-    validators: [
-        new common_1.MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
-        new common_1.FileTypeValidator({ fileType: /^image\/(jpeg|png|webp|jpg)$/ }),
-    ],
 });
 let UsersController = class UsersController {
     usersService;
@@ -85,12 +90,12 @@ __decorate([
     (0, common_1.Post)('me/avatar'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', { storage: createStorage('avatars') })),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', createStorage('avatars'))),
     (0, swagger_1.ApiOperation)({ summary: 'Upload avatar' }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, swagger_1.ApiBody)({ schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } }),
     __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.UploadedFile)(imageValidators)),
+    __param(1, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
@@ -99,12 +104,12 @@ __decorate([
     (0, common_1.Post)('me/cover'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', { storage: createStorage('covers') })),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', createStorage('covers'))),
     (0, swagger_1.ApiOperation)({ summary: 'Upload cover photo' }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, swagger_1.ApiBody)({ schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } }),
     __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.UploadedFile)(imageValidators)),
+    __param(1, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)

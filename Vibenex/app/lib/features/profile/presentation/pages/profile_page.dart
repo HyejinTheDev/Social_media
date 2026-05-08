@@ -6,6 +6,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/avatar_widget.dart';
 import '../../../../core/widgets/loading_overlay.dart';
 import '../../bloc/profile_bloc.dart';
+import '../../../auth/bloc/auth_bloc.dart';
 
 class ProfilePage extends StatefulWidget {
   final String? userId;
@@ -101,7 +102,40 @@ class _ProfilePageState extends State<ProfilePage> {
             IconButton(icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20), onPressed: () => context.pop()),
           const Spacer(),
           if (isOwn)
-            IconButton(icon: const Icon(Icons.settings_outlined, color: Colors.white), onPressed: () {}),
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.settings_outlined, color: Colors.white),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              onSelected: (v) {
+                if (v == 'logout') {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Đăng xuất'),
+                      content: const Text('Bạn có chắc muốn đăng xuất?'),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      actions: [
+                        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Hủy')),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            context.read<AuthBloc>().add(AuthLogoutRequested());
+                            context.go('/login');
+                          },
+                          child: Text('Đăng xuất', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
+              itemBuilder: (_) => [
+                const PopupMenuItem(value: 'logout', child: Row(children: [
+                  Icon(Icons.logout, size: 20, color: Colors.red),
+                  SizedBox(width: 12),
+                  Text('Đăng xuất', style: TextStyle(color: Colors.red)),
+                ])),
+              ],
+            ),
         ]),
       ))),
       // Name + username (right side of avatar)
