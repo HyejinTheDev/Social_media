@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../di/injection.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/auth/presentation/pages/onboarding_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/profile/presentation/pages/edit_profile_page.dart';
+import '../../features/profile/bloc/profile_bloc.dart';
 
 class AuthNotifier extends ChangeNotifier {
   bool _isAuthenticated = false;
@@ -42,6 +47,22 @@ class AppRouter {
       GoRoute(path: '/login', parentNavigatorKey: rootNavigatorKey, builder: (_, __) => const LoginPage()),
       GoRoute(path: '/register', parentNavigatorKey: rootNavigatorKey, builder: (_, __) => const RegisterPage()),
       GoRoute(path: '/forgot-password', parentNavigatorKey: rootNavigatorKey, builder: (_, __) => const ForgotPasswordPage()),
+      // Edit profile (full screen, outside shell)
+      GoRoute(
+        path: '/edit-profile',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, __) => const EditProfilePage(),
+      ),
+      // User profile (view other user)
+      GoRoute(
+        path: '/user/:id',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, state) => BlocProvider(
+          create: (_) => getIt<ProfileBloc>(),
+          child: ProfilePage(userId: state.pathParameters['id']),
+        ),
+      ),
+      // Shell with bottom nav
       ShellRoute(
         navigatorKey: shellNavigatorKey,
         builder: (_, __, child) => _ShellWithNav(child: child),
@@ -49,7 +70,7 @@ class AppRouter {
           GoRoute(path: '/feed', pageBuilder: (_, __) => const NoTransitionPage(child: Scaffold(body: Center(child: Text('Feed'))))),
           GoRoute(path: '/search', pageBuilder: (_, __) => const NoTransitionPage(child: Scaffold(body: Center(child: Text('Search'))))),
           GoRoute(path: '/chat', pageBuilder: (_, __) => const NoTransitionPage(child: Scaffold(body: Center(child: Text('Chat'))))),
-          GoRoute(path: '/profile', pageBuilder: (_, __) => const NoTransitionPage(child: Scaffold(body: Center(child: Text('Profile'))))),
+          GoRoute(path: '/profile', pageBuilder: (_, __) => NoTransitionPage(child: ProfilePage())),
         ],
       ),
     ],

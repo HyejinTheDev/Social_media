@@ -9,6 +9,7 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/theme_notifier.dart';
 import 'core/l10n/locale_provider.dart';
 import 'features/auth/bloc/auth_bloc.dart';
+import 'features/profile/bloc/profile_bloc.dart';
 
 final themeNotifier = ThemeNotifier();
 final localeProvider = LocaleProvider();
@@ -31,24 +32,34 @@ class VibenexApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(create: (_) => getIt<AuthBloc>()),
+        BlocProvider<ProfileBloc>(create: (_) => getIt<ProfileBloc>()),
       ],
-      child: ListenableBuilder(
-        listenable: Listenable.merge([themeNotifier, localeProvider]),
-        builder: (context, _) => MaterialApp.router(
-          title: 'Vibenex',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: themeNotifier.themeMode,
-          locale: localeProvider.locale,
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [Locale('vi'), Locale('en')],
-          routerConfig: AppRouter.router,
+      child: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthAuthenticated) {
+            AppRouter.authNotifier.setAuthenticated(true);
+          } else if (state is AuthUnauthenticated || state is AuthError) {
+            AppRouter.authNotifier.setAuthenticated(false);
+          }
+        },
+        child: ListenableBuilder(
+          listenable: Listenable.merge([themeNotifier, localeProvider]),
+          builder: (context, _) => MaterialApp.router(
+            title: 'Vibenex',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeNotifier.themeMode,
+            locale: localeProvider.locale,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('vi'), Locale('en')],
+            routerConfig: AppRouter.router,
+          ),
         ),
       ),
     );
