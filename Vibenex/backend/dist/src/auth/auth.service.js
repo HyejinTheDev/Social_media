@@ -128,6 +128,12 @@ let AuthService = class AuthService {
             throw new common_1.UnauthorizedException('User not found');
         return this.sanitizeUser(user);
     }
+    async checkUsername(username) {
+        const user = await this.prisma.user.findUnique({
+            where: { username },
+        });
+        return !!user;
+    }
     async generateTokens(userId) {
         const payload = { sub: userId };
         const [accessToken, refreshToken] = await Promise.all([

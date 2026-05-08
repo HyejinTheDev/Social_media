@@ -22,6 +22,7 @@ export declare class AuthService {
         refreshToken: string;
     }>;
     getProfile(userId: string): Promise<any>;
+    checkUsername(username: string): Promise<boolean>;
     private generateTokens;
     private sanitizeUser;
 }

@@ -35,6 +35,10 @@ let AuthController = class AuthController {
     forgotPassword(dto) {
         return { message: 'Đã gửi liên kết đặt lại mật khẩu vào email' };
     }
+    async checkUsername(username) {
+        const exists = await this.authService.checkUsername(username);
+        return { available: !exists };
+    }
     getProfile(req) {
         return this.authService.getProfile(req.user.sub);
     }
@@ -72,6 +76,14 @@ __decorate([
     __metadata("design:paramtypes", [auth_dto_1.ForgotPasswordDto]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "forgotPassword", null);
+__decorate([
+    (0, common_1.Get)('check-username/:username'),
+    (0, swagger_1.ApiOperation)({ summary: 'Check if username is available' }),
+    __param(0, (0, common_1.Param)('username')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "checkUsername", null);
 __decorate([
     (0, common_1.Get)('me'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

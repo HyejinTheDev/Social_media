@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Request, Param } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto, RefreshTokenDto, ForgotPasswordDto } from './dto/auth.dto';
@@ -32,6 +32,13 @@ export class AuthController {
   forgotPassword(@Body() dto: ForgotPasswordDto) {
     // Mock — just return success
     return { message: 'Đã gửi liên kết đặt lại mật khẩu vào email' };
+  }
+
+  @Get('check-username/:username')
+  @ApiOperation({ summary: 'Check if username is available' })
+  async checkUsername(@Param('username') username: string) {
+    const exists = await this.authService.checkUsername(username);
+    return { available: !exists };
   }
 
   @Get('me')

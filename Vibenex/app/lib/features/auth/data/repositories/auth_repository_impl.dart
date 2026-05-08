@@ -16,14 +16,14 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<AuthResponse> login(LoginRequest request) async {
-    final response = await _api.login(request);
+    final response = await _api.login(request.toJson());
     await _saveTokens(response.accessToken, response.refreshToken);
     return response;
   }
 
   @override
   Future<AuthResponse> register(RegisterRequest request) async {
-    final response = await _api.register(request);
+    final response = await _api.register(request.toJson());
     await _saveTokens(response.accessToken, response.refreshToken);
     return response;
   }

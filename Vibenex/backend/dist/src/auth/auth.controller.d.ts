@@ -20,5 +20,8 @@ export declare class AuthController {
     forgotPassword(dto: ForgotPasswordDto): {
         message: string;
     };
+    checkUsername(username: string): Promise<{
+        available: boolean;
+    }>;
     getProfile(req: any): Promise<any>;
 }

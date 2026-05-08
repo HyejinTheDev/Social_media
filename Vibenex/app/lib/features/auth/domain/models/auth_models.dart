@@ -4,7 +4,7 @@ part 'auth_models.freezed.dart';
 part 'auth_models.g.dart';
 
 @freezed
-class LoginRequest with _$LoginRequest {
+abstract class LoginRequest with _$LoginRequest {
   const factory LoginRequest({
     required String email,
     required String password,
@@ -14,7 +14,7 @@ class LoginRequest with _$LoginRequest {
 }
 
 @freezed
-class RegisterRequest with _$RegisterRequest {
+abstract class RegisterRequest with _$RegisterRequest {
   const factory RegisterRequest({
     required String name,
     required String username,
@@ -26,7 +26,7 @@ class RegisterRequest with _$RegisterRequest {
 }
 
 @freezed
-class AuthResponse with _$AuthResponse {
+abstract class AuthResponse with _$AuthResponse {
   const factory AuthResponse({
     required UserModel user,
     required String accessToken,
@@ -37,7 +37,7 @@ class AuthResponse with _$AuthResponse {
 }
 
 @freezed
-class UserModel with _$UserModel {
+abstract class UserModel with _$UserModel {
   const factory UserModel({
     required String id,
     required String email,
@@ -57,7 +57,7 @@ class UserModel with _$UserModel {
 }
 
 @freezed
-class TokenResponse with _$TokenResponse {
+abstract class TokenResponse with _$TokenResponse {
   const factory TokenResponse({
     required String accessToken,
     required String refreshToken,

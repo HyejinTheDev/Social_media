@@ -18,7 +18,7 @@ class ErrorMapper {
         final data = e.response?.data;
         if (data is Map<String, dynamic> && data['message'] != null) {
           final msg = data['message'];
-          return msg is List ? msg.join(', ') : msg.toString();
+          return msg is List ? msg.first.toString() : msg.toString();
         }
         return switch (e.response?.statusCode) {
           400 => 'Dữ liệu không hợp lệ.',

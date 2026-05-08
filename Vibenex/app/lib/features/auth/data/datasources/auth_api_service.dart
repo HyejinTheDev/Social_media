@@ -9,17 +9,17 @@ abstract class AuthApiService {
   factory AuthApiService(Dio dio) = _AuthApiService;
 
   @POST('/auth/register')
-  Future<AuthResponse> register(@Body() RegisterRequest body);
+  Future<AuthResponse> register(@Body() Map<String, dynamic> body);
 
   @POST('/auth/login')
-  Future<AuthResponse> login(@Body() LoginRequest body);
+  Future<AuthResponse> login(@Body() Map<String, dynamic> body);
 
   @POST('/auth/refresh')
-  Future<TokenResponse> refreshToken(@Body() Map<String, String> body);
+  Future<TokenResponse> refreshToken(@Body() Map<String, dynamic> body);
 
   @GET('/auth/me')
   Future<UserModel> getMe();
 
   @POST('/auth/forgot-password')
-  Future<Map<String, dynamic>> forgotPassword(@Body() Map<String, String> body);
+  Future<void> forgotPassword(@Body() Map<String, dynamic> body);
 }

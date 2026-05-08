@@ -103,6 +103,13 @@ export class AuthService {
     return this.sanitizeUser(user);
   }
 
+  async checkUsername(username: string): Promise<boolean> {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+    });
+    return !!user;
+  }
+
   private async generateTokens(userId: string) {
     const payload = { sub: userId };
 

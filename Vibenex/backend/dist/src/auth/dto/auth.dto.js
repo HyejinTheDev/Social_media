@@ -21,28 +21,28 @@ class RegisterDto {
 exports.RegisterDto = RegisterDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'John Doe' }),
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)({ message: 'Vui lòng nhập họ và tên' }),
+    (0, class_validator_1.IsString)({ message: 'Họ và tên không hợp lệ' }),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "name", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'johndoe' }),
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)({ message: 'Vui lòng nhập tên người dùng' }),
+    (0, class_validator_1.IsString)({ message: 'Tên người dùng không hợp lệ' }),
     (0, class_validator_1.Matches)(/^[a-z0-9_]{3,20}$/, {
-        message: 'Username must be 3-20 characters, lowercase letters, numbers, and underscores only',
+        message: 'Tên người dùng phải 3-20 ký tự, chỉ chữ thường, số và _',
     }),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "username", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'john@example.com' }),
-    (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.IsEmail)({}, { message: 'Email không hợp lệ' }),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "email", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'password123' }),
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.MinLength)(8),
+    (0, class_validator_1.IsNotEmpty)({ message: 'Vui lòng nhập mật khẩu' }),
+    (0, class_validator_1.MinLength)(8, { message: 'Mật khẩu phải có ít nhất 8 ký tự' }),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "password", void 0);
 class LoginDto {
@@ -52,12 +52,12 @@ class LoginDto {
 exports.LoginDto = LoginDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'john@example.com' }),
-    (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.IsEmail)({}, { message: 'Email không hợp lệ' }),
     __metadata("design:type", String)
 ], LoginDto.prototype, "email", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'password123' }),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsNotEmpty)({ message: 'Vui lòng nhập mật khẩu' }),
     __metadata("design:type", String)
 ], LoginDto.prototype, "password", void 0);
 class RefreshTokenDto {
@@ -76,7 +76,7 @@ class ForgotPasswordDto {
 exports.ForgotPasswordDto = ForgotPasswordDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'john@example.com' }),
-    (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.IsEmail)({}, { message: 'Email không hợp lệ' }),
     __metadata("design:type", String)
 ], ForgotPasswordDto.prototype, "email", void 0);
 //# sourceMappingURL=auth.dto.js.map
