@@ -12,10 +12,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FollowService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const notifications_service_1 = require("../notifications/notifications.service");
+const client_1 = require("@prisma/client");
 let FollowService = class FollowService {
     prisma;
-    constructor(prisma) {
+    notificationsService;
+    constructor(prisma, notificationsService) {
         this.prisma = prisma;
+        this.notificationsService = notificationsService;
     }
     userSelect = {
         id: true,
@@ -53,6 +57,8 @@ let FollowService = class FollowService {
                 data: { followersCount: { increment: 1 } },
             }),
         ]);
+        const follower = await this.prisma.user.findUnique({ where: { id: followerId }, select: { name: true } });
+        await this.notificationsService.createNotification(followingId, client_1.NotificationType.FOLLOW, 'Người theo dõi mới', `${follower?.name} đã bắt đầu theo dõi bạn.`, { followerId });
         return { following: true };
     }
     async unfollow(followerId, followingId) {
@@ -132,6 +138,7 @@ let FollowService = class FollowService {
 exports.FollowService = FollowService;
 exports.FollowService = FollowService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notifications_service_1.NotificationsService])
 ], FollowService);
 //# sourceMappingURL=follow.service.js.map

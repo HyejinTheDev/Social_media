@@ -21,9 +21,9 @@ export declare class FollowController {
     }>;
     getFollowers(userId: string, page?: string): Promise<{
         users: {
+            id: string;
             name: string;
             username: string;
-            id: string;
             bio: string | null;
             avatar: string | null;
             followersCount: number;
@@ -36,9 +36,9 @@ export declare class FollowController {
     }>;
     getFollowing(userId: string, page?: string): Promise<{
         users: {
+            id: string;
             name: string;
             username: string;
-            id: string;
             bio: string | null;
             avatar: string | null;
             followersCount: number;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:badges/badges.dart' as badges;
 import '../../../../core/widgets/error_state_widget.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../auth/bloc/auth_bloc.dart';
@@ -10,6 +11,7 @@ import '../widgets/feed_shimmer.dart';
 import '../../../story/presentation/widgets/story_bar.dart';
 import '../../../story/bloc/story_bloc.dart';
 import '../../../../core/di/injection.dart';
+import '../../../notification/bloc/notification_bloc.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -64,7 +66,31 @@ class _FeedScreenState extends State<FeedScreen> {
         elevation: 0.5,
         actions: [
           IconButton(icon: const Icon(Icons.search, color: Colors.black87), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.notifications_none, color: Colors.black87), onPressed: () {}),
+          BlocProvider(
+            create: (_) => getIt<NotificationBloc>()..add(FetchUnreadCount()),
+            child: BlocBuilder<NotificationBloc, NotificationState>(
+              buildWhen: (previous, current) => previous.unreadCount != current.unreadCount,
+              builder: (context, state) {
+                return IconButton(
+                  icon: badges.Badge(
+                    showBadge: state.unreadCount > 0,
+                    badgeContent: Text(
+                      state.unreadCount > 99 ? '99+' : state.unreadCount.toString(),
+                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                    ),
+                    child: const Icon(Icons.notifications_none, color: Colors.black87),
+                  ),
+                  onPressed: () {
+                    context.push('/notifications').then((_) {
+                      if (context.mounted) {
+                        context.read<NotificationBloc>().add(FetchUnreadCount());
+                      }
+                    });
+                  },
+                );
+              },
+            ),
+          ),
         ],
       ),
       body: BlocBuilder<FeedBloc, FeedState>(

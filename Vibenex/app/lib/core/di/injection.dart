@@ -31,6 +31,9 @@ import '../../features/chat/data/datasources/chat_api_service.dart';
 import '../../features/chat/data/datasources/socket_service.dart';
 import '../../features/chat/bloc/chat_bloc.dart';
 
+import '../../features/notification/data/datasources/notification_api_service.dart';
+import '../../features/notification/bloc/notification_bloc.dart';
+
 final getIt = GetIt.instance;
 
 Future<void> configureDependencies() async {
@@ -138,4 +141,10 @@ Future<void> configureDependencies() async {
     () => SocketService(),
   );
   getIt.registerFactory(() => ChatBloc(api: getIt(), socket: getIt()));
+
+  // ─── Notification ───
+  getIt.registerLazySingleton<NotificationApiService>(
+    () => NotificationApiService(getIt<DioClient>().dio),
+  );
+  getIt.registerFactory(() => NotificationBloc(api: getIt()));
 }

@@ -12,10 +12,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommentsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const notifications_service_1 = require("../notifications/notifications.service");
+const client_1 = require("@prisma/client");
 let CommentsService = class CommentsService {
     prisma;
-    constructor(prisma) {
+    notificationsService;
+    constructor(prisma, notificationsService) {
         this.prisma = prisma;
+        this.notificationsService = notificationsService;
     }
     async create(userId, postId, dto) {
         const post = await this.prisma.post.findUnique({ where: { id: postId } });
@@ -37,6 +41,13 @@ let CommentsService = class CommentsService {
                 data: { commentsCount: { increment: 1 } }
             })
         ]);
+        if (post.authorId !== userId) {
+            const commenter = await this.prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
+            let snippet = dto.content;
+            if (snippet.length > 30)
+                snippet = snippet.substring(0, 30) + '...';
+            await this.notificationsService.createNotification(post.authorId, client_1.NotificationType.COMMENT, 'Có bình luận mới', `${commenter?.name} đã bình luận: "${snippet}"`, { postId, commentId: comment.id });
+        }
         return comment;
     }
     async getComments(postId, page = 1, limit = 20) {
@@ -86,6 +97,7 @@ let CommentsService = class CommentsService {
 exports.CommentsService = CommentsService;
 exports.CommentsService = CommentsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notifications_service_1.NotificationsService])
 ], CommentsService);
 //# sourceMappingURL=comments.service.js.map

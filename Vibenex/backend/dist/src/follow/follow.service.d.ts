@@ -1,7 +1,9 @@
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 export declare class FollowService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private notificationsService;
+    constructor(prisma: PrismaService, notificationsService: NotificationsService);
     private readonly userSelect;
     follow(followerId: string, followingId: string): Promise<{
         following: boolean;
@@ -22,9 +24,9 @@ export declare class FollowService {
     }>;
     getFollowers(userId: string, page?: number, limit?: number): Promise<{
         users: {
+            id: string;
             name: string;
             username: string;
-            id: string;
             bio: string | null;
             avatar: string | null;
             followersCount: number;
@@ -37,9 +39,9 @@ export declare class FollowService {
     }>;
     getFollowing(userId: string, page?: number, limit?: number): Promise<{
         users: {
+            id: string;
             name: string;
             username: string;
-            id: string;
             bio: string | null;
             avatar: string | null;
             followersCount: number;

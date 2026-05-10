@@ -17,19 +17,19 @@ export declare class ChatGateway implements OnGatewayConnection, OnGatewayDiscon
     }): Promise<({
         sender: {
             name: string;
-            id: string;
             username: string;
+            id: string;
             avatar: string | null;
             isVerified: boolean;
         };
     } & {
         id: string;
+        createdAt: Date;
+        content: string;
         conversationId: string;
         senderId: string;
-        content: string;
         imageUrl: string | null;
         isRead: boolean;
-        createdAt: Date;
     }) | undefined>;
     handleJoinConversation(client: Socket, data: {
         conversationId: string;

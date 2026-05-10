@@ -1,11 +1,16 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '@prisma/client';
 import { MediaType } from '@prisma/client';
 
 @Injectable()
 export class PostsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async create(userId: string, dto: CreatePostDto, fileUrls: { images?: string[], video?: string, thumbnail?: string }) {
     let mediaType: MediaType = MediaType.TEXT;
@@ -145,6 +150,19 @@ export class PostsService {
           data: { likesCount: { increment: 1 } }
         })
       ]);
+      
+      // Trigger notification if not liking own post
+      if (post.authorId !== userId) {
+        const liker = await this.prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
+        await this.notificationsService.createNotification(
+          post.authorId,
+          NotificationType.LIKE,
+          'Có người thích bài viết của bạn',
+          `${liker?.name} đã thích bài viết của bạn.`,
+          { postId }
+        );
+      }
+
       return { liked: true };
     }
   }

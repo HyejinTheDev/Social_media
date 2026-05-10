@@ -28,6 +28,8 @@ import '../../features/search/presentation/pages/search_screen.dart';
 import '../../features/chat/bloc/chat_bloc.dart';
 import '../../features/chat/presentation/pages/conversation_list_screen.dart';
 import '../../features/chat/presentation/pages/chat_screen.dart';
+import '../../features/notification/bloc/notification_bloc.dart';
+import '../../features/notification/presentation/pages/notifications_page.dart';
 
 class AuthNotifier extends ChangeNotifier {
   bool _isAuthenticated = false;
@@ -151,6 +153,17 @@ class AppRouter {
           return BlocProvider(
             create: (_) => getIt<ChatBloc>(),
             child: ChatScreen(conversationId: conversationId, otherUser: otherUser),
+          );
+        },
+      ),
+      // Notifications route
+      GoRoute(
+        path: '/notifications',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, __) {
+          return BlocProvider(
+            create: (_) => getIt<NotificationBloc>(),
+            child: const NotificationsPage(),
           );
         },
       ),

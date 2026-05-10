@@ -12,18 +12,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const notifications_service_1 = require("../notifications/notifications.service");
 const client_1 = require("@prisma/client");
+const client_2 = require("@prisma/client");
 let PostsService = class PostsService {
     prisma;
-    constructor(prisma) {
+    notificationsService;
+    constructor(prisma, notificationsService) {
         this.prisma = prisma;
+        this.notificationsService = notificationsService;
     }
     async create(userId, dto, fileUrls) {
-        let mediaType = client_1.MediaType.TEXT;
+        let mediaType = client_2.MediaType.TEXT;
         if (fileUrls.video)
-            mediaType = client_1.MediaType.VIDEO;
+            mediaType = client_2.MediaType.VIDEO;
         else if (fileUrls.images && fileUrls.images.length > 0)
-            mediaType = client_1.MediaType.IMAGE;
+            mediaType = client_2.MediaType.IMAGE;
         return this.prisma.post.create({
             data: {
                 content: dto.content || "",
@@ -146,6 +150,10 @@ let PostsService = class PostsService {
                     data: { likesCount: { increment: 1 } }
                 })
             ]);
+            if (post.authorId !== userId) {
+                const liker = await this.prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
+                await this.notificationsService.createNotification(post.authorId, client_1.NotificationType.LIKE, 'Có người thích bài viết của bạn', `${liker?.name} đã thích bài viết của bạn.`, { postId });
+            }
             return { liked: true };
         }
     }
@@ -159,6 +167,7 @@ let PostsService = class PostsService {
 exports.PostsService = PostsService;
 exports.PostsService = PostsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notifications_service_1.NotificationsService])
 ], PostsService);
 //# sourceMappingURL=posts.service.js.map

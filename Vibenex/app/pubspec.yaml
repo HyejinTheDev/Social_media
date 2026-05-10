@@ -63,6 +63,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   desktop_drop: ^0.7.1
   visibility_detector: ^0.4.0+2
+  badges: ^3.2.0
 
 dev_dependencies:
   flutter_test:

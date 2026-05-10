@@ -6,31 +6,31 @@ export declare class CommentsController {
     create(req: any, postId: string, createCommentDto: CreateCommentDto): Promise<{
         author: {
             name: string;
-            username: string;
             id: string;
+            username: string;
             avatar: string | null;
         };
     } & {
         id: string;
-        createdAt: Date;
-        content: string;
-        authorId: string;
         postId: string;
+        authorId: string;
+        content: string;
+        createdAt: Date;
     }>;
     getComments(postId: string, page?: string, limit?: string): Promise<{
         comments: ({
             author: {
                 name: string;
-                username: string;
                 id: string;
+                username: string;
                 avatar: string | null;
             };
         } & {
             id: string;
-            createdAt: Date;
-            content: string;
-            authorId: string;
             postId: string;
+            authorId: string;
+            content: string;
+            createdAt: Date;
         })[];
         total: number;
         page: number;

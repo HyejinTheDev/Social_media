@@ -11,12 +11,13 @@ const common_1 = require("@nestjs/common");
 const follow_service_1 = require("./follow.service");
 const follow_controller_1 = require("./follow.controller");
 const prisma_module_1 = require("../prisma/prisma.module");
+const notifications_module_1 = require("../notifications/notifications.module");
 let FollowModule = class FollowModule {
 };
 exports.FollowModule = FollowModule;
 exports.FollowModule = FollowModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule],
+        imports: [prisma_module_1.PrismaModule, notifications_module_1.NotificationsModule],
         controllers: [follow_controller_1.FollowController],
         providers: [follow_service_1.FollowService],
     })

@@ -1,36 +1,38 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 export declare class CommentsService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private notificationsService;
+    constructor(prisma: PrismaService, notificationsService: NotificationsService);
     create(userId: string, postId: string, dto: CreateCommentDto): Promise<{
         author: {
             name: string;
-            username: string;
             id: string;
+            username: string;
             avatar: string | null;
         };
     } & {
         id: string;
-        createdAt: Date;
-        content: string;
-        authorId: string;
         postId: string;
+        authorId: string;
+        content: string;
+        createdAt: Date;
     }>;
     getComments(postId: string, page?: number, limit?: number): Promise<{
         comments: ({
             author: {
                 name: string;
-                username: string;
                 id: string;
+                username: string;
                 avatar: string | null;
             };
         } & {
             id: string;
-            createdAt: Date;
-            content: string;
-            authorId: string;
             postId: string;
+            authorId: string;
+            content: string;
+            createdAt: Date;
         })[];
         total: number;
         page: number;

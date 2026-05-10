@@ -4,79 +4,79 @@ export declare class ChatController {
     constructor(chatService: ChatService);
     getConversations(req: any): Promise<{
         otherUser: {
-            id: string;
             name: string;
             username: string;
+            id: string;
             avatar: string | null;
             isVerified: boolean;
         };
         participant1: {
-            id: string;
             name: string;
             username: string;
+            id: string;
             avatar: string | null;
             isVerified: boolean;
         };
         participant2: {
-            id: string;
             name: string;
             username: string;
+            id: string;
             avatar: string | null;
             isVerified: boolean;
         };
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
         participant1Id: string;
         participant2Id: string;
         lastMessage: string | null;
         lastMessageAt: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
     }[]>;
     getOrCreateConversation(req: any, userId: string): Promise<{
         otherUser: {
-            id: string;
             name: string;
             username: string;
+            id: string;
             avatar: string | null;
             isVerified: boolean;
         };
         participant1: {
-            id: string;
             name: string;
             username: string;
+            id: string;
             avatar: string | null;
             isVerified: boolean;
         };
         participant2: {
-            id: string;
             name: string;
             username: string;
+            id: string;
             avatar: string | null;
             isVerified: boolean;
         };
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
         participant1Id: string;
         participant2Id: string;
         lastMessage: string | null;
         lastMessageAt: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     getMessages(req: any, conversationId: string, page?: string): Promise<{
         messages: ({
             sender: {
-                id: string;
                 name: string;
                 username: string;
+                id: string;
                 avatar: string | null;
                 isVerified: boolean;
             };
         } & {
             id: string;
             createdAt: Date;
+            content: string;
             conversationId: string;
             senderId: string;
-            content: string;
             imageUrl: string | null;
             isRead: boolean;
         })[];
@@ -89,18 +89,18 @@ export declare class ChatController {
         imageUrl?: string;
     }): Promise<{
         sender: {
-            id: string;
             name: string;
             username: string;
+            id: string;
             avatar: string | null;
             isVerified: boolean;
         };
     } & {
         id: string;
         createdAt: Date;
+        content: string;
         conversationId: string;
         senderId: string;
-        content: string;
         imageUrl: string | null;
         isRead: boolean;
     }>;

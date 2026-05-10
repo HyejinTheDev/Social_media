@@ -9,16 +9,14 @@ export declare class PostsController {
         thumbnail?: Express.Multer.File[];
     }): Promise<{
         author: {
+            id: string;
             name: string;
             username: string;
-            id: string;
             avatar: string | null;
             isVerified: boolean;
         };
     } & {
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         content: string;
         imageUrls: string[];
         videoUrl: string | null;
@@ -27,21 +25,21 @@ export declare class PostsController {
         likesCount: number;
         commentsCount: number;
         sharesCount: number;
+        createdAt: Date;
+        updatedAt: Date;
         authorId: string;
     }>;
     findAll(page?: string, limit?: string): Promise<{
         posts: ({
             author: {
+                id: string;
                 name: string;
                 username: string;
-                id: string;
                 avatar: string | null;
                 isVerified: boolean;
             };
         } & {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             content: string;
             imageUrls: string[];
             videoUrl: string | null;
@@ -50,6 +48,8 @@ export declare class PostsController {
             likesCount: number;
             commentsCount: number;
             sharesCount: number;
+            createdAt: Date;
+            updatedAt: Date;
             authorId: string;
         })[];
         total: number;
@@ -59,16 +59,14 @@ export declare class PostsController {
     findByUser(userId: string, page?: string, limit?: string): Promise<{
         posts: ({
             author: {
+                id: string;
                 name: string;
                 username: string;
-                id: string;
                 avatar: string | null;
                 isVerified: boolean;
             };
         } & {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             content: string;
             imageUrls: string[];
             videoUrl: string | null;
@@ -77,6 +75,8 @@ export declare class PostsController {
             likesCount: number;
             commentsCount: number;
             sharesCount: number;
+            createdAt: Date;
+            updatedAt: Date;
             authorId: string;
         })[];
         total: number;
@@ -85,16 +85,14 @@ export declare class PostsController {
     }>;
     findOne(id: string): Promise<{
         author: {
+            id: string;
             name: string;
             username: string;
-            id: string;
             avatar: string | null;
             isVerified: boolean;
         };
     } & {
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         content: string;
         imageUrls: string[];
         videoUrl: string | null;
@@ -103,6 +101,8 @@ export declare class PostsController {
         likesCount: number;
         commentsCount: number;
         sharesCount: number;
+        createdAt: Date;
+        updatedAt: Date;
         authorId: string;
     }>;
     remove(req: any, id: string): Promise<{

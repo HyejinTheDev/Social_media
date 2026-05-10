@@ -8,6 +8,7 @@ import { CommentsModule } from './comments/comments.module';
 import { StoriesModule } from './stories/stories.module';
 import { FollowModule } from './follow/follow.module';
 import { ChatModule } from './chat/chat.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ChatModule } from './chat/chat.module';
     StoriesModule,
     FollowModule,
     ChatModule,
+    NotificationsModule,
   ],
   controllers: [],
   providers: [],

@@ -17,6 +17,7 @@ const comments_module_1 = require("./comments/comments.module");
 const stories_module_1 = require("./stories/stories.module");
 const follow_module_1 = require("./follow/follow.module");
 const chat_module_1 = require("./chat/chat.module");
+const notifications_module_1 = require("./notifications/notifications.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -32,6 +33,7 @@ exports.AppModule = AppModule = __decorate([
             stories_module_1.StoriesModule,
             follow_module_1.FollowModule,
             chat_module_1.ChatModule,
+            notifications_module_1.NotificationsModule,
         ],
         controllers: [],
         providers: [],

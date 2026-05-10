@@ -1,10 +1,15 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '@prisma/client';
 
 @Injectable()
 export class CommentsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async create(userId: string, postId: string, dto: CreateCommentDto) {
     const post = await this.prisma.post.findUnique({ where: { id: postId } });
@@ -27,6 +32,21 @@ export class CommentsService {
         data: { commentsCount: { increment: 1 } }
       })
     ]);
+
+    // Trigger notification if not commenting on own post
+    if (post.authorId !== userId) {
+      const commenter = await this.prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
+      let snippet = dto.content;
+      if (snippet.length > 30) snippet = snippet.substring(0, 30) + '...';
+      
+      await this.notificationsService.createNotification(
+        post.authorId,
+        NotificationType.COMMENT,
+        'Có bình luận mới',
+        `${commenter?.name} đã bình luận: "${snippet}"`,
+        { postId, commentId: comment.id }
+      );
+    }
 
     return comment;
   }
