@@ -17,6 +17,20 @@ import '../../features/post/bloc/feed/feed_bloc.dart';
 import '../../features/post/bloc/post/post_bloc.dart';
 import '../../features/post/bloc/comment/comment_bloc.dart';
 
+import '../../features/story/data/datasources/story_api_service.dart';
+import '../../features/story/data/repositories/story_repository_impl.dart';
+import '../../features/story/domain/models/story_repository.dart';
+import '../../features/story/domain/usecases/story_usecases.dart';
+import '../../features/story/bloc/story_bloc.dart';
+
+import '../../features/follow/data/datasources/follow_api_service.dart';
+import '../../features/follow/bloc/follow_bloc.dart';
+import '../../features/search/bloc/search_bloc.dart';
+
+import '../../features/chat/data/datasources/chat_api_service.dart';
+import '../../features/chat/data/datasources/socket_service.dart';
+import '../../features/chat/bloc/chat_bloc.dart';
+
 final getIt = GetIt.instance;
 
 Future<void> configureDependencies() async {
@@ -44,8 +58,9 @@ Future<void> configureDependencies() async {
       dio: getIt<DioClient>().dio,
     ),
   );
+  // Note: FollowApiService is registered below, but getIt resolves lazily at call time
   getIt.registerFactory<ProfileBloc>(
-    () => ProfileBloc(repository: getIt<ProfileRepository>()),
+    () => ProfileBloc(repository: getIt<ProfileRepository>(), followApi: getIt<FollowApiService>()),
   );
 
   // ─── Post & Feed ───
@@ -81,4 +96,46 @@ Future<void> configureDependencies() async {
     addComment: getIt(),
     deleteComment: getIt(),
   ));
+
+  // ─── Story ───
+  getIt.registerLazySingleton<StoryApiService>(
+    () => StoryApiService(getIt<DioClient>().dio),
+  );
+  getIt.registerLazySingleton<StoryRepository>(
+    () => StoryRepositoryImpl(
+      api: getIt<StoryApiService>(),
+      dio: getIt<DioClient>().dio,
+    ),
+  );
+
+  // Story UseCases
+  getIt.registerLazySingleton(() => GetActiveStoriesUseCase(getIt()));
+  getIt.registerLazySingleton(() => CreateStoryUseCase(getIt()));
+  getIt.registerLazySingleton(() => ViewStoryUseCase(getIt()));
+  getIt.registerLazySingleton(() => DeleteStoryUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetMyStoriesUseCase(getIt()));
+
+  // Story BLoC
+  getIt.registerFactory(() => StoryBloc(
+    getActiveStories: getIt(),
+    createStory: getIt(),
+    viewStory: getIt(),
+    deleteStory: getIt(),
+  ));
+
+  // ─── Follow & Search ───
+  getIt.registerLazySingleton<FollowApiService>(
+    () => FollowApiService(getIt<DioClient>().dio),
+  );
+  getIt.registerFactory(() => FollowBloc(api: getIt()));
+  getIt.registerFactory(() => SearchBloc(api: getIt()));
+
+  // ─── Chat ───
+  getIt.registerLazySingleton<ChatApiService>(
+    () => ChatApiService(getIt<DioClient>().dio),
+  );
+  getIt.registerLazySingleton<SocketService>(
+    () => SocketService(),
+  );
+  getIt.registerFactory(() => ChatBloc(api: getIt(), socket: getIt()));
 }

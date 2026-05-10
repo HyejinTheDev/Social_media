@@ -1,0 +1,150 @@
+import {
+  WebSocketGateway,
+  WebSocketServer,
+  SubscribeMessage,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  ConnectedSocket,
+  MessageBody,
+} from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
+import { JwtService } from '@nestjs/jwt';
+import { ChatService } from './chat.service';
+
+@WebSocketGateway({
+  cors: { origin: '*' },
+  namespace: '/chat',
+})
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  @WebSocketServer()
+  server: Server;
+
+  // userId → socketId mapping
+  private onlineUsers = new Map<string, string>();
+
+  constructor(
+    private chatService: ChatService,
+    private jwtService: JwtService,
+  ) {}
+
+  async handleConnection(client: Socket) {
+    try {
+      const token = client.handshake.auth?.token || client.handshake.headers?.authorization?.replace('Bearer ', '');
+      if (!token) {
+        client.disconnect();
+        return;
+      }
+
+      const payload = this.jwtService.verify(token);
+      const userId = payload.sub;
+      client.data.userId = userId;
+
+      // Track online status
+      this.onlineUsers.set(userId, client.id);
+
+      // Join user's own room for targeted messages
+      client.join(`user:${userId}`);
+
+      // Broadcast online status
+      this.server.emit('user:online', { userId, online: true });
+      console.log(`🟢 User ${userId} connected (${client.id})`);
+    } catch (e) {
+      console.log('❌ WS auth failed:', e.message);
+      client.disconnect();
+    }
+  }
+
+  handleDisconnect(client: Socket) {
+    const userId = client.data.userId;
+    if (userId) {
+      this.onlineUsers.delete(userId);
+      this.server.emit('user:online', { userId, online: false });
+      console.log(`🔴 User ${userId} disconnected`);
+    }
+  }
+
+  @SubscribeMessage('message:send')
+  async handleSendMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { conversationId: string; content: string; imageUrl?: string },
+  ) {
+    const senderId = client.data.userId;
+    if (!senderId) return;
+
+    try {
+      const message = await this.chatService.sendMessage(
+        data.conversationId,
+        senderId,
+        data.content,
+        data.imageUrl,
+      );
+
+      // Emit to conversation room
+      this.server.to(`conversation:${data.conversationId}`).emit('message:new', message);
+
+      // Also emit to both users' rooms (in case they haven't joined conv room)
+      const conversation = await this.chatService.getOrCreateConversation(senderId, senderId);
+      // For the receiver, find other participant
+      // We send to the conversation room; clients join it when they open the chat
+      return message;
+    } catch (e) {
+      client.emit('error', { message: e.message });
+    }
+  }
+
+  @SubscribeMessage('conversation:join')
+  handleJoinConversation(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { conversationId: string },
+  ) {
+    client.join(`conversation:${data.conversationId}`);
+    console.log(`User ${client.data.userId} joined conversation:${data.conversationId}`);
+  }
+
+  @SubscribeMessage('conversation:leave')
+  handleLeaveConversation(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { conversationId: string },
+  ) {
+    client.leave(`conversation:${data.conversationId}`);
+  }
+
+  @SubscribeMessage('message:typing')
+  handleTyping(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { conversationId: string; typing: boolean },
+  ) {
+    client.to(`conversation:${data.conversationId}`).emit('message:typing', {
+      userId: client.data.userId,
+      typing: data.typing,
+    });
+  }
+
+  @SubscribeMessage('message:read')
+  async handleMarkRead(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { conversationId: string },
+  ) {
+    const userId = client.data.userId;
+    if (!userId) return;
+
+    await this.chatService.markAsRead(data.conversationId, userId);
+    client.to(`conversation:${data.conversationId}`).emit('message:read', {
+      conversationId: data.conversationId,
+      readBy: userId,
+    });
+  }
+
+  // Helper: send message to a specific user
+  sendToUser(userId: string, event: string, data: any) {
+    this.server.to(`user:${userId}`).emit(event, data);
+  }
+
+  isUserOnline(userId: string): boolean {
+    return this.onlineUsers.has(userId);
+  }
+
+  getOnlineUserIds(): string[] {
+    return Array.from(this.onlineUsers.keys());
+  }
+}

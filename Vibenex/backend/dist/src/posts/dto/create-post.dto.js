@@ -20,9 +20,9 @@ class CreatePostDto {
 }
 exports.CreatePostDto = CreatePostDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Post text content', example: 'Hello world' }),
+    (0, swagger_1.ApiProperty)({ description: 'Post text content', example: 'Hello world', required: false }),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.MaxLength)(1000),
     __metadata("design:type", String)
 ], CreatePostDto.prototype, "content", void 0);

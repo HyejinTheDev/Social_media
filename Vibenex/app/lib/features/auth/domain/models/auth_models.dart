@@ -40,7 +40,7 @@ abstract class AuthResponse with _$AuthResponse {
 abstract class UserModel with _$UserModel {
   const factory UserModel({
     required String id,
-    required String email,
+    String? email,
     required String name,
     required String username,
     String? bio,

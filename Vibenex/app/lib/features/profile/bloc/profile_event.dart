@@ -35,3 +35,10 @@ class ProfileCoverUploadRequested extends ProfileEvent {
   @override
   List<Object?> get props => [filePath];
 }
+
+class ProfileFollowToggled extends ProfileEvent {
+  final String userId;
+  const ProfileFollowToggled(this.userId);
+  @override
+  List<Object?> get props => [userId];
+}

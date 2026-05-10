@@ -10,6 +10,7 @@ import 'core/theme/theme_notifier.dart';
 import 'core/l10n/locale_provider.dart';
 import 'features/auth/bloc/auth_bloc.dart';
 import 'features/profile/bloc/profile_bloc.dart';
+import 'features/chat/data/datasources/socket_service.dart';
 
 final themeNotifier = ThemeNotifier();
 final localeProvider = LocaleProvider();
@@ -38,8 +39,10 @@ class VibenexApp extends StatelessWidget {
         listener: (context, state) {
           if (state is AuthAuthenticated) {
             AppRouter.authNotifier.setAuthenticated(true);
+            getIt<SocketService>().connect();
           } else if (state is AuthUnauthenticated || state is AuthError) {
             AppRouter.authNotifier.setAuthenticated(false);
+            getIt<SocketService>().disconnect();
           }
         },
         child: ListenableBuilder(

@@ -17,6 +17,17 @@ import '../../features/post/presentation/pages/full_screen_image_viewer.dart';
 import '../../features/post/domain/models/post_models.dart';
 import '../../features/post/bloc/feed/feed_bloc.dart';
 import '../../features/post/bloc/post/post_bloc.dart';
+import '../../features/story/presentation/pages/create_story_screen.dart';
+import '../../features/story/presentation/pages/story_viewer_screen.dart';
+import '../../features/story/domain/models/story_models.dart';
+import '../../features/story/bloc/story_bloc.dart';
+import '../../features/follow/bloc/follow_bloc.dart';
+import '../../features/follow/presentation/pages/followers_page.dart';
+import '../../features/search/bloc/search_bloc.dart';
+import '../../features/search/presentation/pages/search_screen.dart';
+import '../../features/chat/bloc/chat_bloc.dart';
+import '../../features/chat/presentation/pages/conversation_list_screen.dart';
+import '../../features/chat/presentation/pages/chat_screen.dart';
 
 class AuthNotifier extends ChangeNotifier {
   bool _isAuthenticated = false;
@@ -94,6 +105,67 @@ class AppRouter {
           );
         },
       ),
+      // Story routes
+      GoRoute(
+        path: '/story/create',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, __) => BlocProvider(
+          create: (_) => getIt<StoryBloc>(),
+          child: const CreateStoryScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/story/viewer',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return BlocProvider(
+            create: (_) => getIt<StoryBloc>(),
+            child: StoryViewerScreen(
+              groups: extra['groups'] as List<StoryGroup>,
+              initialGroupIndex: extra['initialGroupIndex'] as int? ?? 0,
+            ),
+          );
+        },
+      ),
+      // Follow page route
+      GoRoute(
+        path: '/followers/:userId',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, state) {
+          final userId = state.pathParameters['userId']!;
+          final tab = int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
+          return BlocProvider(
+            create: (_) => getIt<FollowBloc>(),
+            child: FollowersPage(userId: userId, initialTab: tab),
+          );
+        },
+      ),
+      // Chat screen route
+      GoRoute(
+        path: '/chat/:conversationId',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, state) {
+          final conversationId = state.pathParameters['conversationId']!;
+          final otherUser = state.extra as Map<String, dynamic>?;
+          return BlocProvider(
+            create: (_) => getIt<ChatBloc>(),
+            child: ChatScreen(conversationId: conversationId, otherUser: otherUser),
+          );
+        },
+      ),
+      // Profile by user ID
+      GoRoute(
+        path: '/profile/:userId',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, state) {
+          final userId = state.pathParameters['userId']!;
+          return BlocProvider(
+            create: (_) => getIt<ProfileBloc>(),
+            child: ProfilePage(userId: userId),
+          );
+        },
+      ),
       // Shell with bottom nav
       ShellRoute(
         navigatorKey: shellNavigatorKey,
@@ -111,9 +183,33 @@ class AppRouter {
               ),
             ),
           ),
-          GoRoute(path: '/search', pageBuilder: (_, __) => const NoTransitionPage(child: Scaffold(body: Center(child: Text('Search'))))),
-          GoRoute(path: '/chat', pageBuilder: (_, __) => const NoTransitionPage(child: Scaffold(body: Center(child: Text('Chat'))))),
-          GoRoute(path: '/profile', pageBuilder: (_, __) => NoTransitionPage(child: ProfilePage())),
+          GoRoute(
+            path: '/search',
+            pageBuilder: (_, __) => NoTransitionPage(
+              child: BlocProvider(
+                create: (_) => getIt<SearchBloc>(),
+                child: const SearchScreen(),
+              ),
+            ),
+          ),
+          GoRoute(
+            path: '/chat',
+            pageBuilder: (_, __) => NoTransitionPage(
+              child: BlocProvider(
+                create: (_) => getIt<ChatBloc>(),
+                child: const ConversationListScreen(),
+              ),
+            ),
+          ),
+          GoRoute(
+            path: '/profile',
+            pageBuilder: (_, __) => NoTransitionPage(
+              child: BlocProvider(
+                create: (_) => getIt<ProfileBloc>(),
+                child: const ProfilePage(),
+              ),
+            ),
+          ),
         ],
       ),
     ],

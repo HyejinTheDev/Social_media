@@ -14,6 +14,9 @@ const auth_module_1 = require("./auth/auth.module");
 const users_module_1 = require("./users/users.module");
 const posts_module_1 = require("./posts/posts.module");
 const comments_module_1 = require("./comments/comments.module");
+const stories_module_1 = require("./stories/stories.module");
+const follow_module_1 = require("./follow/follow.module");
+const chat_module_1 = require("./chat/chat.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -26,6 +29,9 @@ exports.AppModule = AppModule = __decorate([
             users_module_1.UsersModule,
             posts_module_1.PostsModule,
             comments_module_1.CommentsModule,
+            stories_module_1.StoriesModule,
+            follow_module_1.FollowModule,
+            chat_module_1.ChatModule,
         ],
         controllers: [],
         providers: [],

@@ -1060,7 +1060,7 @@ class __$AuthResponseCopyWithImpl<$Res>
 /// @nodoc
 mixin _$UserModel {
   String get id;
-  String get email;
+  String? get email;
   String get name;
   String get username;
   String? get bio;
@@ -1138,7 +1138,7 @@ abstract mixin class $UserModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      String email,
+      String? email,
       String name,
       String username,
       String? bio,
@@ -1164,7 +1164,7 @@ class _$UserModelCopyWithImpl<$Res> implements $UserModelCopyWith<$Res> {
   @override
   $Res call({
     Object? id = null,
-    Object? email = null,
+    Object? email = freezed,
     Object? name = null,
     Object? username = null,
     Object? bio = freezed,
@@ -1181,10 +1181,10 @@ class _$UserModelCopyWithImpl<$Res> implements $UserModelCopyWith<$Res> {
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      email: null == email
+      email: freezed == email
           ? _self.email
           : email // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -1324,7 +1324,7 @@ extension UserModelPatterns on UserModel {
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(
             String id,
-            String email,
+            String? email,
             String name,
             String username,
             String? bio,
@@ -1376,7 +1376,7 @@ extension UserModelPatterns on UserModel {
   TResult when<TResult extends Object?>(
     TResult Function(
             String id,
-            String email,
+            String? email,
             String name,
             String username,
             String? bio,
@@ -1426,7 +1426,7 @@ extension UserModelPatterns on UserModel {
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(
             String id,
-            String email,
+            String? email,
             String name,
             String username,
             String? bio,
@@ -1466,7 +1466,7 @@ extension UserModelPatterns on UserModel {
 class _UserModel implements UserModel {
   const _UserModel(
       {required this.id,
-      required this.email,
+      this.email,
       required this.name,
       required this.username,
       this.bio,
@@ -1483,7 +1483,7 @@ class _UserModel implements UserModel {
   @override
   final String id;
   @override
-  final String email;
+  final String? email;
   @override
   final String name;
   @override
@@ -1583,7 +1583,7 @@ abstract mixin class _$UserModelCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      String email,
+      String? email,
       String name,
       String username,
       String? bio,
@@ -1609,7 +1609,7 @@ class __$UserModelCopyWithImpl<$Res> implements _$UserModelCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   $Res call({
     Object? id = null,
-    Object? email = null,
+    Object? email = freezed,
     Object? name = null,
     Object? username = null,
     Object? bio = freezed,
@@ -1626,10 +1626,10 @@ class __$UserModelCopyWithImpl<$Res> implements _$UserModelCopyWith<$Res> {
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      email: null == email
+      email: freezed == email
           ? _self.email
           : email // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable

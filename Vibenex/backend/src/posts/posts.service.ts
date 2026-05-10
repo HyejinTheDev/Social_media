@@ -14,7 +14,7 @@ export class PostsService {
 
     return this.prisma.post.create({
       data: {
-        content: dto.content,
+        content: dto.content || "",
         authorId: userId,
         mediaType,
         imageUrls: fileUrls.images || [],

@@ -7,6 +7,9 @@ import '../../../auth/bloc/auth_bloc.dart';
 import '../../bloc/feed/feed_bloc.dart';
 import '../widgets/post_card.dart';
 import '../widgets/feed_shimmer.dart';
+import '../../../story/presentation/widgets/story_bar.dart';
+import '../../../story/bloc/story_bloc.dart';
+import '../../../../core/di/injection.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -23,6 +26,7 @@ class _FeedScreenState extends State<FeedScreen> {
     super.initState();
     _scrollController.addListener(_onScroll);
     context.read<FeedBloc>().add(FeedLoadRequested());
+    // Stories are loaded by BlocProvider in the widget tree below
   }
 
   @override
@@ -90,22 +94,26 @@ class _FeedScreenState extends State<FeedScreen> {
 
           return RefreshIndicator(
             onRefresh: _onRefresh,
-            child: ListView.builder(
-              controller: _scrollController,
-              itemCount: state.hasReachedMax ? state.posts.length : state.posts.length + 1,
-              itemBuilder: (context, index) {
-                if (index >= state.posts.length) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                }
-                
-                final post = state.posts[index];
-                // Note: ideally like status should be fetched per post or embedded in post model from backend.
-                // Here we assume it's part of local state or passed. Since it's not in the model yet, we leave it false.
-                return PostCard(post: post, currentUserId: currentUser);
-              },
+            child: BlocProvider(
+              create: (_) => getIt<StoryBloc>()..add(const StoryLoadRequested()),
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: (state.hasReachedMax ? state.posts.length : state.posts.length + 1) + 1, // +1 for StoryBar
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return const StoryBar();
+                  }
+                  final postIndex = index - 1;
+                  if (postIndex >= state.posts.length) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  final post = state.posts[postIndex];
+                  return PostCard(post: post, currentUserId: currentUser);
+                },
+              ),
             ),
           );
         },

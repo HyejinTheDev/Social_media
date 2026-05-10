@@ -7,6 +7,8 @@ import '../../../../core/widgets/avatar_widget.dart';
 import '../../../../core/widgets/loading_overlay.dart';
 import '../../bloc/profile_bloc.dart';
 import '../../../auth/bloc/auth_bloc.dart';
+import '../../../chat/data/datasources/chat_api_service.dart';
+import '../../../../core/di/injection.dart';
 
 class ProfilePage extends StatefulWidget {
   final String? userId;
@@ -158,14 +160,23 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Row(children: [
         _StatItem(count: user.postsCount, label: 'Bài viết'),
         const SizedBox(width: 24),
-        _StatItem(count: user.followersCount, label: 'Followers'),
+        GestureDetector(
+          onTap: () => context.push('/followers/${user.id}?tab=0'),
+          child: _StatItem(count: user.followersCount, label: 'Followers'),
+        ),
         const SizedBox(width: 24),
-        _StatItem(count: user.followingCount, label: 'Following'),
+        GestureDetector(
+          onTap: () => context.push('/followers/${user.id}?tab=1'),
+          child: _StatItem(count: user.followingCount, label: 'Following'),
+        ),
       ]),
     );
   }
 
   Widget _buildActions(BuildContext context, ColorScheme cs, bool isOwn, ProfileState state) {
+    final isFollowing = state is ProfileLoaded ? state.isFollowing : false;
+    final userId = state is ProfileLoaded ? state.user.id : '';
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: isOwn
@@ -176,14 +187,39 @@ class _ProfilePageState extends State<ProfilePage> {
             style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 44), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
           )
         : Row(children: [
-            Expanded(child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(minimumSize: const Size(0, 44), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-              child: Text(state is ProfileLoaded && state.isFollowing ? 'Đang theo dõi' : 'Theo dõi'),
-            )),
+            Expanded(child: isFollowing
+              ? OutlinedButton(
+                  onPressed: () => context.read<ProfileBloc>().add(ProfileFollowToggled(userId)),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 44),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    side: BorderSide(color: cs.outline),
+                  ),
+                  child: const Text('Đang theo dõi'),
+                )
+              : ElevatedButton(
+                  onPressed: () => context.read<ProfileBloc>().add(ProfileFollowToggled(userId)),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(0, 44),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Theo dõi'),
+                ),
+            ),
             const SizedBox(width: 12),
             OutlinedButton(
-              onPressed: () {},
+              onPressed: () async {
+                try {
+                  final conv = await getIt<ChatApiService>().getOrCreateConversation(userId);
+                  if (context.mounted) {
+                    context.push('/chat/${conv['id']}', extra: conv['otherUser']);
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lỗi khi mở tin nhắn')));
+                  }
+                }
+              },
               style: OutlinedButton.styleFrom(minimumSize: const Size(44, 44), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
               child: const Icon(Icons.chat_bubble_outline, size: 20),
             ),

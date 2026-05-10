@@ -50,7 +50,7 @@ Map<String, dynamic> _$AuthResponseToJson(_AuthResponse instance) =>
 
 _UserModel _$UserModelFromJson(Map<String, dynamic> json) => _UserModel(
       id: json['id'] as String,
-      email: json['email'] as String,
+      email: json['email'] as String?,
       name: json['name'] as String,
       username: json['username'] as String,
       bio: json['bio'] as String?,

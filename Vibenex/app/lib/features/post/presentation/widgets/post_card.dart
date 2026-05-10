@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -24,20 +25,24 @@ class PostCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 0,
       color: Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(context),
-            const SizedBox(height: 12),
-            if (post.content.isNotEmpty)
-              Text(post.content, style: const TextStyle(fontSize: 15, height: 1.4)),
-            const SizedBox(height: 12),
-            _buildMedia(context),
-            const SizedBox(height: 12),
-            _buildActionBar(context),
-          ],
+      child: InkWell(
+        onTap: () => context.push('/post/detail', extra: post),
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(context),
+              const SizedBox(height: 12),
+              if (post.content.isNotEmpty)
+                Text(post.content, style: const TextStyle(fontSize: 15, height: 1.4)),
+              const SizedBox(height: 12),
+              _buildMedia(context),
+              const SizedBox(height: 12),
+              _buildActionBar(context),
+            ],
+          ),
         ),
       ),
     );
@@ -147,7 +152,7 @@ class PostCard extends StatelessWidget {
               color: Colors.grey[700]!,
               count: post.commentsCount,
               onTap: () {
-                // Navigate to comments sheet or screen
+                context.push('/post/detail', extra: post);
               },
             ),
           ],

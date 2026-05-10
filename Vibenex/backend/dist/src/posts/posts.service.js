@@ -26,7 +26,7 @@ let PostsService = class PostsService {
             mediaType = client_1.MediaType.IMAGE;
         return this.prisma.post.create({
             data: {
-                content: dto.content,
+                content: dto.content || "",
                 authorId: userId,
                 mediaType,
                 imageUrls: fileUrls.images || [],
