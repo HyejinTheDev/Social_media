@@ -135,8 +135,8 @@ export class UsersService {
       this.prisma.message.deleteMany({ where: { conversationId: { in: conversationIds } } }),
       this.prisma.conversation.deleteMany({ where: { id: { in: conversationIds } } }),
 
-      // Delete space memberships
-      this.prisma.spaceMember.deleteMany({ where: { userId } }),
+      // Delete community memberships
+      this.prisma.communityMember.deleteMany({ where: { userId } }),
 
       // Delete notifications
       this.prisma.notification.deleteMany({ where: { userId } }),

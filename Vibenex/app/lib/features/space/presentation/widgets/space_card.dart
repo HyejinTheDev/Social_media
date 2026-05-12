@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../domain/models/space_models.dart';
 
 class SpaceCard extends StatelessWidget {
@@ -13,11 +14,11 @@ class SpaceCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: Colors.white.withOpacity(0.05),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        color: Colors.white.withValues(alpha: 0.05),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 10,
             spreadRadius: 2,
           ),
@@ -29,7 +30,7 @@ class SpaceCard extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: InkWell(
             onTap: () {
-              // TODO: Navigate to space detail
+              context.push('/spaces/${space.id}');
             },
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

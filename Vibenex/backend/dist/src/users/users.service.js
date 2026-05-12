@@ -123,7 +123,7 @@ let UsersService = class UsersService {
             this.prisma.reply.deleteMany({ where: { authorId: userId } }),
             this.prisma.message.deleteMany({ where: { conversationId: { in: conversationIds } } }),
             this.prisma.conversation.deleteMany({ where: { id: { in: conversationIds } } }),
-            this.prisma.spaceMember.deleteMany({ where: { userId } }),
+            this.prisma.communityMember.deleteMany({ where: { userId } }),
             this.prisma.notification.deleteMany({ where: { userId } }),
             this.prisma.discussion.deleteMany({ where: { authorId: userId } }),
             this.prisma.user.delete({ where: { id: userId } }),

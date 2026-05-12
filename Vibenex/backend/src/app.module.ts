@@ -5,7 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ChatModule } from './chat/chat.module';
 import { NotificationsModule } from './notifications/notifications.module';
-import { SpacesModule } from './spaces/spaces.module';
+import { CommunitiesModule } from './communities/communities.module';
 import { ReactionsModule } from './reactions/reactions.module';
 import { RepliesModule } from './replies/replies.module';
 import { DiscussionsModule } from './discussions/discussions.module';
@@ -19,7 +19,7 @@ import { ChannelsModule } from './channels/channels.module';
     UsersModule,
     ChatModule,
     NotificationsModule,
-    SpacesModule,
+    CommunitiesModule,
     ChannelsModule,
     DiscussionsModule,
     RepliesModule,

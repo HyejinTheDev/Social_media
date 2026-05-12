@@ -18,10 +18,15 @@ import '../../features/chat/bloc/chat_bloc.dart';
 import '../../features/notification/data/datasources/notification_api_service.dart';
 import '../../features/notification/bloc/notification_bloc.dart';
 
-import '../../features/space/data/datasources/space_api_service.dart';
-import '../../features/space/data/repositories/space_repository_impl.dart';
-import '../../features/space/domain/repositories/space_repository.dart';
-import '../../features/space/bloc/space_bloc.dart';
+import '../../features/community/data/datasources/community_api_service.dart';
+import '../../features/community/data/repositories/community_repository_impl.dart';
+import '../../features/community/domain/repositories/community_repository.dart';
+import '../../features/community/bloc/community_bloc.dart';
+
+import '../../features/discussion/data/datasources/discussion_api_service.dart';
+import '../../features/discussion/data/repositories/discussion_repository_impl.dart';
+import '../../features/discussion/domain/repositories/discussion_repository.dart';
+import '../../features/discussion/bloc/discussion_bloc.dart';
 
 final getIt = GetIt.instance;
 
@@ -66,15 +71,26 @@ Future<void> configureDependencies() async {
   );
   getIt.registerFactory(() => ChatBloc(api: getIt(), socket: getIt()));
 
-  // ─── Space ───
-  getIt.registerLazySingleton<SpaceApiService>(
-    () => SpaceApiService(getIt<DioClient>().dio),
+  // ─── Community ───
+  getIt.registerLazySingleton<CommunityApiService>(
+    () => CommunityApiService(getIt<DioClient>().dio),
   );
-  getIt.registerLazySingleton<SpaceRepository>(
-    () => SpaceRepositoryImpl(api: getIt<SpaceApiService>()),
+  getIt.registerLazySingleton<CommunityRepository>(
+    () => CommunityRepositoryImpl(api: getIt<CommunityApiService>()),
   );
-  getIt.registerFactory<SpaceBloc>(
-    () => SpaceBloc(repository: getIt<SpaceRepository>()),
+  getIt.registerFactory<CommunityBloc>(
+    () => CommunityBloc(repository: getIt<CommunityRepository>()),
+  );
+
+  // ─── Discussion ───
+  getIt.registerLazySingleton<DiscussionApiService>(
+    () => DiscussionApiService(getIt<DioClient>().dio),
+  );
+  getIt.registerLazySingleton<DiscussionRepository>(
+    () => DiscussionRepositoryImpl(api: getIt<DiscussionApiService>()),
+  );
+  getIt.registerFactory<DiscussionBloc>(
+    () => DiscussionBloc(repository: getIt<DiscussionRepository>()),
   );
 
   // ─── Notification ───

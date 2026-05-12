@@ -8,8 +8,12 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
-import '../../features/space/bloc/space_bloc.dart';
-import '../../features/space/presentation/pages/spaces_page.dart';
+import '../../features/community/bloc/community_bloc.dart';
+import '../../features/community/presentation/pages/communities_page.dart';
+import '../../features/community/presentation/pages/create_community_page.dart';
+import '../../features/discussion/bloc/discussion_bloc.dart';
+import '../../features/discussion/presentation/pages/community_detail_page.dart';
+import '../../features/discussion/presentation/pages/channel_page.dart';
 import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/bloc/profile_bloc.dart';
 import '../../features/search/bloc/search_bloc.dart';
@@ -61,8 +65,8 @@ class AppRouter {
       final isAuthPage = loc == '/login' || loc == '/register' || loc == '/forgot-password';
       if (loc == '/splash' || loc == '/onboarding') return null;
       if (!isAuth) return isAuthPage ? null : '/login';
-      if (isAuth && isAuthPage) return '/spaces';
-      if (loc == '/') return '/spaces';
+      if (isAuth && isAuthPage) return '/communities';
+      if (loc == '/') return '/communities';
       return null;
     },
     routes: [
@@ -130,6 +134,51 @@ class AppRouter {
         parentNavigatorKey: rootNavigatorKey,
         builder: (_, __) => const ChangePasswordPage(),
       ),
+      // Create community page
+      GoRoute(
+        path: '/create-community',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (context, state) {
+          return _slideTransition(
+            context,
+            state,
+            BlocProvider.value(
+              value: getIt<CommunityBloc>(),
+              child: const CreateCommunityPage(),
+            ),
+          );
+        },
+      ),
+      // Community detail page
+      GoRoute(
+        path: '/communities/:communityId',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (context, state) {
+          final communityId = state.pathParameters['communityId']!;
+          return _slideTransition(context, state, CommunityDetailPage(communityId: communityId));
+        },
+      ),
+      // Channel page (discussions inside a channel)
+      GoRoute(
+        path: '/communities/:communityId/channels/:channelId',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (context, state) {
+          final channelId = state.pathParameters['channelId']!;
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return _slideTransition(
+            context,
+            state,
+            BlocProvider(
+              create: (_) => getIt<DiscussionBloc>(),
+              child: ChannelPage(
+                channelId: channelId,
+                channelName: extra['channelName'] ?? 'general',
+                communityName: extra['communityName'] ?? '',
+              ),
+            ),
+          );
+        },
+      ),
       // Profile by user ID
       GoRoute(
         path: '/profile/:userId',
@@ -148,11 +197,11 @@ class AppRouter {
         builder: (_, __, child) => _ShellWithNav(child: child),
         routes: [
           GoRoute(
-            path: '/spaces',
+            path: '/communities',
             pageBuilder: (_, __) => NoTransitionPage(
               child: BlocProvider(
-                create: (_) => getIt<SpaceBloc>(),
-                child: const SpacesPage(),
+                create: (_) => getIt<CommunityBloc>(),
+                child: const CommunitiesPage(),
               ),
             ),
           ),
@@ -195,7 +244,7 @@ class _ShellWithNav extends StatelessWidget {
 
   int _idx(BuildContext ctx) {
     final loc = GoRouterState.of(ctx).uri.path;
-    if (loc.startsWith('/spaces')) return 0;
+    if (loc.startsWith('/communities')) return 0;
     if (loc.startsWith('/search')) return 1;
     if (loc.startsWith('/chat')) return 2;
     if (loc.startsWith('/profile')) return 3;
@@ -210,14 +259,14 @@ class _ShellWithNav extends StatelessWidget {
         selectedIndex: _idx(context),
         onDestinationSelected: (i) {
           switch (i) {
-            case 0: context.go('/spaces');
+            case 0: context.go('/communities');
             case 1: context.go('/search');
             case 2: context.go('/chat');
             case 3: context.go('/profile');
           }
         },
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.group_work_outlined), selectedIcon: Icon(Icons.group_work), label: 'Spaces'),
+          NavigationDestination(icon: Icon(Icons.groups_outlined), selectedIcon: Icon(Icons.groups), label: 'Communities'),
           NavigationDestination(icon: Icon(Icons.search), selectedIcon: Icon(Icons.search), label: 'Khám phá'),
           NavigationDestination(icon: Icon(Icons.chat_bubble_outline), selectedIcon: Icon(Icons.chat_bubble), label: 'Chat'),
           NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Hồ sơ'),

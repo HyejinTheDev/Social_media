@@ -14,7 +14,7 @@ const auth_module_1 = require("./auth/auth.module");
 const users_module_1 = require("./users/users.module");
 const chat_module_1 = require("./chat/chat.module");
 const notifications_module_1 = require("./notifications/notifications.module");
-const spaces_module_1 = require("./spaces/spaces.module");
+const communities_module_1 = require("./communities/communities.module");
 const reactions_module_1 = require("./reactions/reactions.module");
 const replies_module_1 = require("./replies/replies.module");
 const discussions_module_1 = require("./discussions/discussions.module");
@@ -31,7 +31,7 @@ exports.AppModule = AppModule = __decorate([
             users_module_1.UsersModule,
             chat_module_1.ChatModule,
             notifications_module_1.NotificationsModule,
-            spaces_module_1.SpacesModule,
+            communities_module_1.CommunitiesModule,
             channels_module_1.ChannelsModule,
             discussions_module_1.DiscussionsModule,
             replies_module_1.RepliesModule,

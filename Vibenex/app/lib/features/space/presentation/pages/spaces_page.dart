@@ -1,9 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import '../../bloc/space_bloc.dart';
-import '../../domain/models/space_models.dart';
 import '../widgets/space_card.dart';
 
 class SpacesPage extends StatefulWidget {
