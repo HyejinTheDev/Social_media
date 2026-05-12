@@ -47,3 +47,15 @@ export class ForgotPasswordDto {
   @IsEmail({}, { message: 'Email không hợp lệ' })
   email: string;
 }
+
+export class ChangePasswordDto {
+  @ApiProperty()
+  @IsNotEmpty({ message: 'Vui lòng nhập mật khẩu cũ' })
+  @IsString()
+  oldPassword: string;
+
+  @ApiProperty()
+  @IsNotEmpty({ message: 'Vui lòng nhập mật khẩu mới' })
+  @MinLength(8, { message: 'Mật khẩu phải có ít nhất 8 ký tự' })
+  newPassword: string;
+}

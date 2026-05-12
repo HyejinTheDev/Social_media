@@ -63,6 +63,9 @@ let UsersController = class UsersController {
     getUserById(id, req) {
         return this.usersService.getProfileById(id, req.user.sub);
     }
+    deleteAccount(req) {
+        return this.usersService.deleteAccount(req.user.sub);
+    }
 };
 exports.UsersController = UsersController;
 __decorate([
@@ -139,6 +142,16 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "getUserById", null);
+__decorate([
+    (0, common_1.Delete)('me'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete current user account' }),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "deleteAccount", null);
 exports.UsersController = UsersController = __decorate([
     (0, swagger_1.ApiTags)('Users'),
     (0, common_1.Controller)('users'),

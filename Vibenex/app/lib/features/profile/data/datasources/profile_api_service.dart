@@ -13,4 +13,10 @@ abstract class ProfileApiService {
 
   @PATCH('/users/me')
   Future<UserModel> updateProfile(@Body() Map<String, dynamic> body);
+
+  @GET('/users/search')
+  Future<dynamic> searchUsers(
+    @Query('q') String query,
+    @Query('page') int page,
+  );
 }

@@ -11,6 +11,7 @@ import 'core/l10n/locale_provider.dart';
 import 'features/auth/bloc/auth_bloc.dart';
 import 'features/profile/bloc/profile_bloc.dart';
 import 'features/chat/data/datasources/socket_service.dart';
+import 'core/widgets/offline_banner.dart';
 
 final themeNotifier = ThemeNotifier();
 final localeProvider = LocaleProvider();
@@ -54,6 +55,7 @@ class VibenexApp extends StatelessWidget {
             darkTheme: AppTheme.darkTheme,
             themeMode: themeNotifier.themeMode,
             locale: localeProvider.locale,
+            builder: (context, child) => OfflineBanner(child: child!),
             localizationsDelegates: const [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,

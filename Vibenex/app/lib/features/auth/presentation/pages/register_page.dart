@@ -59,8 +59,9 @@ class _RegisterPageState extends State<RegisterPage> {
     final cs = Theme.of(context).colorScheme;
     return BlocListener<AuthBloc, AuthState>(
       listener: (ctx, state) {
-        if (state is AuthAuthenticated) ctx.go('/feed');
-        else if (state is AuthError) {
+        if (state is AuthAuthenticated) {
+          ctx.go('/feed');
+        } else if (state is AuthError) {
           ScaffoldMessenger.of(ctx)..hideCurrentSnackBar()..showSnackBar(
             SnackBar(content: Text(state.message), backgroundColor: cs.error,
               behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),

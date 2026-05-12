@@ -1,5 +1,5 @@
 import {
-  Controller, Get, Patch, Post, Body, Param, Query,
+  Controller, Get, Patch, Post, Delete, Body, Param, Query,
   UseGuards, Request, UseInterceptors, UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -93,5 +93,13 @@ export class UsersController {
   @ApiOperation({ summary: 'Get user profile by ID' })
   getUserById(@Param('id') id: string, @Request() req: any) {
     return this.usersService.getProfileById(id, req.user.sub);
+  }
+
+  @Delete('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete current user account' })
+  deleteAccount(@Request() req: any) {
+    return this.usersService.deleteAccount(req.user.sub);
   }
 }

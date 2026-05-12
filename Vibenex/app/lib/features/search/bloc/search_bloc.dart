@@ -3,16 +3,16 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/utils/error_mapper.dart';
 import '../../auth/domain/models/auth_models.dart';
-import '../../follow/data/datasources/follow_api_service.dart';
+import '../../profile/data/datasources/profile_api_service.dart';
 
 part 'search_event.dart';
 part 'search_state.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
-  final FollowApiService _api;
+  final ProfileApiService _api;
   Timer? _debounce;
 
-  SearchBloc({required FollowApiService api})
+  SearchBloc({required ProfileApiService api})
       : _api = api,
         super(const SearchState()) {
     on<SearchQueryChanged>(_onQueryChanged);

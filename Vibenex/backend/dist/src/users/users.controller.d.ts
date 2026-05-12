@@ -14,7 +14,7 @@ export declare class UsersController {
             id: string;
             bio: string | null;
             avatar: string | null;
-            followersCount: number;
+            reputation: number;
             isVerified: boolean;
         }[];
         total: number;
@@ -22,4 +22,7 @@ export declare class UsersController {
         totalPages: number;
     }>;
     getUserById(id: string, req: any): Promise<any>;
+    deleteAccount(req: any): Promise<{
+        message: string;
+    }>;
 }

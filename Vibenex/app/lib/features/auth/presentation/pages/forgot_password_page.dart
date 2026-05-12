@@ -38,7 +38,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     return Form(key: _formKey, child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       const SizedBox(height: 24),
       Container(width: 64, height: 64, alignment: Alignment.center,
-        decoration: BoxDecoration(color: cs.primaryContainer.withOpacity(0.3), shape: BoxShape.circle),
+        decoration: BoxDecoration(color: cs.primaryContainer.withValues(alpha: 0.3), shape: BoxShape.circle),
         child: Icon(Icons.lock_reset, size: 32, color: cs.primary)),
       const SizedBox(height: 24),
       Text('Quên mật khẩu?', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700), textAlign: TextAlign.center),
@@ -53,7 +53,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   Widget _buildSuccess(ColorScheme cs) {
     return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      Container(width: 80, height: 80, decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), shape: BoxShape.circle),
+      Container(width: 80, height: 80, decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.1), shape: BoxShape.circle),
         child: const Icon(Icons.mark_email_read, size: 40, color: Colors.green)),
       const SizedBox(height: 24),
       Text('Đã gửi email!', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),

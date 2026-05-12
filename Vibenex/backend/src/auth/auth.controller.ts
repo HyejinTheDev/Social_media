@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Get, UseGuards, Request, Param } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { RegisterDto, LoginDto, RefreshTokenDto, ForgotPasswordDto } from './dto/auth.dto';
+import { RegisterDto, LoginDto, RefreshTokenDto, ForgotPasswordDto, ChangePasswordDto } from './dto/auth.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @ApiTags('Auth')
@@ -47,5 +47,13 @@ export class AuthController {
   @ApiOperation({ summary: 'Get current user profile' })
   getProfile(@Request() req: any) {
     return this.authService.getProfile(req.user.sub);
+  }
+
+  @Post('change-password') // Using POST to align with frontend dio request mapping, or PATCH
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Change user password' })
+  changePassword(@Request() req: any, @Body() dto: ChangePasswordDto) {
+    return this.authService.changePassword(req.user.sub, dto);
   }
 }

@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
-import { RegisterDto, LoginDto } from './dto/auth.dto';
+import { RegisterDto, LoginDto, ChangePasswordDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -130,5 +130,21 @@ export class AuthService {
   private sanitizeUser(user: any) {
     const { password, ...result } = user;
     return result;
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException('Người dùng không tồn tại');
+
+    const isValid = await bcrypt.compare(dto.oldPassword, user.password);
+    if (!isValid) throw new UnauthorizedException('Mật khẩu cũ không chính xác');
+
+    const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    return { message: 'Đổi mật khẩu thành công' };
   }
 }

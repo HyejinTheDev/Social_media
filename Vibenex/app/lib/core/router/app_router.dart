@@ -8,21 +8,10 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/space/bloc/space_bloc.dart';
+import '../../features/space/presentation/pages/spaces_page.dart';
 import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/bloc/profile_bloc.dart';
-import '../../features/post/presentation/pages/feed_screen.dart';
-import '../../features/post/presentation/pages/create_post_screen.dart';
-import '../../features/post/presentation/pages/post_detail_screen.dart';
-import '../../features/post/presentation/pages/full_screen_image_viewer.dart';
-import '../../features/post/domain/models/post_models.dart';
-import '../../features/post/bloc/feed/feed_bloc.dart';
-import '../../features/post/bloc/post/post_bloc.dart';
-import '../../features/story/presentation/pages/create_story_screen.dart';
-import '../../features/story/presentation/pages/story_viewer_screen.dart';
-import '../../features/story/domain/models/story_models.dart';
-import '../../features/story/bloc/story_bloc.dart';
-import '../../features/follow/bloc/follow_bloc.dart';
-import '../../features/follow/presentation/pages/followers_page.dart';
 import '../../features/search/bloc/search_bloc.dart';
 import '../../features/search/presentation/pages/search_screen.dart';
 import '../../features/chat/bloc/chat_bloc.dart';
@@ -30,6 +19,8 @@ import '../../features/chat/presentation/pages/conversation_list_screen.dart';
 import '../../features/chat/presentation/pages/chat_screen.dart';
 import '../../features/notification/bloc/notification_bloc.dart';
 import '../../features/notification/presentation/pages/notifications_page.dart';
+import '../../features/settings/presentation/pages/settings_page.dart';
+import '../../features/settings/presentation/pages/change_password_page.dart';
 
 class AuthNotifier extends ChangeNotifier {
   bool _isAuthenticated = false;
@@ -40,6 +31,19 @@ class AuthNotifier extends ChangeNotifier {
       notifyListeners();
     }
   }
+}
+
+Page<dynamic> _slideTransition(BuildContext context, GoRouterState state, Widget child) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    child: child,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return SlideTransition(
+        position: animation.drive(Tween(begin: const Offset(1, 0), end: Offset.zero).chain(CurveTween(curve: Curves.easeOutCubic))),
+        child: child,
+      );
+    },
+  );
 }
 
 class AppRouter {
@@ -57,8 +61,8 @@ class AppRouter {
       final isAuthPage = loc == '/login' || loc == '/register' || loc == '/forgot-password';
       if (loc == '/splash' || loc == '/onboarding') return null;
       if (!isAuth) return isAuthPage ? null : '/login';
-      if (isAuth && isAuthPage) return '/feed';
-      if (loc == '/') return '/feed';
+      if (isAuth && isAuthPage) return '/spaces';
+      if (loc == '/') return '/spaces';
       return null;
     },
     routes: [
@@ -82,77 +86,21 @@ class AppRouter {
           child: ProfilePage(userId: state.pathParameters['id']),
         ),
       ),
-      // Post feature routes
-      GoRoute(
-        path: '/post/create',
-        parentNavigatorKey: rootNavigatorKey,
-        builder: (_, __) => const CreatePostScreen(),
-      ),
-      GoRoute(
-        path: '/post/detail',
-        parentNavigatorKey: rootNavigatorKey,
-        builder: (_, state) {
-          final post = state.extra as PostModel;
-          return PostDetailScreen(post: post);
-        },
-      ),
-      GoRoute(
-        path: '/image-viewer',
-        parentNavigatorKey: rootNavigatorKey,
-        builder: (_, state) {
-          final extra = state.extra as Map<String, dynamic>;
-          return FullScreenImageViewer(
-            imageUrls: extra['imageUrls'] as List<String>,
-            initialIndex: extra['initialIndex'] as int? ?? 0,
-          );
-        },
-      ),
-      // Story routes
-      GoRoute(
-        path: '/story/create',
-        parentNavigatorKey: rootNavigatorKey,
-        builder: (_, __) => BlocProvider(
-          create: (_) => getIt<StoryBloc>(),
-          child: const CreateStoryScreen(),
-        ),
-      ),
-      GoRoute(
-        path: '/story/viewer',
-        parentNavigatorKey: rootNavigatorKey,
-        builder: (_, state) {
-          final extra = state.extra as Map<String, dynamic>;
-          return BlocProvider(
-            create: (_) => getIt<StoryBloc>(),
-            child: StoryViewerScreen(
-              groups: extra['groups'] as List<StoryGroup>,
-              initialGroupIndex: extra['initialGroupIndex'] as int? ?? 0,
-            ),
-          );
-        },
-      ),
-      // Follow page route
-      GoRoute(
-        path: '/followers/:userId',
-        parentNavigatorKey: rootNavigatorKey,
-        builder: (_, state) {
-          final userId = state.pathParameters['userId']!;
-          final tab = int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
-          return BlocProvider(
-            create: (_) => getIt<FollowBloc>(),
-            child: FollowersPage(userId: userId, initialTab: tab),
-          );
-        },
-      ),
+
       // Chat screen route
       GoRoute(
         path: '/chat/:conversationId',
         parentNavigatorKey: rootNavigatorKey,
-        builder: (_, state) {
+        pageBuilder: (context, state) {
           final conversationId = state.pathParameters['conversationId']!;
           final otherUser = state.extra as Map<String, dynamic>?;
-          return BlocProvider(
-            create: (_) => getIt<ChatBloc>(),
-            child: ChatScreen(conversationId: conversationId, otherUser: otherUser),
+          return _slideTransition(
+            context,
+            state,
+            BlocProvider(
+              create: (_) => getIt<ChatBloc>(),
+              child: ChatScreen(conversationId: conversationId, otherUser: otherUser),
+            ),
           );
         },
       ),
@@ -160,12 +108,27 @@ class AppRouter {
       GoRoute(
         path: '/notifications',
         parentNavigatorKey: rootNavigatorKey,
-        builder: (_, __) {
-          return BlocProvider(
-            create: (_) => getIt<NotificationBloc>(),
-            child: const NotificationsPage(),
+        pageBuilder: (context, state) {
+          return _slideTransition(
+            context,
+            state,
+            BlocProvider(
+              create: (_) => getIt<NotificationBloc>(),
+              child: const NotificationsPage(),
+            ),
           );
         },
+      ),
+      // Settings routes
+      GoRoute(
+        path: '/settings',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (context, state) => _slideTransition(context, state, const SettingsPage()),
+      ),
+      GoRoute(
+        path: '/change-password',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (_, __) => const ChangePasswordPage(),
       ),
       // Profile by user ID
       GoRoute(
@@ -185,14 +148,11 @@ class AppRouter {
         builder: (_, __, child) => _ShellWithNav(child: child),
         routes: [
           GoRoute(
-            path: '/feed',
+            path: '/spaces',
             pageBuilder: (_, __) => NoTransitionPage(
-              child: MultiBlocProvider(
-                providers: [
-                  BlocProvider(create: (_) => getIt<FeedBloc>()),
-                  BlocProvider(create: (_) => getIt<PostBloc>()),
-                ],
-                child: const FeedScreen(),
+              child: BlocProvider(
+                create: (_) => getIt<SpaceBloc>(),
+                child: const SpacesPage(),
               ),
             ),
           ),
@@ -235,7 +195,7 @@ class _ShellWithNav extends StatelessWidget {
 
   int _idx(BuildContext ctx) {
     final loc = GoRouterState.of(ctx).uri.path;
-    if (loc.startsWith('/feed')) return 0;
+    if (loc.startsWith('/spaces')) return 0;
     if (loc.startsWith('/search')) return 1;
     if (loc.startsWith('/chat')) return 2;
     if (loc.startsWith('/profile')) return 3;
@@ -250,15 +210,15 @@ class _ShellWithNav extends StatelessWidget {
         selectedIndex: _idx(context),
         onDestinationSelected: (i) {
           switch (i) {
-            case 0: context.go('/feed');
+            case 0: context.go('/spaces');
             case 1: context.go('/search');
             case 2: context.go('/chat');
             case 3: context.go('/profile');
           }
         },
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Feed'),
-          NavigationDestination(icon: Icon(Icons.search), selectedIcon: Icon(Icons.search), label: 'Tìm kiếm'),
+          NavigationDestination(icon: Icon(Icons.group_work_outlined), selectedIcon: Icon(Icons.group_work), label: 'Spaces'),
+          NavigationDestination(icon: Icon(Icons.search), selectedIcon: Icon(Icons.search), label: 'Khám phá'),
           NavigationDestination(icon: Icon(Icons.chat_bubble_outline), selectedIcon: Icon(Icons.chat_bubble), label: 'Chat'),
           NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Hồ sơ'),
         ],

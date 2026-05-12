@@ -14,3 +14,7 @@ export declare class RefreshTokenDto {
 export declare class ForgotPasswordDto {
     email: string;
 }
+export declare class ChangePasswordDto {
+    oldPassword: string;
+    newPassword: string;
+}

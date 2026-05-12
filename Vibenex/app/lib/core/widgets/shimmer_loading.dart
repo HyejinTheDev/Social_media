@@ -17,19 +17,19 @@ class ShimmerLoading extends StatelessWidget {
 
   /// Creates a shimmer placeholder for a post card
   static Widget postCard() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header: avatar + name
           Row(
             children: [
-              const ShimmerLoading(width: 40, height: 40, isCircle: true),
-              const SizedBox(width: 12),
+              ShimmerLoading(width: 40, height: 40, isCircle: true),
+              SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   ShimmerLoading(width: 120, height: 14),
                   SizedBox(height: 6),
                   ShimmerLoading(width: 80, height: 10),
@@ -37,18 +37,18 @@ class ShimmerLoading extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           // Content lines
-          const ShimmerLoading(height: 14),
-          const SizedBox(height: 8),
-          const ShimmerLoading(width: 250, height: 14),
-          const SizedBox(height: 12),
+          ShimmerLoading(height: 14),
+          SizedBox(height: 8),
+          ShimmerLoading(width: 250, height: 14),
+          SizedBox(height: 12),
           // Image placeholder
-          const ShimmerLoading(height: 200, borderRadius: 12),
-          const SizedBox(height: 12),
+          ShimmerLoading(height: 200, borderRadius: 12),
+          SizedBox(height: 12),
           // Action bar
           Row(
-            children: const [
+            children: [
               ShimmerLoading(width: 60, height: 14),
               SizedBox(width: 24),
               ShimmerLoading(width: 60, height: 14),
@@ -56,8 +56,8 @@ class ShimmerLoading extends StatelessWidget {
               ShimmerLoading(width: 60, height: 14),
             ],
           ),
-          const SizedBox(height: 8),
-          const Divider(),
+          SizedBox(height: 8),
+          Divider(),
         ],
       ),
     );
@@ -65,23 +65,23 @@ class ShimmerLoading extends StatelessWidget {
 
   /// Creates a shimmer placeholder for a user tile
   static Widget userTile() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          const ShimmerLoading(width: 48, height: 48, isCircle: true),
-          const SizedBox(width: 12),
+          ShimmerLoading(width: 48, height: 48, isCircle: true),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 ShimmerLoading(width: 140, height: 14),
                 SizedBox(height: 6),
                 ShimmerLoading(width: 100, height: 12),
               ],
             ),
           ),
-          const ShimmerLoading(width: 80, height: 32, borderRadius: 16),
+          ShimmerLoading(width: 80, height: 32, borderRadius: 16),
         ],
       ),
     );

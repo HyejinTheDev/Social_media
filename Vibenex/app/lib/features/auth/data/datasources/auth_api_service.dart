@@ -22,4 +22,10 @@ abstract class AuthApiService {
 
   @POST('/auth/forgot-password')
   Future<void> forgotPassword(@Body() Map<String, dynamic> body);
+
+  @POST('/auth/change-password') // Updated to POST based on auth.controller.ts
+  Future<void> changePassword(@Body() Map<String, dynamic> body);
+
+  @DELETE('/users/me')
+  Future<void> deleteAccount();
 }

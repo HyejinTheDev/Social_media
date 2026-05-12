@@ -3,12 +3,13 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { PostsModule } from './posts/posts.module';
-import { CommentsModule } from './comments/comments.module';
-import { StoriesModule } from './stories/stories.module';
-import { FollowModule } from './follow/follow.module';
 import { ChatModule } from './chat/chat.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { SpacesModule } from './spaces/spaces.module';
+import { ReactionsModule } from './reactions/reactions.module';
+import { RepliesModule } from './replies/replies.module';
+import { DiscussionsModule } from './discussions/discussions.module';
+import { ChannelsModule } from './channels/channels.module';
 
 @Module({
   imports: [
@@ -16,12 +17,13 @@ import { NotificationsModule } from './notifications/notifications.module';
     PrismaModule,
     AuthModule,
     UsersModule,
-    PostsModule,
-    CommentsModule,
-    StoriesModule,
-    FollowModule,
     ChatModule,
     NotificationsModule,
+    SpacesModule,
+    ChannelsModule,
+    DiscussionsModule,
+    RepliesModule,
+    ReactionsModule,
   ],
   controllers: [],
   providers: [],

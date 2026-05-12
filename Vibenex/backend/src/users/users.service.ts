@@ -20,22 +20,8 @@ export class UsersService {
     });
     if (!user) throw new NotFoundException('Không tìm thấy người dùng');
 
-    let isFollowing = false;
-    if (currentUserId && currentUserId !== userId) {
-      const follow = await this.prisma.follow.findUnique({
-        where: {
-          followerId_followingId: {
-            followerId: currentUserId,
-            followingId: userId,
-          },
-        },
-      });
-      isFollowing = !!follow;
-    }
-
     return {
       ...this.sanitize(user),
-      isFollowing,
       isOwnProfile: currentUserId === userId,
     };
   }
@@ -96,7 +82,7 @@ export class UsersService {
         where,
         skip,
         take: limit,
-        orderBy: { followersCount: 'desc' },
+        orderBy: { reputation: 'desc' },
         select: {
           id: true,
           name: true,
@@ -104,7 +90,7 @@ export class UsersService {
           avatar: true,
           bio: true,
           isVerified: true,
-          followersCount: true,
+          reputation: true,
         },
       }),
       this.prisma.user.count({ where }),
@@ -121,5 +107,45 @@ export class UsersService {
   private sanitize(user: any) {
     const { password, ...result } = user;
     return result;
+  }
+
+  async deleteAccount(userId: string) {
+    // Find user's discussions
+    const userDiscussions = await this.prisma.discussion.findMany({ where: { authorId: userId }, select: { id: true } });
+    const discussionIds = userDiscussions.map(d => d.id);
+
+    // Find user's conversations
+    const userConversations = await this.prisma.conversation.findMany({
+      where: { OR: [{ participant1Id: userId }, { participant2Id: userId }] },
+      select: { id: true }
+    });
+    const conversationIds = userConversations.map(c => c.id);
+
+    await this.prisma.$transaction([
+      // Delete user's reactions
+      this.prisma.reaction.deleteMany({ where: { userId } }),
+      
+      // Delete replies to user's discussions
+      this.prisma.reply.deleteMany({ where: { discussionId: { in: discussionIds } } }),
+      
+      // Delete user's own replies
+      this.prisma.reply.deleteMany({ where: { authorId: userId } }),
+
+      // Delete messages and conversations
+      this.prisma.message.deleteMany({ where: { conversationId: { in: conversationIds } } }),
+      this.prisma.conversation.deleteMany({ where: { id: { in: conversationIds } } }),
+
+      // Delete space memberships
+      this.prisma.spaceMember.deleteMany({ where: { userId } }),
+
+      // Delete notifications
+      this.prisma.notification.deleteMany({ where: { userId } }),
+
+      // Delete discussions and finally the user
+      this.prisma.discussion.deleteMany({ where: { authorId: userId } }),
+      this.prisma.user.delete({ where: { id: userId } }),
+    ]);
+
+    return { message: 'Tài khoản đã được xóa vĩnh viễn' };
   }
 }

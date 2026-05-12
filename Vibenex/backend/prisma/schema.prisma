@@ -11,122 +11,157 @@ datasource db {
 
 // ==================== ENUMS ====================
 
-enum MediaType {
+enum SpaceRole {
+  OWNER
+  ADMIN
+  MODERATOR
+  MEMBER
+}
+
+enum ChannelType {
   TEXT
-  IMAGE
-  VIDEO
+  ANNOUNCEMENT
+  SHOWCASE
 }
 
 enum NotificationType {
-  LIKE
-  COMMENT
-  FOLLOW
+  LIKE             // Kept for backward compatibility or simple reactions
+  COMMENT          // Kept for backward compatibility
+  FOLLOW           // Kept for backward compatibility
   MENTION
   MESSAGE
+  SPACE_INVITE
+  THREAD_REPLY
+  REACTION
 }
 
 // ==================== MODELS ====================
 
 model User {
-  id             String         @id @default(uuid())
-  email          String         @unique
-  password       String
-  name           String
-  username       String         @unique
-  bio            String?
-  avatar         String?
-  coverPhoto     String?
-  followersCount Int            @default(0)
-  followingCount Int            @default(0)
-  postsCount     Int            @default(0)
-  isVerified     Boolean        @default(false)
-  posts          Post[]
-  comments       Comment[]
-  stories        Story[]
-  likes          Like[]
-  sentMessages   Message[]      @relation("sender")
-  conversations1 Conversation[] @relation("participant1")
-  conversations2 Conversation[] @relation("participant2")
-  followers      Follow[]       @relation("following")
-  following      Follow[]       @relation("follower")
-  notifications  Notification[]
-  storyViews     StoryView[]
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  id               String         @id @default(uuid())
+  email            String         @unique
+  password         String
+  name             String
+  username         String         @unique
+  bio              String?
+  avatar           String?
+  coverPhoto       String?
+  reputation       Int            @default(0)
+  isVerified       Boolean        @default(false)
+  
+  // Relations
+  spaceMemberships SpaceMember[]
+  discussions      Discussion[]
+  replies          Reply[]
+  reactions        Reaction[]
+  
+  // Chat Relations
+  sentMessages     Message[]      @relation("sender")
+  conversations1   Conversation[] @relation("participant1")
+  conversations2   Conversation[] @relation("participant2")
+  
+  notifications    Notification[]
+  
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 }
 
-model Post {
-  id                String    @id @default(uuid())
-  authorId          String
-  author            User      @relation(fields: [authorId], references: [id])
-  content           String
-  imageUrls         String[]
-  videoUrl          String?
-  videoThumbnailUrl String?
-  mediaType         MediaType @default(TEXT)
-  likesCount        Int       @default(0)
-  commentsCount     Int       @default(0)
-  sharesCount       Int       @default(0)
-  likes             Like[]
-  comments          Comment[]
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+model Space {
+  id          String         @id @default(uuid())
+  name        String
+  slug        String         @unique
+  description String?
+  icon        String?        // URL to space icon
+  banner      String?        // URL to banner image
+  isPublic    Boolean        @default(true)
+  memberCount Int            @default(0)
+  
+  channels    Channel[]
+  members     SpaceMember[]
+  
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 }
 
-model Comment {
-  id        String   @id @default(uuid())
-  postId    String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id])
-  content   String
-  createdAt DateTime @default(now())
-}
-
-model Like {
-  id        String   @id @default(uuid())
-  postId    String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+model SpaceMember {
+  id        String    @id @default(uuid())
+  spaceId   String
+  space     Space     @relation(fields: [spaceId], references: [id], onDelete: Cascade)
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+  role      SpaceRole @default(MEMBER)
+  
+  joinedAt  DateTime  @default(now())
 
-  @@unique([postId, userId])
+  @@unique([spaceId, userId])
 }
 
-model Story {
-  id        String      @id @default(uuid())
-  authorId  String
-  author    User        @relation(fields: [authorId], references: [id])
-  mediaUrl  String
-  mediaType MediaType
-  caption   String?
-  viewCount Int         @default(0)
-  views     StoryView[]
-  expiresAt DateTime
-  createdAt DateTime    @default(now())
+model Channel {
+  id          String       @id @default(uuid())
+  spaceId     String
+  space       Space        @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  name        String       // e.g. "general", "showcase"
+  type        ChannelType  @default(TEXT)
+  description String?
+  position    Int          @default(0)
+  
+  discussions Discussion[]
+  
+  createdAt   DateTime     @default(now())
 }
 
-model StoryView {
-  id       String   @id @default(uuid())
-  storyId  String
-  story    Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
-  viewerId String
-  viewer   User     @relation(fields: [viewerId], references: [id])
-  viewedAt DateTime @default(now())
-
-  @@unique([storyId, viewerId])
+model Discussion {
+  id           String     @id @default(uuid())
+  channelId    String
+  channel      Channel    @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  authorId     String
+  author       User       @relation(fields: [authorId], references: [id])
+  content      String
+  imageUrls    String[]
+  linkUrl      String?
+  isPinned     Boolean    @default(false)
+  replyCount   Int        @default(0)
+  reactionCount Int       @default(0)
+  
+  replies      Reply[]
+  reactions    Reaction[]
+  
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
 
-model Follow {
-  id          String   @id @default(uuid())
-  followerId  String
-  follower    User     @relation("follower", fields: [followerId], references: [id])
-  followingId String
-  following   User     @relation("following", fields: [followingId], references: [id])
-  createdAt   DateTime @default(now())
+model Reply {
+  id           String     @id @default(uuid())
+  discussionId String
+  discussion   Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  parentId     String?    // For nested replies
+  parent       Reply?     @relation("ReplyThread", fields: [parentId], references: [id])
+  children     Reply[]    @relation("ReplyThread")
+  authorId     String
+  author       User       @relation(fields: [authorId], references: [id])
+  content      String
+  
+  reactions    Reaction[]
+  
+  createdAt    DateTime   @default(now())
+}
 
-  @@unique([followerId, followingId])
+model Reaction {
+  id           String      @id @default(uuid())
+  emoji        String      // "🚀", "❤️", "👏", etc.
+  userId       String
+  user         User        @relation(fields: [userId], references: [id])
+  
+  discussionId String?
+  discussion   Discussion? @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  
+  replyId      String?
+  reply        Reply?      @relation(fields: [replyId], references: [id], onDelete: Cascade)
+  
+  createdAt    DateTime    @default(now())
+
+  @@unique([userId, discussionId, emoji])
+  @@unique([userId, replyId, emoji])
 }
 
 model Conversation {

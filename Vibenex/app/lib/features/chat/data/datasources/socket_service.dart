@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -33,15 +34,15 @@ class SocketService {
     );
 
     _socket!.onConnect((_) {
-      print('🟢 Socket connected');
+      debugPrint('🟢 Socket connected');
     });
 
     _socket!.onDisconnect((_) {
-      print('🔴 Socket disconnected');
+      debugPrint('🔴 Socket disconnected');
     });
 
     _socket!.onConnectError((e) {
-      print('❌ Socket connect error: $e');
+      debugPrint('❌ Socket connect error: $e');
     });
 
     // Listen for events

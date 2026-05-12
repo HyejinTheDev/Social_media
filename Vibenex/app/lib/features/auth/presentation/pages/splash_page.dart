@@ -59,7 +59,6 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return BlocListener<AuthBloc, AuthState>(
@@ -96,7 +95,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                           width: 100,
                           height: 100,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.15),
+                            color: Colors.white.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(28),
                           ),
                           child: const Icon(
@@ -118,7 +117,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                         Text(
                           'Connect · Share · Vibe',
                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                color: Colors.white.withOpacity(0.7),
+                                color: Colors.white.withValues(alpha: 0.7),
                                 letterSpacing: 2,
                               ),
                         ),

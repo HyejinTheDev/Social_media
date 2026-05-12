@@ -61,6 +61,20 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  @override
+  Future<void> changePassword(String oldPassword, String newPassword) async {
+    await _api.changePassword({
+      'oldPassword': oldPassword,
+      'newPassword': newPassword,
+    });
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    await _api.deleteAccount();
+    await logout();
+  }
+
   Future<void> _saveTokens(String access, String refresh) async {
     await _storage.write(key: AppConstants.accessTokenKey, value: access);
     await _storage.write(key: AppConstants.refreshTokenKey, value: refresh);

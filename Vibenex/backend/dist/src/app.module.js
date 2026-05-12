@@ -12,12 +12,13 @@ const config_1 = require("@nestjs/config");
 const prisma_module_1 = require("./prisma/prisma.module");
 const auth_module_1 = require("./auth/auth.module");
 const users_module_1 = require("./users/users.module");
-const posts_module_1 = require("./posts/posts.module");
-const comments_module_1 = require("./comments/comments.module");
-const stories_module_1 = require("./stories/stories.module");
-const follow_module_1 = require("./follow/follow.module");
 const chat_module_1 = require("./chat/chat.module");
 const notifications_module_1 = require("./notifications/notifications.module");
+const spaces_module_1 = require("./spaces/spaces.module");
+const reactions_module_1 = require("./reactions/reactions.module");
+const replies_module_1 = require("./replies/replies.module");
+const discussions_module_1 = require("./discussions/discussions.module");
+const channels_module_1 = require("./channels/channels.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -28,12 +29,13 @@ exports.AppModule = AppModule = __decorate([
             prisma_module_1.PrismaModule,
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
-            posts_module_1.PostsModule,
-            comments_module_1.CommentsModule,
-            stories_module_1.StoriesModule,
-            follow_module_1.FollowModule,
             chat_module_1.ChatModule,
             notifications_module_1.NotificationsModule,
+            spaces_module_1.SpacesModule,
+            channels_module_1.ChannelsModule,
+            discussions_module_1.DiscussionsModule,
+            replies_module_1.RepliesModule,
+            reactions_module_1.ReactionsModule,
         ],
         controllers: [],
         providers: [],

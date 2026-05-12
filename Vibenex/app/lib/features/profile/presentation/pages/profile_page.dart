@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -6,7 +7,6 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/avatar_widget.dart';
 import '../../../../core/widgets/loading_overlay.dart';
 import '../../bloc/profile_bloc.dart';
-import '../../../auth/bloc/auth_bloc.dart';
 import '../../../chat/data/datasources/chat_api_service.dart';
 import '../../../../core/di/injection.dart';
 
@@ -43,8 +43,12 @@ class _ProfilePageState extends State<ProfilePage> {
         return Scaffold(
           body: LoadingOverlay(
             isLoading: state is ProfileUpdating,
-            child: CustomScrollView(slivers: [
-              // Cover + Avatar header
+            child: RefreshIndicator(
+              onRefresh: () async {
+                context.read<ProfileBloc>().add(ProfileLoadRequested(userId: widget.userId));
+              },
+              child: CustomScrollView(slivers: [
+                // Cover + Avatar header
               SliverToBoxAdapter(child: _buildHeader(context, cs, user, isOwn)),
               // Stats
               SliverToBoxAdapter(child: _buildStats(context, cs, user)),
@@ -56,19 +60,21 @@ class _ProfilePageState extends State<ProfilePage> {
                 )),
               // Action buttons
               SliverToBoxAdapter(child: _buildActions(context, cs, isOwn, state)),
-              // Post grid placeholder
-              SliverToBoxAdapter(child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(children: [
-                  const Divider(),
-                  const SizedBox(height: 32),
-                  Icon(Icons.grid_on_rounded, size: 48, color: cs.outlineVariant),
-                  const SizedBox(height: 12),
-                  Text('Chưa có bài viết nào', style: TextStyle(color: cs.onSurfaceVariant)),
-                ]),
-              )),
+              // Space grid placeholder
+              SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    const Divider(height: 1),
+                    const SizedBox(height: 32),
+                    Text('Spaces & Discussions', style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    const Text('Coming Soon...'),
+                  ],
+                ),
+              ),
               const SliverToBoxAdapter(child: SizedBox(height: 100)),
             ]),
+            ),
           ),
         );
       },
@@ -104,39 +110,9 @@ class _ProfilePageState extends State<ProfilePage> {
             IconButton(icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20), onPressed: () => context.pop()),
           const Spacer(),
           if (isOwn)
-            PopupMenuButton<String>(
+            IconButton(
               icon: const Icon(Icons.settings_outlined, color: Colors.white),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              onSelected: (v) {
-                if (v == 'logout') {
-                  showDialog(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      title: const Text('Đăng xuất'),
-                      content: const Text('Bạn có chắc muốn đăng xuất?'),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      actions: [
-                        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Hủy')),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(ctx);
-                            context.read<AuthBloc>().add(AuthLogoutRequested());
-                            context.go('/login');
-                          },
-                          child: Text('Đăng xuất', style: TextStyle(color: Theme.of(context).colorScheme.error)),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-              },
-              itemBuilder: (_) => [
-                const PopupMenuItem(value: 'logout', child: Row(children: [
-                  Icon(Icons.logout, size: 20, color: Colors.red),
-                  SizedBox(width: 12),
-                  Text('Đăng xuất', style: TextStyle(color: Colors.red)),
-                ])),
-              ],
+              onPressed: () => context.push('/settings'),
             ),
         ]),
       ))),
@@ -158,23 +134,12 @@ class _ProfilePageState extends State<ProfilePage> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 56, 20, 8),
       child: Row(children: [
-        _StatItem(count: user.postsCount, label: 'Bài viết'),
-        const SizedBox(width: 24),
-        GestureDetector(
-          onTap: () => context.push('/followers/${user.id}?tab=0'),
-          child: _StatItem(count: user.followersCount, label: 'Followers'),
-        ),
-        const SizedBox(width: 24),
-        GestureDetector(
-          onTap: () => context.push('/followers/${user.id}?tab=1'),
-          child: _StatItem(count: user.followingCount, label: 'Following'),
-        ),
+        _StatItem(count: user.reputation, label: 'Reputation'),
       ]),
     );
   }
 
   Widget _buildActions(BuildContext context, ColorScheme cs, bool isOwn, ProfileState state) {
-    final isFollowing = state is ProfileLoaded ? state.isFollowing : false;
     final userId = state is ProfileLoaded ? state.user.id : '';
 
     return Padding(
@@ -187,41 +152,24 @@ class _ProfilePageState extends State<ProfilePage> {
             style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 44), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
           )
         : Row(children: [
-            Expanded(child: isFollowing
-              ? OutlinedButton(
-                  onPressed: () => context.read<ProfileBloc>().add(ProfileFollowToggled(userId)),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(0, 44),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    side: BorderSide(color: cs.outline),
-                  ),
-                  child: const Text('Đang theo dõi'),
-                )
-              : ElevatedButton(
-                  onPressed: () => context.read<ProfileBloc>().add(ProfileFollowToggled(userId)),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(0, 44),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: const Text('Theo dõi'),
-                ),
-            ),
-            const SizedBox(width: 12),
-            OutlinedButton(
-              onPressed: () async {
-                try {
-                  final conv = await getIt<ChatApiService>().getOrCreateConversation(userId);
-                  if (context.mounted) {
-                    context.push('/chat/${conv['id']}', extra: conv['otherUser']);
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () async {
+                  try {
+                    final conv = await getIt<ChatApiService>().getOrCreateConversation(userId);
+                    if (context.mounted) {
+                      context.push('/chat/${conv['id']}', extra: conv['otherUser']);
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lỗi khi mở tin nhắn')));
+                    }
                   }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lỗi khi mở tin nhắn')));
-                  }
-                }
-              },
-              style: OutlinedButton.styleFrom(minimumSize: const Size(44, 44), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-              child: const Icon(Icons.chat_bubble_outline, size: 20),
+                },
+                icon: const Icon(Icons.chat_bubble_outline, size: 20),
+                label: const Text('Nhắn tin'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 44), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+              ),
             ),
           ]),
     );

@@ -31,21 +31,8 @@ let UsersService = class UsersService {
         });
         if (!user)
             throw new common_1.NotFoundException('Không tìm thấy người dùng');
-        let isFollowing = false;
-        if (currentUserId && currentUserId !== userId) {
-            const follow = await this.prisma.follow.findUnique({
-                where: {
-                    followerId_followingId: {
-                        followerId: currentUserId,
-                        followingId: userId,
-                    },
-                },
-            });
-            isFollowing = !!follow;
-        }
         return {
             ...this.sanitize(user),
-            isFollowing,
             isOwnProfile: currentUserId === userId,
         };
     }
@@ -98,7 +85,7 @@ let UsersService = class UsersService {
                 where,
                 skip,
                 take: limit,
-                orderBy: { followersCount: 'desc' },
+                orderBy: { reputation: 'desc' },
                 select: {
                     id: true,
                     name: true,
@@ -106,7 +93,7 @@ let UsersService = class UsersService {
                     avatar: true,
                     bio: true,
                     isVerified: true,
-                    followersCount: true,
+                    reputation: true,
                 },
             }),
             this.prisma.user.count({ where }),
@@ -121,6 +108,27 @@ let UsersService = class UsersService {
     sanitize(user) {
         const { password, ...result } = user;
         return result;
+    }
+    async deleteAccount(userId) {
+        const userDiscussions = await this.prisma.discussion.findMany({ where: { authorId: userId }, select: { id: true } });
+        const discussionIds = userDiscussions.map(d => d.id);
+        const userConversations = await this.prisma.conversation.findMany({
+            where: { OR: [{ participant1Id: userId }, { participant2Id: userId }] },
+            select: { id: true }
+        });
+        const conversationIds = userConversations.map(c => c.id);
+        await this.prisma.$transaction([
+            this.prisma.reaction.deleteMany({ where: { userId } }),
+            this.prisma.reply.deleteMany({ where: { discussionId: { in: discussionIds } } }),
+            this.prisma.reply.deleteMany({ where: { authorId: userId } }),
+            this.prisma.message.deleteMany({ where: { conversationId: { in: conversationIds } } }),
+            this.prisma.conversation.deleteMany({ where: { id: { in: conversationIds } } }),
+            this.prisma.spaceMember.deleteMany({ where: { userId } }),
+            this.prisma.notification.deleteMany({ where: { userId } }),
+            this.prisma.discussion.deleteMany({ where: { authorId: userId } }),
+            this.prisma.user.delete({ where: { id: userId } }),
+        ]);
+        return { message: 'Tài khoản đã được xóa vĩnh viễn' };
     }
 };
 exports.UsersService = UsersService;

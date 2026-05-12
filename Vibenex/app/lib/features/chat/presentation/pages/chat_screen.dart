@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:timeago/timeago.dart' as timeago;
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/avatar_widget.dart';
 import '../../bloc/chat_bloc.dart';
-import '../../data/datasources/socket_service.dart';
 
 class ChatScreen extends StatefulWidget {
   final String conversationId;
@@ -24,7 +23,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
-  bool _isOtherTyping = false;
+  final bool _isOtherTyping = false;
   StreamSubscription? _typingSub;
 
   @override
@@ -52,6 +51,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _sendMessage() {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
+    HapticFeedback.lightImpact();
     context.read<ChatBloc>().add(ChatSendMessage(text));
     _messageController.clear();
     context.read<ChatBloc>().add(const ChatTypingChanged(false));

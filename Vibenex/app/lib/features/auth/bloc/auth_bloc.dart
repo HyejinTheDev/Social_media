@@ -18,6 +18,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthRegisterRequested>(_onRegister);
     on<AuthLogoutRequested>(_onLogout);
     on<AuthForgotPasswordRequested>(_onForgotPassword);
+    on<AuthChangePasswordRequested>(_onChangePassword);
+    on<AuthDeleteAccountRequested>(_onDeleteAccount);
   }
 
   Future<void> _onCheckStatus(AuthCheckStatus event, Emitter<AuthState> emit) async {
@@ -73,6 +75,34 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       await _authRepository.forgotPassword(event.email);
       emit(AuthForgotPasswordSent());
+    } catch (e) {
+      emit(AuthError(message: ErrorMapper.map(e)));
+    }
+  }
+
+  Future<void> _onChangePassword(AuthChangePasswordRequested event, Emitter<AuthState> emit) async {
+    final current = state;
+    emit(AuthLoading());
+    try {
+      await _authRepository.changePassword(event.oldPassword, event.newPassword);
+      if (current is AuthAuthenticated) {
+        emit(current);
+      } else {
+        emit(AuthUnauthenticated());
+      }
+    } catch (e) {
+      emit(AuthError(message: ErrorMapper.map(e)));
+      if (current is AuthAuthenticated) {
+        emit(current);
+      }
+    }
+  }
+
+  Future<void> _onDeleteAccount(AuthDeleteAccountRequested event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    try {
+      await _authRepository.deleteAccount();
+      emit(AuthUnauthenticated());
     } catch (e) {
       emit(AuthError(message: ErrorMapper.map(e)));
     }

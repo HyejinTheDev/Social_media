@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import '../../../../core/widgets/empty_state_widget.dart';
+import '../../../../core/widgets/error_state_widget.dart';
 import '../../bloc/notification_bloc.dart';
 
 class NotificationsPage extends StatefulWidget {
@@ -60,19 +62,17 @@ class _NotificationsPageState extends State<NotificationsPage> {
           }
 
           if (state.status == NotificationStatus.error && state.notifications.isEmpty) {
-            return Center(child: Text(state.errorMessage ?? 'Có lỗi xảy ra'));
+            return ErrorStateWidget(
+              message: state.errorMessage ?? 'Có lỗi xảy ra',
+              onRetry: () => context.read<NotificationBloc>().add(LoadNotifications()),
+            );
           }
 
           if (state.notifications.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.notifications_none, size: 64, color: cs.outlineVariant),
-                  const SizedBox(height: 16),
-                  Text('Bạn chưa có thông báo nào', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 16)),
-                ],
-              ),
+            return const EmptyStateWidget(
+              icon: Icons.notifications_none,
+              title: 'Chưa có thông báo nào',
+              subtitle: 'Khi có người tương tác với bạn, thông báo sẽ hiển thị ở đây.',
             );
           }
 

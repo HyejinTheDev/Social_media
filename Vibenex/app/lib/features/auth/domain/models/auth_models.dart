@@ -46,9 +46,7 @@ abstract class UserModel with _$UserModel {
     String? bio,
     String? avatar,
     String? coverPhoto,
-    @Default(0) int followersCount,
-    @Default(0) int followingCount,
-    @Default(0) int postsCount,
+    @Default(0) int reputation,
     @Default(false) bool isVerified,
     String? createdAt,
   }) = _UserModel;

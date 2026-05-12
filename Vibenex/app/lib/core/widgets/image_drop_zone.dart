@@ -87,7 +87,7 @@ class _ImageDropZoneState extends State<ImageDropZone> {
                       decoration: BoxDecoration(
                         color: cs.primary,
                         borderRadius: BorderRadius.circular(12),
-                        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8)],
+                        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 8)],
                       ),
                       child: const Row(mainAxisSize: MainAxisSize.min, children: [
                         Icon(Icons.file_download, color: Colors.white, size: 22),

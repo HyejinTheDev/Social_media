@@ -1066,9 +1066,7 @@ mixin _$UserModel {
   String? get bio;
   String? get avatar;
   String? get coverPhoto;
-  int get followersCount;
-  int get followingCount;
-  int get postsCount;
+  int get reputation;
   bool get isVerified;
   String? get createdAt;
 
@@ -1096,12 +1094,8 @@ mixin _$UserModel {
             (identical(other.avatar, avatar) || other.avatar == avatar) &&
             (identical(other.coverPhoto, coverPhoto) ||
                 other.coverPhoto == coverPhoto) &&
-            (identical(other.followersCount, followersCount) ||
-                other.followersCount == followersCount) &&
-            (identical(other.followingCount, followingCount) ||
-                other.followingCount == followingCount) &&
-            (identical(other.postsCount, postsCount) ||
-                other.postsCount == postsCount) &&
+            (identical(other.reputation, reputation) ||
+                other.reputation == reputation) &&
             (identical(other.isVerified, isVerified) ||
                 other.isVerified == isVerified) &&
             (identical(other.createdAt, createdAt) ||
@@ -1110,24 +1104,12 @@ mixin _$UserModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      email,
-      name,
-      username,
-      bio,
-      avatar,
-      coverPhoto,
-      followersCount,
-      followingCount,
-      postsCount,
-      isVerified,
-      createdAt);
+  int get hashCode => Object.hash(runtimeType, id, email, name, username, bio,
+      avatar, coverPhoto, reputation, isVerified, createdAt);
 
   @override
   String toString() {
-    return 'UserModel(id: $id, email: $email, name: $name, username: $username, bio: $bio, avatar: $avatar, coverPhoto: $coverPhoto, followersCount: $followersCount, followingCount: $followingCount, postsCount: $postsCount, isVerified: $isVerified, createdAt: $createdAt)';
+    return 'UserModel(id: $id, email: $email, name: $name, username: $username, bio: $bio, avatar: $avatar, coverPhoto: $coverPhoto, reputation: $reputation, isVerified: $isVerified, createdAt: $createdAt)';
   }
 }
 
@@ -1144,9 +1126,7 @@ abstract mixin class $UserModelCopyWith<$Res> {
       String? bio,
       String? avatar,
       String? coverPhoto,
-      int followersCount,
-      int followingCount,
-      int postsCount,
+      int reputation,
       bool isVerified,
       String? createdAt});
 }
@@ -1170,9 +1150,7 @@ class _$UserModelCopyWithImpl<$Res> implements $UserModelCopyWith<$Res> {
     Object? bio = freezed,
     Object? avatar = freezed,
     Object? coverPhoto = freezed,
-    Object? followersCount = null,
-    Object? followingCount = null,
-    Object? postsCount = null,
+    Object? reputation = null,
     Object? isVerified = null,
     Object? createdAt = freezed,
   }) {
@@ -1205,17 +1183,9 @@ class _$UserModelCopyWithImpl<$Res> implements $UserModelCopyWith<$Res> {
           ? _self.coverPhoto
           : coverPhoto // ignore: cast_nullable_to_non_nullable
               as String?,
-      followersCount: null == followersCount
-          ? _self.followersCount
-          : followersCount // ignore: cast_nullable_to_non_nullable
-              as int,
-      followingCount: null == followingCount
-          ? _self.followingCount
-          : followingCount // ignore: cast_nullable_to_non_nullable
-              as int,
-      postsCount: null == postsCount
-          ? _self.postsCount
-          : postsCount // ignore: cast_nullable_to_non_nullable
+      reputation: null == reputation
+          ? _self.reputation
+          : reputation // ignore: cast_nullable_to_non_nullable
               as int,
       isVerified: null == isVerified
           ? _self.isVerified
@@ -1330,9 +1300,7 @@ extension UserModelPatterns on UserModel {
             String? bio,
             String? avatar,
             String? coverPhoto,
-            int followersCount,
-            int followingCount,
-            int postsCount,
+            int reputation,
             bool isVerified,
             String? createdAt)?
         $default, {
@@ -1349,9 +1317,7 @@ extension UserModelPatterns on UserModel {
             _that.bio,
             _that.avatar,
             _that.coverPhoto,
-            _that.followersCount,
-            _that.followingCount,
-            _that.postsCount,
+            _that.reputation,
             _that.isVerified,
             _that.createdAt);
       case _:
@@ -1382,9 +1348,7 @@ extension UserModelPatterns on UserModel {
             String? bio,
             String? avatar,
             String? coverPhoto,
-            int followersCount,
-            int followingCount,
-            int postsCount,
+            int reputation,
             bool isVerified,
             String? createdAt)
         $default,
@@ -1400,9 +1364,7 @@ extension UserModelPatterns on UserModel {
             _that.bio,
             _that.avatar,
             _that.coverPhoto,
-            _that.followersCount,
-            _that.followingCount,
-            _that.postsCount,
+            _that.reputation,
             _that.isVerified,
             _that.createdAt);
       case _:
@@ -1432,9 +1394,7 @@ extension UserModelPatterns on UserModel {
             String? bio,
             String? avatar,
             String? coverPhoto,
-            int followersCount,
-            int followingCount,
-            int postsCount,
+            int reputation,
             bool isVerified,
             String? createdAt)?
         $default,
@@ -1450,9 +1410,7 @@ extension UserModelPatterns on UserModel {
             _that.bio,
             _that.avatar,
             _that.coverPhoto,
-            _that.followersCount,
-            _that.followingCount,
-            _that.postsCount,
+            _that.reputation,
             _that.isVerified,
             _that.createdAt);
       case _:
@@ -1472,9 +1430,7 @@ class _UserModel implements UserModel {
       this.bio,
       this.avatar,
       this.coverPhoto,
-      this.followersCount = 0,
-      this.followingCount = 0,
-      this.postsCount = 0,
+      this.reputation = 0,
       this.isVerified = false,
       this.createdAt});
   factory _UserModel.fromJson(Map<String, dynamic> json) =>
@@ -1496,13 +1452,7 @@ class _UserModel implements UserModel {
   final String? coverPhoto;
   @override
   @JsonKey()
-  final int followersCount;
-  @override
-  @JsonKey()
-  final int followingCount;
-  @override
-  @JsonKey()
-  final int postsCount;
+  final int reputation;
   @override
   @JsonKey()
   final bool isVerified;
@@ -1538,12 +1488,8 @@ class _UserModel implements UserModel {
             (identical(other.avatar, avatar) || other.avatar == avatar) &&
             (identical(other.coverPhoto, coverPhoto) ||
                 other.coverPhoto == coverPhoto) &&
-            (identical(other.followersCount, followersCount) ||
-                other.followersCount == followersCount) &&
-            (identical(other.followingCount, followingCount) ||
-                other.followingCount == followingCount) &&
-            (identical(other.postsCount, postsCount) ||
-                other.postsCount == postsCount) &&
+            (identical(other.reputation, reputation) ||
+                other.reputation == reputation) &&
             (identical(other.isVerified, isVerified) ||
                 other.isVerified == isVerified) &&
             (identical(other.createdAt, createdAt) ||
@@ -1552,24 +1498,12 @@ class _UserModel implements UserModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      email,
-      name,
-      username,
-      bio,
-      avatar,
-      coverPhoto,
-      followersCount,
-      followingCount,
-      postsCount,
-      isVerified,
-      createdAt);
+  int get hashCode => Object.hash(runtimeType, id, email, name, username, bio,
+      avatar, coverPhoto, reputation, isVerified, createdAt);
 
   @override
   String toString() {
-    return 'UserModel(id: $id, email: $email, name: $name, username: $username, bio: $bio, avatar: $avatar, coverPhoto: $coverPhoto, followersCount: $followersCount, followingCount: $followingCount, postsCount: $postsCount, isVerified: $isVerified, createdAt: $createdAt)';
+    return 'UserModel(id: $id, email: $email, name: $name, username: $username, bio: $bio, avatar: $avatar, coverPhoto: $coverPhoto, reputation: $reputation, isVerified: $isVerified, createdAt: $createdAt)';
   }
 }
 
@@ -1589,9 +1523,7 @@ abstract mixin class _$UserModelCopyWith<$Res>
       String? bio,
       String? avatar,
       String? coverPhoto,
-      int followersCount,
-      int followingCount,
-      int postsCount,
+      int reputation,
       bool isVerified,
       String? createdAt});
 }
@@ -1615,9 +1547,7 @@ class __$UserModelCopyWithImpl<$Res> implements _$UserModelCopyWith<$Res> {
     Object? bio = freezed,
     Object? avatar = freezed,
     Object? coverPhoto = freezed,
-    Object? followersCount = null,
-    Object? followingCount = null,
-    Object? postsCount = null,
+    Object? reputation = null,
     Object? isVerified = null,
     Object? createdAt = freezed,
   }) {
@@ -1650,17 +1580,9 @@ class __$UserModelCopyWithImpl<$Res> implements _$UserModelCopyWith<$Res> {
           ? _self.coverPhoto
           : coverPhoto // ignore: cast_nullable_to_non_nullable
               as String?,
-      followersCount: null == followersCount
-          ? _self.followersCount
-          : followersCount // ignore: cast_nullable_to_non_nullable
-              as int,
-      followingCount: null == followingCount
-          ? _self.followingCount
-          : followingCount // ignore: cast_nullable_to_non_nullable
-              as int,
-      postsCount: null == postsCount
-          ? _self.postsCount
-          : postsCount // ignore: cast_nullable_to_non_nullable
+      reputation: null == reputation
+          ? _self.reputation
+          : reputation // ignore: cast_nullable_to_non_nullable
               as int,
       isVerified: null == isVerified
           ? _self.isVerified

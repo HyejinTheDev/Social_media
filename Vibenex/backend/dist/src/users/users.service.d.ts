@@ -15,7 +15,7 @@ export declare class UsersService {
             id: string;
             bio: string | null;
             avatar: string | null;
-            followersCount: number;
+            reputation: number;
             isVerified: boolean;
         }[];
         total: number;
@@ -23,4 +23,7 @@ export declare class UsersService {
         totalPages: number;
     }>;
     private sanitize;
+    deleteAccount(userId: string): Promise<{
+        message: string;
+    }>;
 }
