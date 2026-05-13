@@ -4,24 +4,24 @@ export declare class NotificationsService {
     private prisma;
     constructor(prisma: PrismaService);
     createNotification(userId: string, type: NotificationType, title: string, body: string, data?: any): Promise<{
-        type: import("@prisma/client").$Enums.NotificationType;
-        title: string;
+        data: import("@prisma/client/runtime/client").JsonValue | null;
         id: string;
         createdAt: Date;
-        data: import("@prisma/client/runtime/client").JsonValue | null;
-        userId: string;
+        type: import("@prisma/client").$Enums.NotificationType;
         isRead: boolean;
+        title: string;
+        userId: string;
         body: string;
     }>;
     getNotifications(userId: string, page?: number, limit?: number): Promise<{
         notifications: {
-            type: import("@prisma/client").$Enums.NotificationType;
-            title: string;
+            data: import("@prisma/client/runtime/client").JsonValue | null;
             id: string;
             createdAt: Date;
-            data: import("@prisma/client/runtime/client").JsonValue | null;
-            userId: string;
+            type: import("@prisma/client").$Enums.NotificationType;
             isRead: boolean;
+            title: string;
+            userId: string;
             body: string;
         }[];
         total: number;

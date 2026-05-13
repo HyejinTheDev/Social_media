@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../di/injection.dart';
+import '../theme/app_colors.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/auth/presentation/pages/onboarding_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -12,15 +13,15 @@ import '../../features/community/bloc/community_bloc.dart';
 import '../../features/community/presentation/pages/communities_page.dart';
 import '../../features/community/presentation/pages/create_community_page.dart';
 import '../../features/discussion/bloc/discussion_bloc.dart';
-import '../../features/discussion/presentation/pages/community_detail_page.dart';
+import '../../features/community/presentation/pages/community_detail_page.dart';
 import '../../features/discussion/presentation/pages/channel_page.dart';
 import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/bloc/profile_bloc.dart';
-import '../../features/search/bloc/search_bloc.dart';
-import '../../features/search/presentation/pages/search_screen.dart';
+import '../../features/explore/bloc/explore_bloc.dart';
+import '../../features/explore/presentation/pages/explore_page.dart';
 import '../../features/chat/bloc/chat_bloc.dart';
-import '../../features/chat/presentation/pages/conversation_list_screen.dart';
-import '../../features/chat/presentation/pages/chat_screen.dart';
+import '../../features/chat/presentation/pages/conversation_list_page.dart';
+import '../../features/chat/presentation/pages/chat_page.dart';
 import '../../features/notification/bloc/notification_bloc.dart';
 import '../../features/notification/presentation/pages/notifications_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
@@ -103,7 +104,7 @@ class AppRouter {
             state,
             BlocProvider(
               create: (_) => getIt<ChatBloc>(),
-              child: ChatScreen(conversationId: conversationId, otherUser: otherUser),
+              child: ChatPage(conversationId: conversationId, otherUser: otherUser),
             ),
           );
         },
@@ -206,11 +207,11 @@ class AppRouter {
             ),
           ),
           GoRoute(
-            path: '/search',
+            path: '/explore',
             pageBuilder: (_, __) => NoTransitionPage(
               child: BlocProvider(
-                create: (_) => getIt<SearchBloc>(),
-                child: const SearchScreen(),
+                create: (_) => getIt<ExploreBloc>(),
+                child: const ExplorePage(),
               ),
             ),
           ),
@@ -219,7 +220,7 @@ class AppRouter {
             pageBuilder: (_, __) => NoTransitionPage(
               child: BlocProvider(
                 create: (_) => getIt<ChatBloc>(),
-                child: const ConversationListScreen(),
+                child: const ConversationListPage(),
               ),
             ),
           ),
@@ -245,7 +246,7 @@ class _ShellWithNav extends StatelessWidget {
   int _idx(BuildContext ctx) {
     final loc = GoRouterState.of(ctx).uri.path;
     if (loc.startsWith('/communities')) return 0;
-    if (loc.startsWith('/search')) return 1;
+    if (loc.startsWith('/explore')) return 1;
     if (loc.startsWith('/chat')) return 2;
     if (loc.startsWith('/profile')) return 3;
     return 0;
@@ -253,24 +254,105 @@ class _ShellWithNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentIndex = _idx(context);
     return Scaffold(
       body: child,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _idx(context),
-        onDestinationSelected: (i) {
-          switch (i) {
-            case 0: context.go('/communities');
-            case 1: context.go('/search');
-            case 2: context.go('/chat');
-            case 3: context.go('/profile');
-          }
-        },
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.groups_outlined), selectedIcon: Icon(Icons.groups), label: 'Communities'),
-          NavigationDestination(icon: Icon(Icons.search), selectedIcon: Icon(Icons.search), label: 'Khám phá'),
-          NavigationDestination(icon: Icon(Icons.chat_bubble_outline), selectedIcon: Icon(Icons.chat_bubble), label: 'Chat'),
-          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Hồ sơ'),
-        ],
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: AppColors.surfaceMidnight,
+          border: Border(
+            top: BorderSide(color: AppColors.borderTwilight, width: 0.5),
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _NavItem(
+                  icon: Icons.home_outlined,
+                  activeIcon: Icons.home,
+                  label: 'Home',
+                  isSelected: currentIndex == 0,
+                  onTap: () => context.go('/communities'),
+                ),
+                _NavItem(
+                  icon: Icons.explore_outlined,
+                  activeIcon: Icons.explore,
+                  label: 'Spaces',
+                  isSelected: currentIndex == 1,
+                  onTap: () => context.go('/explore'),
+                ),
+                _NavItem(
+                  icon: Icons.chat_bubble_outline,
+                  activeIcon: Icons.chat_bubble,
+                  label: 'Messages',
+                  isSelected: currentIndex == 2,
+                  onTap: () => context.go('/chat'),
+                ),
+                _NavItem(
+                  icon: Icons.person_outline,
+                  activeIcon: Icons.person,
+                  label: 'Profile',
+                  isSelected: currentIndex == 3,
+                  onTap: () => context.go('/profile'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _NavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.brandViolet.withValues(alpha: 0.12) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isSelected ? activeIcon : icon,
+              color: isSelected ? AppColors.brandViolet : AppColors.textFog,
+              size: 22,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? AppColors.brandViolet : AppColors.textFog,
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

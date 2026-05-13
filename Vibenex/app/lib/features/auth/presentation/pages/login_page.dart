@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_gradients.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
@@ -57,12 +59,10 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticated) {
-          context.go('/feed');
+          context.go('/communities');
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
@@ -75,6 +75,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         }
       },
       child: Scaffold(
+        backgroundColor: AppColors.backgroundDeep,
         body: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -96,12 +97,14 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                           margin: const EdgeInsets.only(bottom: 16),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: isDark
-                                  ? [const Color(0xFF9B8FFF), const Color(0xFF6C5CE7)]
-                                  : [const Color(0xFF6C5CE7), const Color(0xFFA29BFE)],
-                            ),
+                            gradient: AppGradients.primary,
                             borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.brandViolet.withValues(alpha: 0.3),
+                                blurRadius: 20,
+                              ),
+                            ],
                           ),
                           child: const Icon(Icons.vibration, size: 40, color: Colors.white),
                         ),
@@ -156,6 +159,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                           builder: (context, state) {
                             return CustomButton(
                               text: 'Đăng nhập',
+                              gradient: AppGradients.primary,
                               isLoading: state is AuthLoading,
                               onPressed: _onLogin,
                             );

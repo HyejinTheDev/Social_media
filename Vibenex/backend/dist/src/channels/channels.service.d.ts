@@ -3,20 +3,20 @@ export declare class ChannelsService {
     private prisma;
     constructor(prisma: PrismaService);
     findByCommunity(communityId: string): Promise<{
-        type: import("@prisma/client").$Enums.ChannelType;
-        description: string | null;
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
+        description: string | null;
+        type: import("@prisma/client").$Enums.ChannelType;
         position: number;
         communityId: string;
     }[]>;
     findById(id: string): Promise<{
-        type: import("@prisma/client").$Enums.ChannelType;
-        description: string | null;
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
+        description: string | null;
+        type: import("@prisma/client").$Enums.ChannelType;
         position: number;
         communityId: string;
     }>;
@@ -25,11 +25,11 @@ export declare class ChannelsService {
         type?: string;
         description?: string;
     }): Promise<{
-        type: import("@prisma/client").$Enums.ChannelType;
-        description: string | null;
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
+        description: string | null;
+        type: import("@prisma/client").$Enums.ChannelType;
         position: number;
         communityId: string;
     }>;

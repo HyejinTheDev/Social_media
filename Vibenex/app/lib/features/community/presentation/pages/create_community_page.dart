@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_gradients.dart';
 import '../../bloc/community_bloc.dart';
 
 class CreateCommunityPage extends StatefulWidget {
@@ -55,17 +57,16 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Create Community'),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: const IconThemeData(color: AppColors.textSilver),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: cs.primary))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.brandViolet))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
               child: Form(
@@ -73,17 +74,13 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Tên cộng đồng', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 14)),
+                    const Text('Tên cộng đồng', style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14)),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _nameController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
+                      style: const TextStyle(color: AppColors.textSilver),
+                      decoration: const InputDecoration(
                         hintText: 'VD: Flutter Vietnam',
-                        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
-                        filled: true,
-                        fillColor: Colors.white.withValues(alpha: 0.05),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                       ),
                       validator: (val) {
                         if (val == null || val.trim().isEmpty) return 'Vui lòng nhập tên cộng đồng';
@@ -93,48 +90,48 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
                     ),
                     const SizedBox(height: 24),
                     
-                    Text('Mô tả (Không bắt buộc)', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 14)),
+                    const Text('Mô tả (Không bắt buộc)', style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14)),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _descController,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppColors.textSilver),
                       maxLines: 3,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: 'Cộng đồng này dành cho...',
-                        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
-                        filled: true,
-                        fillColor: Colors.white.withValues(alpha: 0.05),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                       ),
                     ),
                     const SizedBox(height: 24),
 
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.05),
+                        color: AppColors.surfaceContainerHigh,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: SwitchListTile(
-                        title: const Text('Cộng đồng công khai', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        title: const Text('Cộng đồng công khai', style: TextStyle(color: AppColors.textSilver, fontWeight: FontWeight.bold)),
                         subtitle: Text(
                           _isPublic ? 'Ai cũng có thể tìm thấy và tham gia.' : 'Chỉ những người được mời mới có thể tham gia.',
-                          style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
+                          style: const TextStyle(color: AppColors.textFog, fontSize: 12),
                         ),
                         value: _isPublic,
-                        activeTrackColor: cs.primary,
+                        activeTrackColor: AppColors.brandViolet,
                         onChanged: (val) => setState(() => _isPublic = val),
                       ),
                     ),
                     
                     const SizedBox(height: 40),
                     
-                    SizedBox(
+                    Container(
                       width: double.infinity,
-                      height: 50,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        gradient: AppGradients.primary,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: cs.primary,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
                         ),
                         onPressed: _submit,
                         child: const Text('Tạo ngay', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),

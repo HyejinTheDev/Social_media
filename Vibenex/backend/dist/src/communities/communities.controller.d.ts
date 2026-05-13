@@ -4,12 +4,12 @@ export declare class CommunitiesController {
     constructor(communitiesService: CommunitiesService);
     findAll(page?: string, limit?: string, search?: string): Promise<{
         communities: {
-            description: string | null;
-            name: string;
             id: string;
+            name: string;
             createdAt: Date;
             updatedAt: Date;
             slug: string;
+            description: string | null;
             icon: string | null;
             banner: string | null;
             isPublic: boolean;
@@ -18,12 +18,12 @@ export declare class CommunitiesController {
         total: number;
     }>;
     findOne(id: string): Promise<{
-        description: string | null;
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
         slug: string;
+        description: string | null;
         icon: string | null;
         banner: string | null;
         isPublic: boolean;
@@ -35,40 +35,40 @@ export declare class CommunitiesController {
         isPublic?: boolean;
     }): Promise<{
         channels: {
-            type: import("@prisma/client").$Enums.ChannelType;
-            description: string | null;
-            name: string;
             id: string;
+            name: string;
             createdAt: Date;
+            description: string | null;
+            type: import("@prisma/client").$Enums.ChannelType;
             position: number;
             communityId: string;
         }[];
     } & {
-        description: string | null;
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
         slug: string;
+        description: string | null;
         icon: string | null;
         banner: string | null;
         isPublic: boolean;
         memberCount: number;
     }>;
     getChannels(communityId: string): Promise<{
-        type: import("@prisma/client").$Enums.ChannelType;
-        description: string | null;
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
+        description: string | null;
+        type: import("@prisma/client").$Enums.ChannelType;
         position: number;
         communityId: string;
     }[]>;
     join(req: any, communityId: string): Promise<{
         id: string;
+        communityId: string;
         userId: string;
         role: import("@prisma/client").$Enums.CommunityRole;
         joinedAt: Date;
-        communityId: string;
     }>;
 }

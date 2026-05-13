@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_gradients.dart';
 import '../../../../core/widgets/avatar_widget.dart';
 import '../../../../core/widgets/loading_overlay.dart';
 import '../../bloc/profile_bloc.dart';
@@ -40,6 +42,7 @@ class _ProfilePageState extends State<ProfilePage> {
         if (user == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
 
         return Scaffold(
+          backgroundColor: AppColors.background,
           body: LoadingOverlay(
             isLoading: state is ProfileUpdating,
             child: RefreshIndicator(
@@ -63,11 +66,11 @@ class _ProfilePageState extends State<ProfilePage> {
               SliverToBoxAdapter(
                 child: Column(
                   children: [
-                    const Divider(height: 1),
+                    const Divider(height: 1, color: AppColors.borderTwilight),
                     const SizedBox(height: 32),
-                    Text('Spaces & Discussions', style: Theme.of(context).textTheme.titleMedium),
+                    Text('Spaces & Discussions', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textSilver)),
                     const SizedBox(height: 8),
-                    const Text('Coming Soon...'),
+                    const Text('Coming Soon...', style: TextStyle(color: AppColors.textFog)),
                   ],
                 ),
               ),
@@ -89,8 +92,8 @@ class _ProfilePageState extends State<ProfilePage> {
       Container(
         height: 180,
         width: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [cs.primary.withValues(alpha: 0.7), cs.secondary.withValues(alpha: 0.5)]),
+        decoration: const BoxDecoration(
+          gradient: AppGradients.primary,
         ),
         child: coverUrl != null
           ? CachedNetworkImage(imageUrl: coverUrl, fit: BoxFit.cover, errorWidget: (_, __, ___) => const SizedBox())
@@ -98,7 +101,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       // Avatar
       Positioned(left: 20, bottom: -44, child: Container(
-        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Theme.of(context).scaffoldBackgroundColor, width: 4)),
+        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppColors.background, width: 4)),
         child: AvatarWidget(imageUrl: avatarUrl, radius: 44),
       )),
       // Top bar
@@ -120,10 +123,10 @@ class _ProfilePageState extends State<ProfilePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(children: [
-            Flexible(child: Text(user.name, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700), overflow: TextOverflow.ellipsis)),
-            if (user.isVerified) ...[const SizedBox(width: 4), Icon(Icons.verified, size: 18, color: cs.primary)],
+            Flexible(child: Text(user.name, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: AppColors.textSilver), overflow: TextOverflow.ellipsis)),
+            if (user.isVerified) ...[const SizedBox(width: 4), const Icon(Icons.verified, size: 18, color: AppColors.brandViolet)],
           ]),
-          Text('@${user.username}', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+          Text('@${user.username}', style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 13)),
         ],
       )),
     ]);
@@ -185,9 +188,9 @@ class _StatItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      Text(_format(count), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+      Text(_format(count), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, color: AppColors.textSilver)),
       const SizedBox(height: 2),
-      Text(label, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+      Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textFog)),
     ]);
   }
 }

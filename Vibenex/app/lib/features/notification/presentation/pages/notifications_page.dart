@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/error_state_widget.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../bloc/notification_bloc.dart';
 
 class NotificationsPage extends StatefulWidget {
@@ -37,13 +38,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     return Scaffold(
-      backgroundColor: cs.surface,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Thông báo', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: cs.surface,
+        title: const Text('Thông báo', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSilver)),
+        backgroundColor: AppColors.background,
         elevation: 0,
         actions: [
           IconButton(
@@ -58,7 +57,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       body: BlocBuilder<NotificationBloc, NotificationState>(
         builder: (context, state) {
           if (state.status == NotificationStatus.loading && state.notifications.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(color: AppColors.brandViolet));
           }
 
           if (state.status == NotificationStatus.error && state.notifications.isEmpty) {
@@ -87,7 +86,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 if (index == state.notifications.length) {
                   return const Padding(
                     padding: EdgeInsets.all(16.0),
-                    child: Center(child: CircularProgressIndicator()),
+                    child: Center(child: CircularProgressIndicator(color: AppColors.brandViolet)),
                   );
                 }
 
@@ -109,7 +108,6 @@ class _NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final isRead = item['isRead'] == true;
     final type = item['type'] as String;
 
@@ -119,19 +117,19 @@ class _NotificationTile extends StatelessWidget {
     switch (type) {
       case 'LIKE':
         icon = Icons.favorite;
-        iconColor = Colors.red;
+        iconColor = AppColors.hotPink;
         break;
       case 'COMMENT':
         icon = Icons.comment;
-        iconColor = Colors.blue;
+        iconColor = AppColors.electricIndigo;
         break;
       case 'FOLLOW':
         icon = Icons.person_add;
-        iconColor = Colors.green;
+        iconColor = AppColors.brandViolet;
         break;
       default:
         icon = Icons.notifications;
-        iconColor = cs.primary;
+        iconColor = AppColors.textFog;
     }
 
     return InkWell(
@@ -155,7 +153,7 @@ class _NotificationTile extends StatelessWidget {
         }
       },
       child: Container(
-        color: isRead ? Colors.transparent : cs.primaryContainer.withValues(alpha: 0.3),
+        color: isRead ? Colors.transparent : AppColors.surfaceContainer,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,17 +173,17 @@ class _NotificationTile extends StatelessWidget {
                 children: [
                   Text(
                     item['title'] ?? '',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textSilver),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     item['body'] ?? '',
-                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 14),
+                    style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     timeago.format(DateTime.parse(item['createdAt']), locale: 'vi'),
-                    style: TextStyle(color: cs.outline, fontSize: 12),
+                    style: const TextStyle(color: AppColors.textFog, fontSize: 12),
                   ),
                 ],
               ),
@@ -196,8 +194,8 @@ class _NotificationTile extends StatelessWidget {
                 child: Container(
                   width: 8,
                   height: 8,
-                  decoration: BoxDecoration(
-                    color: cs.primary,
+                  decoration: const BoxDecoration(
+                    color: AppColors.brandViolet,
                     shape: BoxShape.circle,
                   ),
                 ),

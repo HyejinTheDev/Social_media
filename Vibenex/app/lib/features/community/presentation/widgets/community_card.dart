@@ -1,6 +1,7 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_gradients.dart';
 import '../../domain/models/community_models.dart';
 
 class CommunityCard extends StatelessWidget {
@@ -10,26 +11,16 @@ class CommunityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Colors.white.withValues(alpha: 0.05),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 10,
-            spreadRadius: 2,
-          ),
-        ],
+        borderRadius: BorderRadius.circular(16),
+        color: AppColors.surfaceMidnight,
+        border: Border.all(color: AppColors.borderTwilight, width: 1),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: InkWell(
-            onTap: () {
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: () {
               context.push('/communities/${community.id}');
             },
             child: Column(
@@ -46,12 +37,8 @@ class CommunityCard extends StatelessWidget {
                   Container(
                     height: 120,
                     width: double.infinity,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [cs.primary.withValues(alpha: 0.5), cs.secondary.withValues(alpha: 0.5)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                    decoration: const BoxDecoration(
+                      gradient: AppGradients.primary,
                     ),
                     child: const Center(child: Icon(Icons.groups, size: 48, color: Colors.white54)),
                   ),
@@ -68,10 +55,10 @@ class CommunityCard extends StatelessWidget {
                               radius: 20,
                             )
                           else
-                            CircleAvatar(
-                              backgroundColor: cs.primary,
+                            const CircleAvatar(
+                              backgroundColor: AppColors.surfaceContainerHigh,
                               radius: 20,
-                              child: const Icon(Icons.group, color: Colors.white, size: 20),
+                              child: Icon(Icons.group, color: AppColors.brandViolet, size: 20),
                             ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -81,7 +68,7 @@ class CommunityCard extends StatelessWidget {
                                 Text(
                                   community.name,
                                   style: const TextStyle(
-                                    color: Colors.white,
+                                    color: AppColors.textSilver,
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -91,15 +78,15 @@ class CommunityCard extends StatelessWidget {
                                 const SizedBox(height: 4),
                                 Row(
                                   children: [
-                                    const Icon(Icons.people_outline, size: 14, color: Colors.grey),
+                                    const Icon(Icons.people_outline, size: 14, color: AppColors.textFog),
                                     const SizedBox(width: 4),
                                     Text(
                                       '${community.memberCount} members',
-                                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                                      style: const TextStyle(color: AppColors.textFog, fontSize: 12),
                                     ),
                                     if (!community.isPublic) ...[
                                       const SizedBox(width: 8),
-                                      Icon(Icons.lock_outline, size: 14, color: cs.secondary),
+                                      const Icon(Icons.lock_outline, size: 14, color: AppColors.textFog),
                                     ],
                                   ],
                                 ),
@@ -112,7 +99,7 @@ class CommunityCard extends StatelessWidget {
                         const SizedBox(height: 12),
                         Text(
                           community.description!,
-                          style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 14),
+                          style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -124,7 +111,6 @@ class CommunityCard extends StatelessWidget {
             ),
           ),
         ),
-      ),
     );
   }
 }

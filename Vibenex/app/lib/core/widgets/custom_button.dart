@@ -10,6 +10,7 @@ class CustomButton extends StatelessWidget {
   final double height;
   final Color? backgroundColor;
   final Color? foregroundColor;
+  final Gradient? gradient;
 
   const CustomButton({
     super.key,
@@ -22,6 +23,7 @@ class CustomButton extends StatelessWidget {
     this.height = 52,
     this.backgroundColor,
     this.foregroundColor,
+    this.gradient,
   });
 
   @override
@@ -62,19 +64,46 @@ class CustomButton extends StatelessWidget {
       );
     }
 
+    Widget button = ElevatedButton(
+      onPressed: isLoading ? null : onPressed,
+      style: gradient != null
+          ? ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              foregroundColor: foregroundColor ?? Colors.white,
+            )
+          : backgroundColor != null
+              ? ElevatedButton.styleFrom(
+                  backgroundColor: backgroundColor,
+                  foregroundColor: foregroundColor,
+                )
+              : null,
+      child: child,
+    );
+
+    if (gradient != null) {
+      return Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          gradient: gradient,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: gradient!.colors.first.withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: button,
+      );
+    }
+
     return SizedBox(
       width: width,
       height: height,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
-        style: backgroundColor != null
-            ? ElevatedButton.styleFrom(
-                backgroundColor: backgroundColor,
-                foregroundColor: foregroundColor,
-              )
-            : null,
-        child: child,
-      ),
+      child: button,
     );
   }
 }

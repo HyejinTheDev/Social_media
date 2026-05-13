@@ -16,9 +16,9 @@ export declare class ChatGateway implements OnGatewayConnection, OnGatewayDiscon
         imageUrl?: string;
     }): Promise<({
         sender: {
+            id: string;
             name: string;
             username: string;
-            id: string;
             avatar: string | null;
             isVerified: boolean;
         };
@@ -26,10 +26,10 @@ export declare class ChatGateway implements OnGatewayConnection, OnGatewayDiscon
         id: string;
         createdAt: Date;
         content: string;
-        conversationId: string;
-        senderId: string;
         imageUrl: string | null;
         isRead: boolean;
+        senderId: string;
+        conversationId: string;
     }) | undefined>;
     handleJoinConversation(client: Socket, data: {
         conversationId: string;

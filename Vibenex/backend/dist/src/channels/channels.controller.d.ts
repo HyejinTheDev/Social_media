@@ -3,11 +3,11 @@ export declare class ChannelsController {
     private readonly channelsService;
     constructor(channelsService: ChannelsService);
     findOne(id: string): Promise<{
-        type: import("@prisma/client").$Enums.ChannelType;
-        description: string | null;
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
+        description: string | null;
+        type: import("@prisma/client").$Enums.ChannelType;
         position: number;
         communityId: string;
     }>;

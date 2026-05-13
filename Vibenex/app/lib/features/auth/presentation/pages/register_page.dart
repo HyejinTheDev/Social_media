@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_gradients.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../bloc/auth_bloc.dart';
@@ -60,7 +62,7 @@ class _RegisterPageState extends State<RegisterPage> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (ctx, state) {
         if (state is AuthAuthenticated) {
-          ctx.go('/feed');
+          ctx.go('/communities');
         } else if (state is AuthError) {
           ScaffoldMessenger.of(ctx)..hideCurrentSnackBar()..showSnackBar(
             SnackBar(content: Text(state.message), backgroundColor: cs.error,
@@ -69,7 +71,8 @@ class _RegisterPageState extends State<RegisterPage> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new, size: 20), onPressed: () => context.pop()), title: const Text('Tạo tài khoản')),
+        backgroundColor: AppColors.backgroundDeep,
+        appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new, size: 20), onPressed: () => context.pop()), title: const Text('Tạo tài khoản')),
         body: SafeArea(child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Form(key: _formKey, child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -86,11 +89,11 @@ class _RegisterPageState extends State<RegisterPage> {
             const SizedBox(height: 16),
             CustomTextField(label: 'Xác nhận mật khẩu', hint: '••••••••', controller: _confirmC, obscureText: true, textInputAction: TextInputAction.done, prefixIcon: const Icon(Icons.lock_outline), validator: (v) => Validators.confirmPassword(v, _passwordC.text)),
             const SizedBox(height: 32),
-            BlocBuilder<AuthBloc, AuthState>(builder: (ctx, state) => CustomButton(text: 'Đăng ký', isLoading: state is AuthLoading, onPressed: _onRegister)),
+            BlocBuilder<AuthBloc, AuthState>(builder: (ctx, state) => CustomButton(text: 'Đăng ký', gradient: AppGradients.primary, isLoading: state is AuthLoading, onPressed: _onRegister)),
             const SizedBox(height: 24),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Text('Đã có tài khoản? ', style: TextStyle(color: cs.onSurfaceVariant)),
-              GestureDetector(onTap: () => context.pop(), child: Text('Đăng nhập', style: TextStyle(color: cs.primary, fontWeight: FontWeight.w700))),
+              GestureDetector(onTap: () => context.pop(), child: const Text('Đăng nhập', style: TextStyle(color: AppColors.brandViolet, fontWeight: FontWeight.w700))),
             ]),
           ])),
         )),

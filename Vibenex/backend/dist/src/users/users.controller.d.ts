@@ -9,9 +9,9 @@ export declare class UsersController {
     uploadCover(req: any, file: Express.Multer.File): Promise<any>;
     searchUsers(req: any, query: string, page?: string): Promise<{
         users: {
+            id: string;
             name: string;
             username: string;
-            id: string;
             bio: string | null;
             avatar: string | null;
             reputation: number;

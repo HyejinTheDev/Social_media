@@ -64,7 +64,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticated) {
-          context.go('/feed');
+          context.go('/communities');
         } else if (state is AuthUnauthenticated || state is AuthError) {
           context.go('/login');
         }

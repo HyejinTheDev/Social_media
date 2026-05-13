@@ -10,9 +10,9 @@ export declare class UsersService {
     updateCover(userId: string, filename: string): Promise<any>;
     searchUsers(query: string, currentUserId: string, page?: number, limit?: number): Promise<{
         users: {
+            id: string;
             name: string;
             username: string;
-            id: string;
             bio: string | null;
             avatar: string | null;
             reputation: number;

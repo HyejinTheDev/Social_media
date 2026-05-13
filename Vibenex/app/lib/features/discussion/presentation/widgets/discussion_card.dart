@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../domain/models/discussion_models.dart';
 
 /// A card displaying a single discussion thread.
@@ -20,15 +21,14 @@ class DiscussionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final author = discussion.author;
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        color: AppColors.surfaceMidnight,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.borderTwilight, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,12 +38,12 @@ class DiscussionCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 16,
-                backgroundColor: cs.primary.withValues(alpha: 0.3),
+                backgroundColor: AppColors.surfaceContainerHigh,
                 backgroundImage: author?.avatar != null ? NetworkImage(author!.avatar!) : null,
                 child: author?.avatar == null
                     ? Text(
                         (author?.name ?? '?')[0].toUpperCase(),
-                        style: TextStyle(color: cs.primary, fontWeight: FontWeight.bold, fontSize: 13),
+                        style: const TextStyle(color: AppColors.brandViolet, fontWeight: FontWeight.bold, fontSize: 13),
                       )
                     : null,
               ),
@@ -54,17 +54,17 @@ class DiscussionCard extends StatelessWidget {
                   children: [
                     Text(
                       author?.name ?? 'Unknown',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13),
+                      style: const TextStyle(color: AppColors.textSilver, fontWeight: FontWeight.w600, fontSize: 13),
                     ),
                     Text(
                       _timeAgo(discussion.createdAt),
-                      style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
+                      style: const TextStyle(color: AppColors.textFog, fontSize: 11),
                     ),
                   ],
                 ),
               ),
               if (discussion.isPinned)
-                Icon(Icons.push_pin, size: 14, color: cs.secondary),
+                const Icon(Icons.push_pin, size: 14, color: AppColors.hotPink),
             ],
           ),
 
@@ -73,7 +73,7 @@ class DiscussionCard extends StatelessWidget {
           // ─── Content ───
           Text(
             discussion.content,
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 14, height: 1.4),
+            style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14, height: 1.4),
           ),
 
           // ─── Images (first one only as preview) ───
@@ -96,18 +96,18 @@ class DiscussionCard extends StatelessWidget {
           // ─── Footer: Reply count & Reaction count ───
           Row(
             children: [
-              Icon(Icons.chat_bubble_outline, size: 14, color: cs.onSurfaceVariant),
+              const Icon(Icons.chat_bubble_outline, size: 14, color: AppColors.textFog),
               const SizedBox(width: 4),
               Text(
                 '${discussion.replyCount}',
-                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+                style: const TextStyle(color: AppColors.textFog, fontSize: 12),
               ),
               const SizedBox(width: 16),
-              Icon(Icons.emoji_emotions_outlined, size: 14, color: cs.onSurfaceVariant),
+              const Icon(Icons.emoji_emotions_outlined, size: 14, color: AppColors.textFog),
               const SizedBox(width: 4),
               Text(
                 '${discussion.reactionCount}',
-                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+                style: const TextStyle(color: AppColors.textFog, fontSize: 12),
               ),
             ],
           ),
