@@ -22,6 +22,9 @@ import '../../features/explore/presentation/pages/explore_page.dart';
 import '../../features/chat/bloc/chat_bloc.dart';
 import '../../features/chat/presentation/pages/conversation_list_page.dart';
 import '../../features/chat/presentation/pages/chat_page.dart';
+import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/home/presentation/pages/create_post_page.dart';
+import '../../features/shorts/presentation/pages/shorts_page.dart';
 import '../../features/notification/bloc/notification_bloc.dart';
 import '../../features/notification/presentation/pages/notifications_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
@@ -66,8 +69,8 @@ class AppRouter {
       final isAuthPage = loc == '/login' || loc == '/register' || loc == '/forgot-password';
       if (loc == '/splash' || loc == '/onboarding') return null;
       if (!isAuth) return isAuthPage ? null : '/login';
-      if (isAuth && isAuthPage) return '/communities';
-      if (loc == '/') return '/communities';
+      if (isAuth && isAuthPage) return '/home';
+      if (loc == '/') return '/home';
       return null;
     },
     routes: [
@@ -120,6 +123,36 @@ class AppRouter {
             BlocProvider(
               create: (_) => getIt<NotificationBloc>(),
               child: const NotificationsPage(),
+            ),
+          );
+        },
+      ),
+      // Explore (Search) route
+      GoRoute(
+        path: '/explore',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (context, state) {
+          return _slideTransition(
+            context,
+            state,
+            BlocProvider(
+              create: (_) => getIt<ExploreBloc>(),
+              child: const ExplorePage(),
+            ),
+          );
+        },
+      ),
+      // Conversation list route
+      GoRoute(
+        path: '/chat',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (context, state) {
+          return _slideTransition(
+            context,
+            state,
+            BlocProvider(
+              create: (_) => getIt<ChatBloc>(),
+              child: const ConversationListPage(),
             ),
           );
         },
@@ -198,6 +231,12 @@ class AppRouter {
         builder: (_, __, child) => _ShellWithNav(child: child),
         routes: [
           GoRoute(
+            path: '/home',
+            pageBuilder: (_, __) => const NoTransitionPage(
+              child: HomePage(),
+            ),
+          ),
+          GoRoute(
             path: '/communities',
             pageBuilder: (_, __) => NoTransitionPage(
               child: BlocProvider(
@@ -207,21 +246,9 @@ class AppRouter {
             ),
           ),
           GoRoute(
-            path: '/explore',
-            pageBuilder: (_, __) => NoTransitionPage(
-              child: BlocProvider(
-                create: (_) => getIt<ExploreBloc>(),
-                child: const ExplorePage(),
-              ),
-            ),
-          ),
-          GoRoute(
-            path: '/chat',
-            pageBuilder: (_, __) => NoTransitionPage(
-              child: BlocProvider(
-                create: (_) => getIt<ChatBloc>(),
-                child: const ConversationListPage(),
-              ),
+            path: '/shorts',
+            pageBuilder: (_, __) => const NoTransitionPage(
+              child: ShortsPage(),
             ),
           ),
           GoRoute(
@@ -235,6 +262,12 @@ class AppRouter {
           ),
         ],
       ),
+      GoRoute(
+        path: '/create-post',
+        builder: (context, state) => CreatePostPage(
+          initialText: state.extra as String?,
+        ),
+      ),
     ],
   );
 }
@@ -245,9 +278,9 @@ class _ShellWithNav extends StatelessWidget {
 
   int _idx(BuildContext ctx) {
     final loc = GoRouterState.of(ctx).uri.path;
-    if (loc.startsWith('/communities')) return 0;
-    if (loc.startsWith('/explore')) return 1;
-    if (loc.startsWith('/chat')) return 2;
+    if (loc.startsWith('/home')) return 0;
+    if (loc.startsWith('/communities')) return 1;
+    if (loc.startsWith('/shorts')) return 2;
     if (loc.startsWith('/profile')) return 3;
     return 0;
   }
@@ -273,28 +306,28 @@ class _ShellWithNav extends StatelessWidget {
                 _NavItem(
                   icon: Icons.home_outlined,
                   activeIcon: Icons.home,
-                  label: 'Home',
+                  label: 'Trang chủ',
                   isSelected: currentIndex == 0,
+                  onTap: () => context.go('/home'),
+                ),
+                _NavItem(
+                  icon: Icons.people_outline,
+                  activeIcon: Icons.people,
+                  label: 'Cộng đồng',
+                  isSelected: currentIndex == 1,
                   onTap: () => context.go('/communities'),
                 ),
                 _NavItem(
-                  icon: Icons.explore_outlined,
-                  activeIcon: Icons.explore,
-                  label: 'Spaces',
-                  isSelected: currentIndex == 1,
-                  onTap: () => context.go('/explore'),
-                ),
-                _NavItem(
-                  icon: Icons.chat_bubble_outline,
-                  activeIcon: Icons.chat_bubble,
-                  label: 'Messages',
+                  icon: Icons.play_circle_outline,
+                  activeIcon: Icons.play_circle,
+                  label: 'Shorts',
                   isSelected: currentIndex == 2,
-                  onTap: () => context.go('/chat'),
+                  onTap: () => context.go('/shorts'),
                 ),
                 _NavItem(
                   icon: Icons.person_outline,
                   activeIcon: Icons.person,
-                  label: 'Profile',
+                  label: 'Hồ sơ',
                   isSelected: currentIndex == 3,
                   onTap: () => context.go('/profile'),
                 ),

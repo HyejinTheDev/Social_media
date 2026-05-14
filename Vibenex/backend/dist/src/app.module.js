@@ -19,6 +19,8 @@ const reactions_module_1 = require("./reactions/reactions.module");
 const replies_module_1 = require("./replies/replies.module");
 const discussions_module_1 = require("./discussions/discussions.module");
 const channels_module_1 = require("./channels/channels.module");
+const posts_module_1 = require("./posts/posts.module");
+const friends_module_1 = require("./friends/friends.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -36,6 +38,8 @@ exports.AppModule = AppModule = __decorate([
             discussions_module_1.DiscussionsModule,
             replies_module_1.RepliesModule,
             reactions_module_1.ReactionsModule,
+            posts_module_1.PostsModule,
+            friends_module_1.FriendsModule,
         ],
         controllers: [],
         providers: [],

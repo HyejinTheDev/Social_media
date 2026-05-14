@@ -10,6 +10,8 @@ import { ReactionsModule } from './reactions/reactions.module';
 import { RepliesModule } from './replies/replies.module';
 import { DiscussionsModule } from './discussions/discussions.module';
 import { ChannelsModule } from './channels/channels.module';
+import { PostsModule } from './posts/posts.module';
+import { FriendsModule } from './friends/friends.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { ChannelsModule } from './channels/channels.module';
     DiscussionsModule,
     RepliesModule,
     ReactionsModule,
+    PostsModule,
+    FriendsModule,
   ],
   controllers: [],
   providers: [],

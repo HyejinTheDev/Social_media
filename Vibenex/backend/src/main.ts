@@ -34,8 +34,8 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   const port = process.env.PORT || 3001;
-  await app.listen(port);
-  console.log(`🚀 Vibenex API running on http://localhost:${port}`);
+  await app.listen(port, '0.0.0.0');
+  console.log(`🚀 Vibenex API running on port ${port} (0.0.0.0)`);
   console.log(`📚 Swagger docs at http://localhost:${port}/api`);
 }
 bootstrap();

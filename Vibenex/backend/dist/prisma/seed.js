@@ -56,6 +56,10 @@ async function main() {
     await prisma.channel.deleteMany();
     await prisma.communityMember.deleteMany();
     await prisma.community.deleteMany();
+    await prisma.friendRequest.deleteMany();
+    await prisma.comment.deleteMany();
+    await prisma.postLike.deleteMany();
+    await prisma.post.deleteMany();
     await prisma.user.deleteMany();
     const passwordHash = await bcrypt.hash('password123', 10);
     const user1 = await prisma.user.create({
@@ -100,7 +104,7 @@ async function main() {
             name: 'Flutter Vietnam',
             slug: 'flutter-vn',
             description: 'Cộng đồng lập trình viên Flutter tại Việt Nam. Nơi chia sẻ kiến thức, kinh nghiệm và tìm kiếm cơ hội việc làm.',
-            icon: 'https://storage.googleapis.com/cms-storage-bucket/0dbfcc7a59cd1cf16282.png',
+            icon: 'https://images.unsplash.com/photo-1617042375876-a13e36732a04?w=500&q=80',
             banner: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop',
             memberCount: 3,
             channels: {
@@ -217,6 +221,58 @@ async function main() {
         ]
     });
     console.log('Created notifications');
+    const post1 = await prisma.post.create({
+        data: {
+            authorId: user3.id,
+            content: 'Chào buổi sáng mọi người! Hôm nay thời tiết thật đẹp 🌞. Mình chuẩn bị đi uống cà phê và làm việc đây.',
+            likeCount: 2,
+            commentCount: 1,
+            likes: {
+                create: [
+                    { userId: user1.id },
+                    { userId: user2.id }
+                ]
+            },
+            comments: {
+                create: [
+                    { authorId: user1.id, content: 'Chào chị nha, đi cafe vui vẻ!' }
+                ]
+            }
+        }
+    });
+    const post2 = await prisma.post.create({
+        data: {
+            authorId: user1.id,
+            content: 'Vừa học xong khóa học UI/UX design. Cảm thấy rất hào hứng để áp dụng vào project sắp tới! 🎨✨',
+            imageUrls: ['https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=2000&auto=format&fit=crop'],
+            likeCount: 1,
+            likes: {
+                create: [{ userId: user3.id }]
+            }
+        }
+    });
+    const post3 = await prisma.post.create({
+        data: {
+            authorId: user2.id,
+            content: 'Mọi người có recommend cuốn sách nào về thiết kế không ạ?',
+            likeCount: 0,
+            commentCount: 2,
+            comments: {
+                create: [
+                    { authorId: user1.id, content: "Đọc cuốn 'Don't Make Me Think' nha bạn." },
+                    { authorId: user3.id, content: "Cuốn 'The Design of Everyday Things' cũng rất hay nè." }
+                ]
+            }
+        }
+    });
+    console.log('Created posts');
+    await prisma.friendRequest.createMany({
+        data: [
+            { senderId: user1.id, receiverId: user3.id, status: 'ACCEPTED' },
+            { senderId: user2.id, receiverId: user3.id, status: 'PENDING' },
+        ]
+    });
+    console.log('Created friends');
     console.log('Seed completed successfully!');
     console.log('\\n--- Test Accounts ---');
     console.log('1. hyejin@example.com / password123');

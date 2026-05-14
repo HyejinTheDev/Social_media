@@ -5,8 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_gradients.dart';
 import '../../bloc/community_bloc.dart';
 import '../widgets/space_category_icon.dart';
-import '../widgets/community_list_card.dart';
-import '../widgets/active_discussion_card.dart';
+import '../widgets/room_card.dart';
 
 class CommunitiesPage extends StatefulWidget {
   const CommunitiesPage({super.key});
@@ -29,87 +28,29 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // ─── Header ───
-            _buildAppBar(),
-
+            // ─── App Bar ───
+            const SliverAppBar(
+              title: Text('Cộng đồng', style: TextStyle(color: AppColors.textSilver, fontWeight: FontWeight.bold)),
+              backgroundColor: AppColors.backgroundDeep,
+              floating: true,
+              elevation: 0,
+            ),
+            
             // ─── Search Bar ───
             SliverToBoxAdapter(child: _buildSearchBar()),
 
             // ─── Your Spaces ───
-            SliverToBoxAdapter(child: _buildSectionHeader('Your Spaces', showSeeAll: true)),
+            SliverToBoxAdapter(child: _buildSectionHeader('Cộng đồng của bạn', showSeeAll: true)),
             SliverToBoxAdapter(child: _buildYourSpaces()),
 
-            // ─── Trending Now ───
-            SliverToBoxAdapter(child: _buildSectionHeader('🔥 Trending Now')),
-            _buildTrendingNow(),
 
-            // ─── Active Discussions ───
-            SliverToBoxAdapter(child: _buildSectionHeader('Active Discussions')),
-            SliverToBoxAdapter(child: _buildActiveDiscussions()),
+
+            // ─── Voice & Chat Rooms ───
+            SliverToBoxAdapter(child: _buildSectionHeader('Phòng Voice & Chat')),
+            SliverToBoxAdapter(child: _buildRooms()),
 
             // Bottom padding for nav bar
             const SliverToBoxAdapter(child: SizedBox(height: 90)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ─────────────────── HEADER ───────────────────
-
-  Widget _buildAppBar() {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-        child: Row(
-          children: [
-            // Vibenex logo
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                gradient: AppGradients.primary,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.blur_on, color: Colors.white, size: 20),
-            ),
-            const SizedBox(width: 10),
-            const Text(
-              'Vibenex',
-              style: TextStyle(
-                color: AppColors.textSilver,
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.5,
-              ),
-            ),
-            const Spacer(),
-            // Search icon
-            IconButton(
-              icon: const Icon(Icons.search, color: AppColors.textFog, size: 24),
-              onPressed: () => context.go('/search'),
-            ),
-            // Notification icon with badge
-            Stack(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.notifications_outlined, color: AppColors.textFog, size: 24),
-                  onPressed: () => context.push('/notifications'),
-                ),
-                Positioned(
-                  right: 10,
-                  top: 10,
-                  child: Container(
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(
-                      color: AppColors.hotPink,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ],
         ),
       ),
@@ -136,7 +77,7 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
               Icon(Icons.search, color: AppColors.textFog, size: 20),
               SizedBox(width: 10),
               Text(
-                'Discover Spaces, topics, people...',
+                'Khám phá cộng đồng, chủ đề...',
                 style: TextStyle(color: AppColors.textFog, fontSize: 14),
               ),
             ],
@@ -166,7 +107,7 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
             GestureDetector(
               onTap: () {},
               child: const Text(
-                'See all',
+                'Xem tất cả',
                 style: TextStyle(
                   color: AppColors.brandViolet,
                   fontSize: 13,
@@ -183,11 +124,11 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
 
   Widget _buildYourSpaces() {
     final categories = [
-      const _CategoryData(Icons.palette_outlined, 'Design', AppGradients.categoryDesign),
-      const _CategoryData(Icons.code, 'Flutter Dev', AppGradients.categoryDev),
-      const _CategoryData(Icons.sports_esports_outlined, 'Gaming', AppGradients.categoryGaming),
-      const _CategoryData(Icons.camera_alt_outlined, 'Photo', AppGradients.categoryPhoto),
-      const _CategoryData(Icons.music_note_outlined, 'Music', AppGradients.categoryMusic),
+      const _CategoryData(Icons.palette_outlined, 'Thiết kế', AppGradients.categoryDesign),
+      const _CategoryData(Icons.code, 'Lập trình', AppGradients.categoryDev),
+      const _CategoryData(Icons.sports_esports_outlined, 'Chơi game', AppGradients.categoryGaming),
+      const _CategoryData(Icons.camera_alt_outlined, 'Nhiếp ảnh', AppGradients.categoryPhoto),
+      const _CategoryData(Icons.music_note_outlined, 'Âm nhạc', AppGradients.categoryMusic),
     ];
 
     return SizedBox(
@@ -210,113 +151,46 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
     );
   }
 
-  // ─────────────────── TRENDING NOW ───────────────────
 
-  Widget _buildTrendingNow() {
-    return BlocBuilder<CommunityBloc, CommunityState>(
-      builder: (context, state) {
-        if (state is CommunityLoading) {
-          return const SliverToBoxAdapter(
-            child: Center(
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: CircularProgressIndicator(color: AppColors.brandViolet),
-              ),
-            ),
-          );
-        }
-        if (state is CommunityLoaded) {
-          final communities = state.communities;
-          if (communities.isEmpty) {
-            return const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: Center(
-                  child: Text(
-                    'Chưa có cộng đồng nào.',
-                    style: TextStyle(color: AppColors.textFog),
-                  ),
-                ),
-              ),
-            );
-          }
-          return SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 14),
-                    child: CommunityListCard(
-                      community: communities[index],
-                      onTap: () => context.push('/communities/${communities[index].id}'),
-                    ),
-                  );
-                },
-                childCount: communities.length,
-              ),
-            ),
-          );
-        }
-        if (state is CommunityError) {
-          return SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Center(
-                child: Column(
-                  children: [
-                    const Icon(Icons.error_outline, size: 40, color: AppColors.error),
-                    const SizedBox(height: 8),
-                    Text(state.message, style: const TextStyle(color: AppColors.textFog)),
-                    TextButton(
-                      onPressed: () => context.read<CommunityBloc>().add(const LoadCommunitiesRequested()),
-                      child: const Text('Thử lại', style: TextStyle(color: AppColors.brandViolet)),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }
-        return const SliverToBoxAdapter(child: SizedBox.shrink());
-      },
-    );
-  }
 
-  // ─────────────────── ACTIVE DISCUSSIONS ───────────────────
+  // ─────────────────── ROOMS (DISCORD STYLE) ───────────────────
 
-  Widget _buildActiveDiscussions() {
-    // Mock data — giống hình mẫu thiết kế
-    final discussions = [
-      const ActiveDiscussionCard(
-        authorName: 'Alex Rivera',
-        badge: 'Flutter dev',
-        badgeColor: Color(0xFF60A5FA),
-        content: 'How are you handling complex state in large-scale Flutter apps? BLoC vs Riverpod in 2024?',
-        replyCount: 142,
-        likeCount: 89,
-        timeAgo: '2h ago',
-      ),
-      const ActiveDiscussionCard(
-        authorName: 'Sarah Chen',
-        badge: 'design',
-        badgeColor: Color(0xFFF97316),
-        content: 'The transition from Glassmorphism to Bento Grids: Why layout density is winning.',
-        replyCount: 58,
-        likeCount: 214,
-        timeAgo: '5h ago',
-      ),
-    ];
-
+  Widget _buildRooms() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
-        children: discussions
-            .map((card) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: card,
-                ))
-            .toList(),
+        children: [
+          RoomCard(
+            roomName: 'Flutter Vietnam Chill ☕️',
+            participantCount: 42,
+            speakerAvatars: const [
+              'https://i.pravatar.cc/150?u=1',
+              'https://i.pravatar.cc/150?u=2',
+              'https://i.pravatar.cc/150?u=3',
+            ],
+            isVoiceRoom: true,
+            onTap: () {
+               ScaffoldMessenger.of(context).showSnackBar(
+                 const SnackBar(content: Text('Tính năng Voice Room đang được phát triển')),
+               );
+            },
+          ),
+          const SizedBox(height: 12),
+          RoomCard(
+            roomName: 'Review UI/UX tháng 5',
+            participantCount: 15,
+            speakerAvatars: const [
+              'https://i.pravatar.cc/150?u=4',
+              'https://i.pravatar.cc/150?u=5',
+            ],
+            isVoiceRoom: false,
+            onTap: () {
+               ScaffoldMessenger.of(context).showSnackBar(
+                 const SnackBar(content: Text('Tính năng Chat Room đang được phát triển')),
+               );
+            },
+          ),
+        ],
       ),
     );
   }

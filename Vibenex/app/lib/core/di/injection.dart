@@ -8,8 +8,15 @@ import '../../features/profile/data/datasources/profile_api_service.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
 import '../../features/profile/bloc/profile_bloc.dart';
+import '../../features/profile/data/datasources/friend_api_service.dart';
+import '../../features/profile/data/repositories/friend_repository_impl.dart';
+import '../../features/profile/domain/repositories/friend_repository.dart';
 
 import '../../features/explore/bloc/explore_bloc.dart';
+import '../../features/home/data/datasources/post_api_service.dart';
+import '../../features/home/data/repositories/post_repository_impl.dart';
+import '../../features/home/domain/repositories/post_repository.dart';
+import '../../features/home/bloc/home_bloc.dart';
 
 import '../../features/chat/data/datasources/chat_api_service.dart';
 import '../../features/chat/data/datasources/socket_service.dart';
@@ -52,12 +59,34 @@ Future<void> configureDependencies() async {
       dio: getIt<DioClient>().dio,
     ),
   );
+  getIt.registerLazySingleton<FriendApiService>(
+    () => FriendApiService(getIt<DioClient>().dio),
+  );
+  getIt.registerLazySingleton<FriendRepository>(
+    () => FriendRepositoryImpl(getIt<FriendApiService>()),
+  );
+
   getIt.registerFactory<ProfileBloc>(
-    () => ProfileBloc(repository: getIt<ProfileRepository>()),
+    () => ProfileBloc(
+      repository: getIt<ProfileRepository>(),
+      postRepository: getIt<PostRepository>(),
+      friendRepository: getIt<FriendRepository>(),
+    ),
   );
 
 
   getIt.registerFactory(() => ExploreBloc(api: getIt()));
+
+  // ─── Home ───
+  getIt.registerLazySingleton<PostApiService>(
+    () => PostApiService(getIt<DioClient>().dio),
+  );
+  getIt.registerLazySingleton<PostRepository>(
+    () => PostRepositoryImpl(getIt<PostApiService>()),
+  );
+  getIt.registerFactory<HomeBloc>(
+    () => HomeBloc(getIt<PostRepository>()),
+  );
 
   // ─── Chat ───
   getIt.registerLazySingleton<ChatApiService>(

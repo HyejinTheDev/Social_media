@@ -10,14 +10,19 @@ import 'core/theme/theme_notifier.dart';
 import 'core/l10n/locale_provider.dart';
 import 'features/auth/bloc/auth_bloc.dart';
 import 'features/profile/bloc/profile_bloc.dart';
+import 'features/notification/bloc/notification_bloc.dart';
+import 'features/home/bloc/home_bloc.dart';
 import 'features/chat/data/datasources/socket_service.dart';
 import 'core/widgets/offline_banner.dart';
+
+import 'package:timeago/timeago.dart' as timeago;
 
 final themeNotifier = ThemeNotifier();
 final localeProvider = LocaleProvider();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  timeago.setLocaleMessages('vi', timeago.ViMessages());
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
@@ -35,6 +40,8 @@ class VibenexApp extends StatelessWidget {
       providers: [
         BlocProvider<AuthBloc>(create: (_) => getIt<AuthBloc>()),
         BlocProvider<ProfileBloc>(create: (_) => getIt<ProfileBloc>()),
+        BlocProvider<NotificationBloc>(create: (_) => getIt<NotificationBloc>()..add(FetchUnreadCount())),
+        BlocProvider<HomeBloc>(create: (_) => getIt<HomeBloc>()),
       ],
       child: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -55,7 +62,7 @@ class VibenexApp extends StatelessWidget {
             darkTheme: AppTheme.darkTheme,
             themeMode: themeNotifier.themeMode,
             locale: localeProvider.locale,
-            builder: (context, child) => OfflineBanner(child: child!),
+            builder: (context, child) => child != null ? OfflineBanner(child: child) : const SizedBox.shrink(),
             localizationsDelegates: const [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,

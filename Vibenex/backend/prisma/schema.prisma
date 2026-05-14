@@ -55,6 +55,15 @@ model User {
   replies              Reply[]
   reactions            Reaction[]
   
+  // Post Relations
+  posts            Post[]
+  postLikes        PostLike[]
+  comments         Comment[]
+
+  // Friend Relations
+  friendRequestsSent     FriendRequest[] @relation("FriendRequestsSent")
+  friendRequestsReceived FriendRequest[] @relation("FriendRequestsReceived")
+  
   // Chat Relations
   sentMessages     Message[]      @relation("sender")
   conversations1   Conversation[] @relation("participant1")
@@ -201,4 +210,67 @@ model Notification {
   data      Json?
   isRead    Boolean          @default(false)
   createdAt DateTime         @default(now())
+}
+
+model Post {
+  id           String     @id @default(uuid())
+  authorId     String
+  author       User       @relation(fields: [authorId], references: [id])
+  content      String
+  imageUrls    String[]
+  videoUrl     String?
+  likeCount    Int        @default(0)
+  commentCount Int        @default(0)
+  shareCount   Int        @default(0)
+  
+  likes        PostLike[]
+  comments     Comment[]
+  
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model PostLike {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  
+  createdAt DateTime @default(now())
+  
+  @@unique([postId, userId])
+}
+
+model Comment {
+  id        String    @id @default(uuid())
+  postId    String
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id])
+  content   String
+  parentId  String?
+  parent    Comment?  @relation("CommentThread", fields: [parentId], references: [id])
+  children  Comment[] @relation("CommentThread")
+  
+  createdAt DateTime  @default(now())
+}
+
+enum FriendStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model FriendRequest {
+  id         String       @id @default(uuid())
+  senderId   String
+  sender     User         @relation("FriendRequestsSent", fields: [senderId], references: [id])
+  receiverId String
+  receiver   User         @relation("FriendRequestsReceived", fields: [receiverId], references: [id])
+  status     FriendStatus @default(PENDING)
+  
+  createdAt  DateTime     @default(now())
+  
+  @@unique([senderId, receiverId])
 }

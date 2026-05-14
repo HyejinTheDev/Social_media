@@ -31,9 +31,24 @@ let UsersService = class UsersService {
         });
         if (!user)
             throw new common_1.NotFoundException('Không tìm thấy người dùng');
+        let friendStatus = 'NONE';
+        if (currentUserId && currentUserId !== userId) {
+            const request = await this.prisma.friendRequest.findFirst({
+                where: {
+                    OR: [
+                        { senderId: currentUserId, receiverId: userId },
+                        { senderId: userId, receiverId: currentUserId },
+                    ],
+                },
+            });
+            if (request) {
+                friendStatus = request.status;
+            }
+        }
         return {
             ...this.sanitize(user),
             isOwnProfile: currentUserId === userId,
+            friendStatus: friendStatus.toLowerCase(),
         };
     }
     async updateProfile(userId, dto) {

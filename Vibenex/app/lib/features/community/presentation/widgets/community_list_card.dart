@@ -60,9 +60,10 @@ class CommunityListCard extends StatelessWidget {
                   Row(
                     children: [
                       // Community icon
-                      if (community.icon != null)
+                      if (community.icon != null && community.icon!.isNotEmpty)
                         CircleAvatar(
                           backgroundImage: NetworkImage(community.icon!),
+                          onBackgroundImageError: (exception, stackTrace) {},
                           radius: 16,
                           backgroundColor: AppColors.surfaceContainerHigh,
                         )

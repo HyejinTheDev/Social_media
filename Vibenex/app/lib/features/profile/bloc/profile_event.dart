@@ -42,3 +42,10 @@ class ProfileFollowToggled extends ProfileEvent {
   @override
   List<Object?> get props => [userId];
 }
+
+class ProfileFriendRequestSent extends ProfileEvent {
+  final String userId;
+  const ProfileFriendRequestSent(this.userId);
+  @override
+  List<Object?> get props => [userId];
+}

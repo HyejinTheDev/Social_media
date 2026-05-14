@@ -9,8 +9,8 @@ export declare class NotificationsService {
         createdAt: Date;
         type: import("@prisma/client").$Enums.NotificationType;
         isRead: boolean;
-        title: string;
         userId: string;
+        title: string;
         body: string;
     }>;
     getNotifications(userId: string, page?: number, limit?: number): Promise<{
@@ -20,8 +20,8 @@ export declare class NotificationsService {
             createdAt: Date;
             type: import("@prisma/client").$Enums.NotificationType;
             isRead: boolean;
-            title: string;
             userId: string;
+            title: string;
             body: string;
         }[];
         total: number;

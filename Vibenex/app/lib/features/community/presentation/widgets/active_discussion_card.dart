@@ -114,19 +114,9 @@ class ActiveDiscussionCard extends StatelessWidget {
             // Footer stats
             Row(
               children: [
-                const Icon(Icons.chat_bubble_outline, size: 15, color: AppColors.textFog),
-                const SizedBox(width: 4),
-                Text(
-                  '$replyCount',
-                  style: const TextStyle(color: AppColors.textFog, fontSize: 12),
-                ),
+                _buildActionIcon(Icons.chat_bubble_outline, replyCount.toString(), AppColors.textFog),
                 const SizedBox(width: 16),
-                const Icon(Icons.favorite_outline, size: 15, color: AppColors.textFog),
-                const SizedBox(width: 4),
-                Text(
-                  '$likeCount',
-                  style: const TextStyle(color: AppColors.textFog, fontSize: 12),
-                ),
+                _buildActionIcon(Icons.favorite, likeCount.toString(), Colors.redAccent),
                 const Spacer(),
                 Text(
                   timeAgo,
@@ -137,6 +127,19 @@ class ActiveDiscussionCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildActionIcon(IconData icon, String count, Color color) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: color),
+        const SizedBox(width: 4),
+        Text(
+          count,
+          style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600),
+        ),
+      ],
     );
   }
 }

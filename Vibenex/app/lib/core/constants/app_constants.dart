@@ -2,7 +2,7 @@ class AppConstants {
   AppConstants._();
 
   // API
-  static const String baseUrl = 'http://10.0.2.2:3001'; // Android emulator → localhost
+  static const String baseUrl = 'http://192.168.60.234:3001'; // IP thật của máy tính để thiết bị vật lý kết nối
   static const String baseUrlWeb = 'http://localhost:3001';
 
   // Storage Keys

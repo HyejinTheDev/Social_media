@@ -10,6 +10,8 @@ import '../../../../core/widgets/loading_overlay.dart';
 import '../../bloc/profile_bloc.dart';
 import '../../../chat/data/datasources/chat_api_service.dart';
 import '../../../../core/di/injection.dart';
+import '../../../home/domain/models/home_models.dart';
+import '../../../home/presentation/widgets/post_card.dart';
 
 class ProfilePage extends StatefulWidget {
   final String? userId;
@@ -62,16 +64,29 @@ class _ProfilePageState extends State<ProfilePage> {
                 )),
               // Action buttons
               SliverToBoxAdapter(child: _buildActions(context, cs, isOwn, state)),
-              // Space grid placeholder
+              // Posts list
               SliverToBoxAdapter(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Divider(height: 1, color: AppColors.borderTwilight),
-                    const SizedBox(height: 32),
-                    Text('Spaces & Discussions', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textSilver)),
-                    const SizedBox(height: 8),
-                    const Text('Coming Soon...', style: TextStyle(color: AppColors.textFog)),
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Text('Bài viết', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textSilver, fontWeight: FontWeight.bold)),
+                    ),
+                    const SizedBox(height: 12),
                   ],
+                ),
+              ),
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final posts = state is ProfileLoaded ? state.posts : [];
+                    if (posts.isEmpty) return const SizedBox();
+                    return PostCard(post: posts[index]);
+                  },
+                  childCount: state is ProfileLoaded ? state.posts.length : 0,
                 ),
               ),
               const SliverToBoxAdapter(child: SizedBox(height: 100)),
@@ -142,38 +157,88 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildActions(BuildContext context, ColorScheme cs, bool isOwn, ProfileState state) {
-    final userId = state is ProfileLoaded ? state.user.id : '';
+    final user = state is ProfileLoaded ? state.user : (state is ProfileUpdating ? state.user : null);
+    if (user == null) return const SizedBox();
+    final userId = user.id;
+
+    if (isOwn) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        child: OutlinedButton.icon(
+          onPressed: () => context.push('/edit-profile'),
+          icon: const Icon(Icons.edit_outlined, size: 18),
+          label: const Text('Chỉnh sửa hồ sơ'),
+          style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 44), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+        ),
+      );
+    }
+
+    String friendText;
+    IconData friendIcon;
+    Color friendColor;
+
+    FriendStatus status = state is ProfileLoaded ? state.friendStatus : FriendStatus.none;
+
+    switch (status) {
+      case FriendStatus.accepted:
+        friendText = 'Bạn bè';
+        friendIcon = Icons.how_to_reg;
+        friendColor = AppColors.statusEmerald;
+        break;
+      case FriendStatus.pending:
+        friendText = 'Đang chờ...';
+        friendIcon = Icons.access_time;
+        friendColor = AppColors.statusAmber;
+        break;
+      case FriendStatus.none:
+        friendText = 'Kết bạn';
+        friendIcon = Icons.person_add_alt_1;
+        friendColor = AppColors.brandViolet;
+        break;
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      child: isOwn
-        ? OutlinedButton.icon(
-            onPressed: () => context.push('/edit-profile'),
-            icon: const Icon(Icons.edit_outlined, size: 18),
-            label: const Text('Chỉnh sửa hồ sơ'),
-            style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 44), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-          )
-        : Row(children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () async {
-                  try {
-                    final conv = await getIt<ChatApiService>().getOrCreateConversation(userId);
-                    if (context.mounted) {
-                      context.push('/chat/${conv['id']}', extra: conv['otherUser']);
-                    }
-                  } catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lỗi khi mở tin nhắn')));
-                    }
-                  }
-                },
-                icon: const Icon(Icons.chat_bubble_outline, size: 20),
-                label: const Text('Nhắn tin'),
-                style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 44), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-              ),
+      child: Row(children: [
+        Expanded(
+          child: ElevatedButton.icon(
+            onPressed: status == FriendStatus.none ? () {
+              context.read<ProfileBloc>().add(ProfileFriendRequestSent(userId));
+            } : null,
+            icon: Icon(friendIcon, size: 20, color: Colors.white),
+            label: Text(friendText, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: friendColor,
+              disabledBackgroundColor: friendColor.withValues(alpha: 0.5),
+              minimumSize: const Size(double.infinity, 44),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-          ]),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: () async {
+              try {
+                final conv = await getIt<ChatApiService>().getOrCreateConversation(userId);
+                if (context.mounted) {
+                  context.push('/chat/${conv['id']}', extra: conv['otherUser']);
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lỗi khi mở tin nhắn')));
+                }
+              }
+            },
+            icon: const Icon(Icons.chat_bubble_outline, size: 20),
+            label: const Text('Nhắn tin'),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 44),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ),
+      ]),
     );
   }
 }

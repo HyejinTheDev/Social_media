@@ -32,6 +32,14 @@ class CommunityCard extends StatelessWidget {
                     height: 120,
                     width: double.infinity,
                     fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      height: 120,
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        gradient: AppGradients.primary,
+                      ),
+                      child: const Center(child: Icon(Icons.groups, size: 48, color: Colors.white54)),
+                    ),
                   )
                 else
                   Container(
@@ -49,9 +57,10 @@ class CommunityCard extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          if (community.icon != null)
+                          if (community.icon != null && community.icon!.isNotEmpty)
                             CircleAvatar(
                               backgroundImage: NetworkImage(community.icon!),
+                              onBackgroundImageError: (exception, stackTrace) {},
                               radius: 20,
                             )
                           else
