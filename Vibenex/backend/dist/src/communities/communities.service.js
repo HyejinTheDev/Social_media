@@ -55,6 +55,7 @@ let CommunitiesService = class CommunitiesService {
                 slug,
                 description: data.description,
                 isPublic: data.isPublic ?? true,
+                isVoiceRoom: data.isVoiceRoom ?? false,
                 memberCount: 1,
                 members: {
                     create: {
@@ -65,7 +66,7 @@ let CommunitiesService = class CommunitiesService {
                 channels: {
                     create: {
                         name: 'general',
-                        type: 'TEXT',
+                        type: (data.isVoiceRoom ?? false) ? 'VOICE' : 'TEXT',
                         description: 'General discussion',
                         position: 0,
                     },
@@ -105,6 +106,38 @@ let CommunitiesService = class CommunitiesService {
             data: { memberCount: { increment: 1 } },
         });
         return member;
+    }
+    async leave(communityId, userId) {
+        const member = await this.prisma.communityMember.findUnique({
+            where: { communityId_userId: { communityId, userId } },
+        });
+        if (!member)
+            throw new common_1.NotFoundException('Not a member');
+        if (member.role === 'OWNER')
+            throw new common_1.ForbiddenException('Owner cannot leave. Transfer ownership or delete the community.');
+        await this.prisma.communityMember.delete({
+            where: { communityId_userId: { communityId, userId } },
+        });
+        await this.prisma.community.update({
+            where: { id: communityId },
+            data: { memberCount: { decrement: 1 } },
+        });
+        return { message: 'Left community' };
+    }
+    async remove(communityId, userId) {
+        const member = await this.prisma.communityMember.findUnique({
+            where: { communityId_userId: { communityId, userId } },
+        });
+        if (!member || member.role !== 'OWNER') {
+            throw new common_1.ForbiddenException('Only the owner can delete this community');
+        }
+        await this.prisma.channelMessage.deleteMany({
+            where: { channel: { communityId } },
+        });
+        await this.prisma.channel.deleteMany({ where: { communityId } });
+        await this.prisma.communityMember.deleteMany({ where: { communityId } });
+        await this.prisma.community.delete({ where: { id: communityId } });
+        return { message: 'Community deleted' };
     }
     async getChannelMessages(channelId, page, limit) {
         const skip = (page - 1) * limit;

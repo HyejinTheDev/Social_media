@@ -6,6 +6,10 @@ export declare class PostsService {
     constructor(prisma: PrismaService, notificationsService: NotificationsService);
     getFeed(page: number, limit: number): Promise<{
         data: ({
+            _count: {
+                comments: number;
+                likes: number;
+            };
             author: {
                 id: string;
                 name: string;
@@ -18,10 +22,6 @@ export declare class PostsService {
                 userId: string;
                 postId: string;
             }[];
-            _count: {
-                comments: number;
-                likes: number;
-            };
         } & {
             id: string;
             createdAt: Date;
@@ -43,6 +43,10 @@ export declare class PostsService {
     }>;
     getUserPosts(userId: string, page: number, limit: number): Promise<{
         data: ({
+            _count: {
+                comments: number;
+                likes: number;
+            };
             author: {
                 id: string;
                 name: string;
@@ -55,10 +59,6 @@ export declare class PostsService {
                 userId: string;
                 postId: string;
             }[];
-            _count: {
-                comments: number;
-                likes: number;
-            };
         } & {
             id: string;
             createdAt: Date;
@@ -98,15 +98,15 @@ export declare class PostsService {
         shareCount: number;
     }>;
     getPostById(id: string): Promise<{
+        _count: {
+            comments: number;
+            likes: number;
+        };
         author: {
             id: string;
             name: string;
             username: string;
             avatar: string | null;
-        };
-        _count: {
-            comments: number;
-            likes: number;
         };
     } & {
         id: string;

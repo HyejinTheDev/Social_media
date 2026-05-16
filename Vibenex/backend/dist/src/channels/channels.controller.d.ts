@@ -7,8 +7,8 @@ export declare class ChannelsController {
         name: string;
         createdAt: Date;
         description: string | null;
+        communityId: string;
         type: import("@prisma/client").$Enums.ChannelType;
         position: number;
-        communityId: string;
     }>;
 }

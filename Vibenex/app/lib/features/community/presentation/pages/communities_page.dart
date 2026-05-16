@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_gradients.dart';
 import '../../bloc/community_bloc.dart';
-import '../widgets/space_category_icon.dart';
+import '../../domain/models/community_models.dart';
 import '../widgets/room_card.dart';
 
 class CommunitiesPage extends StatefulWidget {
@@ -25,12 +24,23 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundDeep,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          final result = await context.push('/create-community');
+          if (result == true && mounted) {
+            context.read<CommunityBloc>().add(const LoadCommunitiesRequested());
+          }
+        },
+        backgroundColor: AppColors.brandViolet,
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Tạo', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      ),
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
             // ─── App Bar ───
             const SliverAppBar(
-              title: Text('Cộng đồng', style: TextStyle(color: AppColors.textSilver, fontWeight: FontWeight.bold)),
+              title: Text('Phòng Voice & Chat', style: TextStyle(color: AppColors.textSilver, fontWeight: FontWeight.bold)),
               backgroundColor: AppColors.backgroundDeep,
               floating: true,
               elevation: 0,
@@ -39,15 +49,8 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
             // ─── Search Bar ───
             SliverToBoxAdapter(child: _buildSearchBar()),
 
-            // ─── Your Spaces ───
-            SliverToBoxAdapter(child: _buildSectionHeader('Cộng đồng của bạn', showSeeAll: true)),
-            SliverToBoxAdapter(child: _buildYourSpaces()),
-
-
-
-            // ─── Voice & Chat Rooms ───
-            SliverToBoxAdapter(child: _buildSectionHeader('Phòng Voice & Chat')),
-            SliverToBoxAdapter(child: _buildRooms()),
+            // ─── Room List ───
+            _buildRoomList(),
 
             // Bottom padding for nav bar
             const SliverToBoxAdapter(child: SizedBox(height: 90)),
@@ -61,7 +64,7 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
 
   Widget _buildSearchBar() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: GestureDetector(
         onTap: () => context.go('/search'),
         child: Container(
@@ -77,7 +80,7 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
               Icon(Icons.search, color: AppColors.textFog, size: 20),
               SizedBox(width: 10),
               Text(
-                'Khám phá cộng đồng, chủ đề...',
+                'Khám phá phòng trò chuyện...',
                 style: TextStyle(color: AppColors.textFog, fontSize: 14),
               ),
             ],
@@ -87,127 +90,254 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
     );
   }
 
-  // ─────────────────── SECTION HEADER ───────────────────
+  // ─────────────────── ROOM LIST FROM API ───────────────────
 
-  Widget _buildSectionHeader(String title, {bool showSeeAll = false}) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-      child: Row(
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: AppColors.textSilver,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
+  Widget _buildRoomList() {
+    return BlocBuilder<CommunityBloc, CommunityState>(
+      builder: (context, state) {
+        if (state is CommunityLoading) {
+          return const SliverToBoxAdapter(
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.all(32),
+                child: CircularProgressIndicator(color: AppColors.brandViolet),
+              ),
             ),
-          ),
-          const Spacer(),
-          if (showSeeAll)
-            GestureDetector(
-              onTap: () {},
-              child: const Text(
-                'Xem tất cả',
-                style: TextStyle(
-                  color: AppColors.brandViolet,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
+          );
+        }
+
+        if (state is CommunityError) {
+          return SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Center(
+                child: Column(
+                  children: [
+                    const Icon(Icons.error_outline, color: AppColors.textFog, size: 48),
+                    const SizedBox(height: 8),
+                    Text(state.message, style: const TextStyle(color: AppColors.textFog)),
+                    const SizedBox(height: 12),
+                    TextButton(
+                      onPressed: () => context.read<CommunityBloc>().add(const LoadCommunitiesRequested()),
+                      child: const Text('Thử lại'),
+                    ),
+                  ],
                 ),
               ),
             ),
-        ],
-      ),
-    );
-  }
-
-  // ─────────────────── YOUR SPACES ───────────────────
-
-  Widget _buildYourSpaces() {
-    final categories = [
-      const _CategoryData(Icons.palette_outlined, 'Thiết kế', AppGradients.categoryDesign),
-      const _CategoryData(Icons.code, 'Lập trình', AppGradients.categoryDev),
-      const _CategoryData(Icons.sports_esports_outlined, 'Chơi game', AppGradients.categoryGaming),
-      const _CategoryData(Icons.camera_alt_outlined, 'Nhiếp ảnh', AppGradients.categoryPhoto),
-      const _CategoryData(Icons.music_note_outlined, 'Âm nhạc', AppGradients.categoryMusic),
-    ];
-
-    return SizedBox(
-      height: 90,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          final cat = categories[index];
-          return SpaceCategoryIcon(
-            icon: cat.icon,
-            label: cat.label,
-            gradient: cat.gradient,
-            onTap: () {},
           );
-        },
-      ),
+        }
+
+        if (state is CommunityLoaded) {
+          if (state.communities.isEmpty) {
+            return SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(Icons.mic_none, color: AppColors.textFog.withValues(alpha: 0.5), size: 64),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'Chưa có phòng nào',
+                        style: TextStyle(color: AppColors.textFog, fontSize: 16),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Bấm nút "Tạo" bên dưới để tạo phòng đầu tiên!',
+                        style: TextStyle(color: AppColors.textFog, fontSize: 13),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+
+          return SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                child: _buildRoomItem(state.communities[index], index),
+              ),
+              childCount: state.communities.length,
+            ),
+          );
+        }
+
+        return const SliverToBoxAdapter(child: SizedBox.shrink());
+      },
     );
   }
 
+  Widget _buildRoomItem(CommunityModel community, int index) {
+    // Generate some mock avatars for now
+    final mockAvatars = [
+      'https://i.pravatar.cc/150?u=${index + 1}',
+      'https://i.pravatar.cc/150?u=${index + 2}',
+      'https://i.pravatar.cc/150?u=${index + 3}',
+    ];
+    
+    // Use real isVoiceRoom from API
+    final isVoiceRoom = community.isVoiceRoom;
 
-
-  // ─────────────────── ROOMS (DISCORD STYLE) ───────────────────
-
-  Widget _buildRooms() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
+    return RoomCard(
+      roomName: community.name,
+      participantCount: community.memberCount > 0 ? community.memberCount : (index + 1) * 3,
+      speakerAvatars: mockAvatars,
+      isVoiceRoom: isVoiceRoom,
+      onTap: () {
+        if (isVoiceRoom) {
+          context.push(
+            '/communities/${community.id}/voice-room/mock-voice-channel',
+            extra: {
+              'channelName': community.name,
+              'communityName': community.name,
+            },
+          );
+        } else {
+          context.push(
+            '/communities/${community.id}/live-chat/mock-chat-channel',
+            extra: {
+              'channelName': community.name,
+              'communityName': community.name,
+            },
+          );
+        }
+      },
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          RoomCard(
-            roomName: 'Flutter Vietnam Chill ☕️',
-            participantCount: 42,
-            speakerAvatars: const [
-              'https://i.pravatar.cc/150?u=1',
-              'https://i.pravatar.cc/150?u=2',
-              'https://i.pravatar.cc/150?u=3',
-            ],
-            isVoiceRoom: true,
-            onTap: () {
-              context.push(
-                '/communities/mock-community/voice-room/mock-voice-channel',
-                extra: {
-                  'channelName': 'Flutter Vietnam Chill ☕️',
-                  'communityName': 'Cộng đồng Lập trình',
-                },
-              );
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert, color: AppColors.textFog, size: 22),
+            color: AppColors.surfaceContainerHigh,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            onSelected: (value) {
+              switch (value) {
+                case 'share':
+                  _shareViaChatDialog(community);
+                  break;
+                case 'edit':
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Chức năng sửa đang phát triển')),
+                  );
+                  break;
+                case 'delete':
+                  _confirmDeleteCommunity(community);
+                  break;
+              }
             },
-          ),
-          const SizedBox(height: 12),
-          RoomCard(
-            roomName: 'Review UI/UX tháng 5',
-            participantCount: 15,
-            speakerAvatars: const [
-              'https://i.pravatar.cc/150?u=4',
-              'https://i.pravatar.cc/150?u=5',
+            itemBuilder: (ctx) => [
+              const PopupMenuItem(
+                value: 'share',
+                child: Row(
+                  children: [
+                    Icon(Icons.share, color: AppColors.brandViolet, size: 20),
+                    SizedBox(width: 12),
+                    Text('Chia sẻ phòng', style: TextStyle(color: AppColors.textSilver)),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'edit',
+                child: Row(
+                  children: [
+                    Icon(Icons.edit, color: Colors.blueAccent, size: 20),
+                    SizedBox(width: 12),
+                    Text('Sửa thông tin', style: TextStyle(color: Colors.blueAccent)),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'delete',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+                    SizedBox(width: 12),
+                    Text('Xóa phòng', style: TextStyle(color: Colors.redAccent)),
+                  ],
+                ),
+              ),
             ],
-            isVoiceRoom: false,
-            onTap: () {
-              context.push(
-                '/communities/mock-community/live-chat/mock-chat-channel',
-                extra: {
-                  'channelName': 'Review UI/UX tháng 5',
-                  'communityName': 'Cộng đồng Thiết kế',
-                },
-              );
-            },
           ),
         ],
       ),
     );
   }
-}
 
-// ─── Helper data class ───
-class _CategoryData {
-  final IconData icon;
-  final String label;
-  final LinearGradient gradient;
-  const _CategoryData(this.icon, this.label, this.gradient);
+  void _shareViaChatDialog(CommunityModel community) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: AppColors.surfaceContainerHigh,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text('Chia sẻ qua tin nhắn', style: TextStyle(color: AppColors.textSilver)),
+          content: const Text(
+            'Mở tab Tin nhắn và gửi link phòng tới bạn bè.',
+            style: TextStyle(color: AppColors.textFog),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Đóng'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.brandViolet),
+              onPressed: () {
+                Navigator.pop(ctx);
+                context.push('/messages');
+              },
+              child: const Text('Mở tin nhắn', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _confirmDeleteCommunity(CommunityModel community) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: AppColors.surfaceContainerHigh,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text('Xóa phòng?', style: TextStyle(color: Colors.redAccent)),
+          content: Text(
+            'Bạn có chắc muốn XÓA VĨNH VIỄN phòng "${community.name}"? Hành động này không thể hoàn tác!',
+            style: const TextStyle(color: AppColors.textFog),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Hủy'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+              onPressed: () {
+                Navigator.pop(ctx);
+                context.read<CommunityBloc>().add(DeleteCommunityRequested(
+                  communityId: community.id,
+                  onResult: (error) {
+                    if (error == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Đã xóa phòng'), backgroundColor: Colors.green),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(error), backgroundColor: Colors.red),
+                      );
+                    }
+                  },
+                ));
+              },
+              child: const Text('Xóa', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

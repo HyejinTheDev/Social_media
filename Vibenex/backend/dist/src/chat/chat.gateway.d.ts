@@ -71,6 +71,20 @@ export declare class ChatGateway implements OnGatewayConnection, OnGatewayDiscon
         imageUrl: string | null;
         senderId: string;
     }) | undefined>;
+    private voiceRooms;
+    handleVoiceJoin(client: Socket, data: {
+        channelId: string;
+        username: string;
+        avatar?: string;
+    }): Promise<void>;
+    handleVoiceLeave(client: Socket, data: {
+        channelId: string;
+    }): void;
+    handleVoiceToggleMic(client: Socket, data: {
+        channelId: string;
+        isMuted: boolean;
+    }): void;
+    private cleanupVoiceRooms;
     sendToUser(userId: string, event: string, data: any): void;
     isUserOnline(userId: string): boolean;
     getOnlineUserIds(): string[];

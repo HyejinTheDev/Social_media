@@ -36,6 +36,12 @@ let CommunitiesController = class CommunitiesController {
     join(req, communityId) {
         return this.communitiesService.join(communityId, req.user.sub);
     }
+    leave(req, communityId) {
+        return this.communitiesService.leave(communityId, req.user.sub);
+    }
+    remove(req, id) {
+        return this.communitiesService.remove(id, req.user.sub);
+    }
     getChannelMessages(channelId, page = '1', limit = '20') {
         return this.communitiesService.getChannelMessages(channelId, parseInt(page), parseInt(limit));
     }
@@ -80,6 +86,22 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], CommunitiesController.prototype, "join", null);
+__decorate([
+    (0, common_1.Post)(':communityId/leave'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('communityId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], CommunitiesController.prototype, "leave", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], CommunitiesController.prototype, "remove", null);
 __decorate([
     (0, common_1.Get)('channels/:channelId/messages'),
     __param(0, (0, common_1.Param)('channelId')),

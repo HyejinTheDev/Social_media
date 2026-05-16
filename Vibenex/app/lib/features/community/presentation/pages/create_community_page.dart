@@ -17,6 +17,7 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
   final _nameController = TextEditingController();
   final _descController = TextEditingController();
   bool _isPublic = true;
+  bool _isVoiceRoom = false;
   bool _isLoading = false;
 
   @override
@@ -36,6 +37,7 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
         name: _nameController.text.trim(),
         description: _descController.text.trim().isEmpty ? null : _descController.text.trim(),
         isPublic: _isPublic,
+        isVoiceRoom: _isVoiceRoom,
         onResult: (error) {
           if (!mounted) return;
           setState(() => _isLoading = false);
@@ -46,7 +48,7 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
             );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Tạo cộng đồng thành công!', style: TextStyle(color: Colors.white)), backgroundColor: Colors.green),
+              const SnackBar(content: Text('Tạo phòng thành công!', style: TextStyle(color: Colors.white)), backgroundColor: Colors.green),
             );
             context.pop(); // Go back to Communities page
           }
@@ -60,7 +62,7 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Create Community'),
+        title: const Text('Tạo phòng mới'),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.textSilver),
@@ -74,16 +76,16 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Tên cộng đồng', style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14)),
+                    const Text('Tên phòng', style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14)),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _nameController,
                       style: const TextStyle(color: AppColors.textSilver),
                       decoration: const InputDecoration(
-                        hintText: 'VD: Flutter Vietnam',
+                        hintText: 'VD: Góc chém gió',
                       ),
                       validator: (val) {
-                        if (val == null || val.trim().isEmpty) return 'Vui lòng nhập tên cộng đồng';
+                        if (val == null || val.trim().isEmpty) return 'Vui lòng nhập tên phòng';
                         if (val.trim().length < 3) return 'Tên phải có ít nhất 3 ký tự';
                         return null;
                       },
@@ -108,7 +110,7 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: SwitchListTile(
-                        title: const Text('Cộng đồng công khai', style: TextStyle(color: AppColors.textSilver, fontWeight: FontWeight.bold)),
+                        title: const Text('Phòng công khai', style: TextStyle(color: AppColors.textSilver, fontWeight: FontWeight.bold)),
                         subtitle: Text(
                           _isPublic ? 'Ai cũng có thể tìm thấy và tham gia.' : 'Chỉ những người được mời mới có thể tham gia.',
                           style: const TextStyle(color: AppColors.textFog, fontSize: 12),
@@ -116,6 +118,23 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
                         value: _isPublic,
                         activeTrackColor: AppColors.brandViolet,
                         onChanged: (val) => setState(() => _isPublic = val),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceContainerHigh,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: SwitchListTile(
+                        title: const Text('Loại phòng: Voice Room', style: TextStyle(color: AppColors.textSilver, fontWeight: FontWeight.bold)),
+                        subtitle: Text(
+                          _isVoiceRoom ? 'Mọi người có thể trò chuyện bằng giọng nói.' : 'Mọi người trò chuyện bằng tin nhắn văn bản.',
+                          style: const TextStyle(color: AppColors.textFog, fontSize: 12),
+                        ),
+                        value: _isVoiceRoom,
+                        activeTrackColor: AppColors.statusEmerald,
+                        onChanged: (val) => setState(() => _isVoiceRoom = val),
                       ),
                     ),
                     

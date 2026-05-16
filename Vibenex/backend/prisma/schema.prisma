@@ -90,6 +90,7 @@ model Community {
   icon        String?             // URL to community icon
   banner      String?             // URL to banner image
   isPublic    Boolean             @default(true)
+  isVoiceRoom Boolean             @default(false)
   memberCount Int                 @default(0)
   
   channels    Channel[]

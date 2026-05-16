@@ -61,6 +61,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const userId = client.data.userId;
     if (userId) {
       this.onlineUsers.delete(userId);
+      this.cleanupVoiceRooms(userId);
       this.server.emit('user:online', { userId, online: false });
       console.log(`🔴 User ${userId} disconnected`);
     }
@@ -175,6 +176,100 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return message;
     } catch (e) {
       client.emit('error', { message: e.message });
+    }
+  }
+
+  // ─── Voice Room Events ───
+
+  // channelId → Set of { userId, username, avatar, isMuted }
+  private voiceRooms = new Map<string, Map<string, { userId: string; username: string; avatar?: string; isMuted: boolean }>>();
+
+  @SubscribeMessage('voice:join')
+  async handleVoiceJoin(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { channelId: string; username: string; avatar?: string },
+  ) {
+    const userId = client.data.userId;
+    if (!userId) return;
+
+    const channelId = data.channelId;
+    client.join(`voice:${channelId}`);
+
+    if (!this.voiceRooms.has(channelId)) {
+      this.voiceRooms.set(channelId, new Map());
+    }
+
+    const participant = {
+      userId,
+      username: data.username || 'User',
+      avatar: data.avatar,
+      isMuted: true,
+    };
+
+    this.voiceRooms.get(channelId)!.set(userId, participant);
+
+    // Send current participant list to the joining user
+    const participants = Array.from(this.voiceRooms.get(channelId)!.values());
+    client.emit('voice:participants', { channelId, participants });
+
+    // Notify others that someone joined
+    client.to(`voice:${channelId}`).emit('voice:user:joined', { channelId, participant });
+
+    console.log(`🎙️ User ${userId} joined voice room ${channelId} (${participants.length} participants)`);
+  }
+
+  @SubscribeMessage('voice:leave')
+  handleVoiceLeave(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { channelId: string },
+  ) {
+    const userId = client.data.userId;
+    if (!userId) return;
+
+    const channelId = data.channelId;
+    client.leave(`voice:${channelId}`);
+
+    if (this.voiceRooms.has(channelId)) {
+      this.voiceRooms.get(channelId)!.delete(userId);
+      if (this.voiceRooms.get(channelId)!.size === 0) {
+        this.voiceRooms.delete(channelId);
+      }
+    }
+
+    this.server.to(`voice:${channelId}`).emit('voice:user:left', { channelId, userId });
+    console.log(`🔇 User ${userId} left voice room ${channelId}`);
+  }
+
+  @SubscribeMessage('voice:toggle-mic')
+  handleVoiceToggleMic(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { channelId: string; isMuted: boolean },
+  ) {
+    const userId = client.data.userId;
+    if (!userId) return;
+
+    const channelId = data.channelId;
+    if (this.voiceRooms.has(channelId) && this.voiceRooms.get(channelId)!.has(userId)) {
+      this.voiceRooms.get(channelId)!.get(userId)!.isMuted = data.isMuted;
+    }
+
+    this.server.to(`voice:${channelId}`).emit('voice:mic:toggled', {
+      channelId,
+      userId,
+      isMuted: data.isMuted,
+    });
+  }
+
+  // Clean up voice rooms on disconnect
+  private cleanupVoiceRooms(userId: string) {
+    for (const [channelId, participants] of this.voiceRooms.entries()) {
+      if (participants.has(userId)) {
+        participants.delete(userId);
+        this.server.to(`voice:${channelId}`).emit('voice:user:left', { channelId, userId });
+        if (participants.size === 0) {
+          this.voiceRooms.delete(channelId);
+        }
+      }
     }
   }
 

@@ -15,6 +15,8 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         super(CommunityInitial()) {
     on<LoadCommunitiesRequested>(_onLoadCommunities);
     on<CreateCommunityRequested>(_onCreateCommunity);
+    on<LeaveCommunityRequested>(_onLeaveCommunity);
+    on<DeleteCommunityRequested>(_onDeleteCommunity);
   }
 
   Future<void> _onLoadCommunities(LoadCommunitiesRequested event, Emitter<CommunityState> emit) async {
@@ -50,10 +52,40 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
 
   Future<void> _onCreateCommunity(CreateCommunityRequested event, Emitter<CommunityState> emit) async {
     try {
-      final newCommunity = await _repository.createCommunity(event.name, event.description, event.isPublic);
+      final newCommunity = await _repository.createCommunity(event.name, event.description, event.isPublic, event.isVoiceRoom);
       if (state is CommunityLoaded) {
         final current = state as CommunityLoaded;
         emit(current.copyWith(communities: [newCommunity, ...current.communities]));
+      }
+      event.onResult?.call(null);
+    } catch (e) {
+      event.onResult?.call(ErrorMapper.map(e));
+    }
+  }
+
+  Future<void> _onLeaveCommunity(LeaveCommunityRequested event, Emitter<CommunityState> emit) async {
+    try {
+      await _repository.leaveCommunity(event.communityId);
+      if (state is CommunityLoaded) {
+        final current = state as CommunityLoaded;
+        emit(current.copyWith(
+          communities: current.communities.where((c) => c.id != event.communityId).toList(),
+        ));
+      }
+      event.onResult?.call(null);
+    } catch (e) {
+      event.onResult?.call(ErrorMapper.map(e));
+    }
+  }
+
+  Future<void> _onDeleteCommunity(DeleteCommunityRequested event, Emitter<CommunityState> emit) async {
+    try {
+      await _repository.deleteCommunity(event.communityId);
+      if (state is CommunityLoaded) {
+        final current = state as CommunityLoaded;
+        emit(current.copyWith(
+          communities: current.communities.where((c) => c.id != event.communityId).toList(),
+        ));
       }
       event.onResult?.call(null);
     } catch (e) {

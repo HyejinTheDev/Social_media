@@ -18,15 +18,33 @@ class CreateCommunityRequested extends CommunityEvent {
   final String name;
   final String? description;
   final bool isPublic;
+  final bool isVoiceRoom;
   final Function(String? error)? onResult;
 
   const CreateCommunityRequested({
     required this.name,
     this.description,
     this.isPublic = true,
+    this.isVoiceRoom = false,
     this.onResult,
   });
 
   @override
-  List<Object?> get props => [name, description, isPublic, onResult];
+  List<Object?> get props => [name, description, isPublic, isVoiceRoom, onResult];
+}
+
+class LeaveCommunityRequested extends CommunityEvent {
+  final String communityId;
+  final Function(String? error)? onResult;
+  const LeaveCommunityRequested({required this.communityId, this.onResult});
+  @override
+  List<Object?> get props => [communityId, onResult];
+}
+
+class DeleteCommunityRequested extends CommunityEvent {
+  final String communityId;
+  final Function(String? error)? onResult;
+  const DeleteCommunityRequested({required this.communityId, this.onResult});
+  @override
+  List<Object?> get props => [communityId, onResult];
 }

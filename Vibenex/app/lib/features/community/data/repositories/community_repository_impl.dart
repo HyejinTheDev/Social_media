@@ -13,11 +13,12 @@ class CommunityRepositoryImpl implements CommunityRepository {
   }
 
   @override
-  Future<CommunityModel> createCommunity(String name, String? description, bool isPublic) {
+  Future<CommunityModel> createCommunity(String name, String? description, bool isPublic, bool isVoiceRoom) {
     return api.createCommunity({
       'name': name,
       'description': description,
       'isPublic': isPublic,
+      'isVoiceRoom': isVoiceRoom,
     });
   }
 
@@ -29,5 +30,20 @@ class CommunityRepositoryImpl implements CommunityRepository {
   @override
   Future<List<ChannelModel>> getChannels(String communityId) {
     return api.getChannels(communityId);
+  }
+
+  @override
+  Future<void> joinCommunity(String communityId) {
+    return api.joinCommunity(communityId);
+  }
+
+  @override
+  Future<void> leaveCommunity(String communityId) {
+    return api.leaveCommunity(communityId);
+  }
+
+  @override
+  Future<void> deleteCommunity(String id) {
+    return api.deleteCommunity(id);
   }
 }

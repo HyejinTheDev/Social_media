@@ -8,6 +8,7 @@ class RoomCard extends StatelessWidget {
   final List<String> speakerAvatars;
   final bool isVoiceRoom;
   final VoidCallback? onTap;
+  final Widget? trailing;
 
   const RoomCard({
     super.key,
@@ -16,6 +17,7 @@ class RoomCard extends StatelessWidget {
     required this.speakerAvatars,
     this.isVoiceRoom = true,
     this.onTap,
+    this.trailing,
   });
 
   @override
@@ -111,22 +113,25 @@ class RoomCard extends StatelessWidget {
                 ],
               ),
             ),
-            // Join Button
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppColors.brandViolet.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                'Tham gia',
-                style: TextStyle(
-                  color: AppColors.brandViolet,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
+            // Join Button / Trailing
+            if (trailing != null)
+              trailing!
+            else
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.brandViolet.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  'Tham gia',
+                  style: TextStyle(
+                    color: AppColors.brandViolet,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),

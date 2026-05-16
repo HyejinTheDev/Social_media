@@ -4,6 +4,10 @@ export declare class ShortsController {
     constructor(shortsService: ShortsService);
     getFeed(page?: string, limit?: string): Promise<{
         data: ({
+            _count: {
+                comments: number;
+                likes: number;
+            };
             author: {
                 id: string;
                 name: string;
@@ -16,10 +20,6 @@ export declare class ShortsController {
                 userId: string;
                 shortId: string;
             }[];
-            _count: {
-                comments: number;
-                likes: number;
-            };
         } & {
             id: string;
             createdAt: Date;
@@ -40,15 +40,15 @@ export declare class ShortsController {
         };
     }>;
     getShortById(id: string): Promise<{
+        _count: {
+            comments: number;
+            likes: number;
+        };
         author: {
             id: string;
             name: string;
             username: string;
             avatar: string | null;
-        };
-        _count: {
-            comments: number;
-            likes: number;
         };
     } & {
         id: string;

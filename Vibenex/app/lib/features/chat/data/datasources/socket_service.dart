@@ -13,12 +13,24 @@ class SocketService {
   final _notificationController = StreamController<Map<String, dynamic>>.broadcast();
   final _channelMessageController = StreamController<Map<String, dynamic>>.broadcast();
 
+  // Voice Room streams
+  final _voiceParticipantsController = StreamController<Map<String, dynamic>>.broadcast();
+  final _voiceUserJoinedController = StreamController<Map<String, dynamic>>.broadcast();
+  final _voiceUserLeftController = StreamController<Map<String, dynamic>>.broadcast();
+  final _voiceMicToggledController = StreamController<Map<String, dynamic>>.broadcast();
+
   Stream<Map<String, dynamic>> get onNewMessage => _messageController.stream;
   Stream<Map<String, dynamic>> get onTyping => _typingController.stream;
   Stream<Map<String, dynamic>> get onRead => _readController.stream;
   Stream<Map<String, dynamic>> get onOnlineStatus => _onlineController.stream;
   Stream<Map<String, dynamic>> get onNewNotification => _notificationController.stream;
   Stream<Map<String, dynamic>> get onNewChannelMessage => _channelMessageController.stream;
+
+  // Voice Room streams
+  Stream<Map<String, dynamic>> get onVoiceParticipants => _voiceParticipantsController.stream;
+  Stream<Map<String, dynamic>> get onVoiceUserJoined => _voiceUserJoinedController.stream;
+  Stream<Map<String, dynamic>> get onVoiceUserLeft => _voiceUserLeftController.stream;
+  Stream<Map<String, dynamic>> get onVoiceMicToggled => _voiceMicToggledController.stream;
 
   bool get isConnected => _socket?.connected ?? false;
 
@@ -74,6 +86,23 @@ class SocketService {
       _channelMessageController.add(Map<String, dynamic>.from(data));
     });
 
+    // Voice Room events
+    _socket!.on('voice:participants', (data) {
+      _voiceParticipantsController.add(Map<String, dynamic>.from(data));
+    });
+
+    _socket!.on('voice:user:joined', (data) {
+      _voiceUserJoinedController.add(Map<String, dynamic>.from(data));
+    });
+
+    _socket!.on('voice:user:left', (data) {
+      _voiceUserLeftController.add(Map<String, dynamic>.from(data));
+    });
+
+    _socket!.on('voice:mic:toggled', (data) {
+      _voiceMicToggledController.add(Map<String, dynamic>.from(data));
+    });
+
     _socket!.connect();
   }
 
@@ -121,6 +150,26 @@ class SocketService {
     });
   }
 
+  // --- Voice Room Methods ---
+  void joinVoiceRoom(String channelId, String username, {String? avatar}) {
+    _socket?.emit('voice:join', {
+      'channelId': channelId,
+      'username': username,
+      'avatar': avatar,
+    });
+  }
+
+  void leaveVoiceRoom(String channelId) {
+    _socket?.emit('voice:leave', {'channelId': channelId});
+  }
+
+  void toggleMic(String channelId, bool isMuted) {
+    _socket?.emit('voice:toggle-mic', {
+      'channelId': channelId,
+      'isMuted': isMuted,
+    });
+  }
+
   void disconnect() {
     _socket?.disconnect();
     _socket?.dispose();
@@ -135,5 +184,10 @@ class SocketService {
     _onlineController.close();
     _notificationController.close();
     _channelMessageController.close();
+    _voiceParticipantsController.close();
+    _voiceUserJoinedController.close();
+    _voiceUserLeftController.close();
+    _voiceMicToggledController.close();
   }
 }
+

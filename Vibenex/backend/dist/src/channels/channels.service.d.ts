@@ -7,18 +7,18 @@ export declare class ChannelsService {
         name: string;
         createdAt: Date;
         description: string | null;
+        communityId: string;
         type: import("@prisma/client").$Enums.ChannelType;
         position: number;
-        communityId: string;
     }[]>;
     findById(id: string): Promise<{
         id: string;
         name: string;
         createdAt: Date;
         description: string | null;
+        communityId: string;
         type: import("@prisma/client").$Enums.ChannelType;
         position: number;
-        communityId: string;
     }>;
     create(communityId: string, data: {
         name: string;
@@ -29,8 +29,8 @@ export declare class ChannelsService {
         name: string;
         createdAt: Date;
         description: string | null;
+        communityId: string;
         type: import("@prisma/client").$Enums.ChannelType;
         position: number;
-        communityId: string;
     }>;
 }

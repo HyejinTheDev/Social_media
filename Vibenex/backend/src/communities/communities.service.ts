@@ -34,7 +34,7 @@ export class CommunitiesService {
     return community;
   }
 
-  async create(userId: string, data: { name: string; description?: string; isPublic?: boolean }) {
+  async create(userId: string, data: { name: string; description?: string; isPublic?: boolean; isVoiceRoom?: boolean }) {
     const slug = data.name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
@@ -47,6 +47,7 @@ export class CommunitiesService {
         slug,
         description: data.description,
         isPublic: data.isPublic ?? true,
+        isVoiceRoom: data.isVoiceRoom ?? false,
         memberCount: 1,
         members: {
           create: {
@@ -57,7 +58,7 @@ export class CommunitiesService {
         channels: {
           create: {
             name: 'general',
-            type: 'TEXT',
+            type: (data.isVoiceRoom ?? false) ? 'VOICE' : 'TEXT',
             description: 'General discussion',
             position: 0,
           },
@@ -101,6 +102,44 @@ export class CommunitiesService {
     });
 
     return member;
+  }
+
+  async leave(communityId: string, userId: string) {
+    const member = await this.prisma.communityMember.findUnique({
+      where: { communityId_userId: { communityId, userId } },
+    });
+    if (!member) throw new NotFoundException('Not a member');
+    if (member.role === 'OWNER') throw new ForbiddenException('Owner cannot leave. Transfer ownership or delete the community.');
+
+    await this.prisma.communityMember.delete({
+      where: { communityId_userId: { communityId, userId } },
+    });
+
+    await this.prisma.community.update({
+      where: { id: communityId },
+      data: { memberCount: { decrement: 1 } },
+    });
+
+    return { message: 'Left community' };
+  }
+
+  async remove(communityId: string, userId: string) {
+    const member = await this.prisma.communityMember.findUnique({
+      where: { communityId_userId: { communityId, userId } },
+    });
+    if (!member || member.role !== 'OWNER') {
+      throw new ForbiddenException('Only the owner can delete this community');
+    }
+
+    // Delete all related data
+    await this.prisma.channelMessage.deleteMany({
+      where: { channel: { communityId } },
+    });
+    await this.prisma.channel.deleteMany({ where: { communityId } });
+    await this.prisma.communityMember.deleteMany({ where: { communityId } });
+    await this.prisma.community.delete({ where: { id: communityId } });
+
+    return { message: 'Community deleted' };
   }
 
   async getChannelMessages(channelId: string, page: number, limit: number) {

@@ -6,6 +6,10 @@ export declare class ShortsService {
     constructor(prisma: PrismaService, notificationsService: NotificationsService);
     getFeed(page: number, limit: number): Promise<{
         data: ({
+            _count: {
+                comments: number;
+                likes: number;
+            };
             author: {
                 id: string;
                 name: string;
@@ -18,10 +22,6 @@ export declare class ShortsService {
                 userId: string;
                 shortId: string;
             }[];
-            _count: {
-                comments: number;
-                likes: number;
-            };
         } & {
             id: string;
             createdAt: Date;
@@ -42,15 +42,15 @@ export declare class ShortsService {
         };
     }>;
     getShortById(id: string): Promise<{
+        _count: {
+            comments: number;
+            likes: number;
+        };
         author: {
             id: string;
             name: string;
             username: string;
             avatar: string | null;
-        };
-        _count: {
-            comments: number;
-            likes: number;
         };
     } & {
         id: string;

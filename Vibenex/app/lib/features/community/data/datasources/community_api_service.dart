@@ -23,4 +23,13 @@ abstract class CommunityApiService {
 
   @GET('/communities/{communityId}/channels')
   Future<List<ChannelModel>> getChannels(@Path('communityId') String communityId);
+
+  @POST('/communities/{communityId}/join')
+  Future<void> joinCommunity(@Path('communityId') String communityId);
+
+  @POST('/communities/{communityId}/leave')
+  Future<void> leaveCommunity(@Path('communityId') String communityId);
+
+  @DELETE('/communities/{id}')
+  Future<void> deleteCommunity(@Path('id') String id);
 }

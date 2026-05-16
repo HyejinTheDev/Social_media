@@ -33,17 +33,8 @@ export declare class CommunitiesService {
         name: string;
         description?: string;
         isPublic?: boolean;
+        isVoiceRoom?: boolean;
     }): Promise<{
-        channels: {
-            id: string;
-            name: string;
-            createdAt: Date;
-            description: string | null;
-            type: import("@prisma/client").$Enums.ChannelType;
-            position: number;
-            communityId: string;
-        }[];
-    } & {
         id: string;
         name: string;
         createdAt: Date;
@@ -60,16 +51,22 @@ export declare class CommunitiesService {
         name: string;
         createdAt: Date;
         description: string | null;
+        communityId: string;
         type: import("@prisma/client").$Enums.ChannelType;
         position: number;
-        communityId: string;
     }[]>;
     join(communityId: string, userId: string): Promise<{
         id: string;
-        communityId: string;
-        userId: string;
         role: import("@prisma/client").$Enums.CommunityRole;
         joinedAt: Date;
+        userId: string;
+        communityId: string;
+    }>;
+    leave(communityId: string, userId: string): Promise<{
+        message: string;
+    }>;
+    remove(communityId: string, userId: string): Promise<{
+        message: string;
     }>;
     getChannelMessages(channelId: string, page: number, limit: number): Promise<{
         data: ({

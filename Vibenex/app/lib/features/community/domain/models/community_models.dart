@@ -12,6 +12,7 @@ abstract class CommunityModel with _$CommunityModel {
     String? icon,
     String? banner,
     @Default(true) bool isPublic,
+    @Default(false) bool isVoiceRoom,
     @Default(0) int memberCount,
     String? createdAt,
     String? updatedAt,

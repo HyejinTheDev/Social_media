@@ -4,6 +4,10 @@ export declare class PostsController {
     constructor(postsService: PostsService);
     getFeed(page?: string, limit?: string): Promise<{
         data: ({
+            _count: {
+                comments: number;
+                likes: number;
+            };
             author: {
                 id: string;
                 name: string;
@@ -16,10 +20,6 @@ export declare class PostsController {
                 userId: string;
                 postId: string;
             }[];
-            _count: {
-                comments: number;
-                likes: number;
-            };
         } & {
             id: string;
             createdAt: Date;
@@ -41,6 +41,10 @@ export declare class PostsController {
     }>;
     getUserPosts(userId: string, page?: string, limit?: string): Promise<{
         data: ({
+            _count: {
+                comments: number;
+                likes: number;
+            };
             author: {
                 id: string;
                 name: string;
@@ -53,10 +57,6 @@ export declare class PostsController {
                 userId: string;
                 postId: string;
             }[];
-            _count: {
-                comments: number;
-                likes: number;
-            };
         } & {
             id: string;
             createdAt: Date;
@@ -77,15 +77,15 @@ export declare class PostsController {
         };
     }>;
     getPostById(id: string): Promise<{
+        _count: {
+            comments: number;
+            likes: number;
+        };
         author: {
             id: string;
             name: string;
             username: string;
             avatar: string | null;
-        };
-        _count: {
-            comments: number;
-            likes: number;
         };
     } & {
         id: string;

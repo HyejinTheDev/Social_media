@@ -141,7 +141,7 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<NotificationApiService>(
     () => NotificationApiService(getIt<DioClient>().dio),
   );
-  getIt.registerFactory(() => NotificationBloc(api: getIt(), socket: getIt()));
+  getIt.registerLazySingleton(() => NotificationBloc(api: getIt(), socket: getIt()));
   // ─── Shorts ───
   getIt.registerLazySingleton<ShortApiService>(
     () => ShortApiService(getIt<DioClient>().dio),

@@ -6,23 +6,23 @@ export declare class NotificationsService {
     private chatGateway;
     constructor(prisma: PrismaService, chatGateway: ChatGateway);
     createNotification(userId: string, type: NotificationType, title: string, body: string, data?: any): Promise<{
-        data: import("@prisma/client/runtime/client").JsonValue | null;
         id: string;
         createdAt: Date;
+        data: import("@prisma/client/runtime/client").JsonValue | null;
+        userId: string;
         type: import("@prisma/client").$Enums.NotificationType;
         isRead: boolean;
-        userId: string;
         title: string;
         body: string;
     }>;
     getNotifications(userId: string, page?: number, limit?: number): Promise<{
         notifications: {
-            data: import("@prisma/client/runtime/client").JsonValue | null;
             id: string;
             createdAt: Date;
+            data: import("@prisma/client/runtime/client").JsonValue | null;
+            userId: string;
             type: import("@prisma/client").$Enums.NotificationType;
             isRead: boolean;
-            userId: string;
             title: string;
             body: string;
         }[];

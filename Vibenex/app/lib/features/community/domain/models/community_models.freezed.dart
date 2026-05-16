@@ -20,6 +20,7 @@ mixin _$CommunityModel {
   String? get icon;
   String? get banner;
   bool get isPublic;
+  bool get isVoiceRoom;
   int get memberCount;
   String? get createdAt;
   String? get updatedAt;
@@ -48,6 +49,8 @@ mixin _$CommunityModel {
             (identical(other.banner, banner) || other.banner == banner) &&
             (identical(other.isPublic, isPublic) ||
                 other.isPublic == isPublic) &&
+            (identical(other.isVoiceRoom, isVoiceRoom) ||
+                other.isVoiceRoom == isVoiceRoom) &&
             (identical(other.memberCount, memberCount) ||
                 other.memberCount == memberCount) &&
             (identical(other.createdAt, createdAt) ||
@@ -59,11 +62,11 @@ mixin _$CommunityModel {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, description, icon,
-      banner, isPublic, memberCount, createdAt, updatedAt);
+      banner, isPublic, isVoiceRoom, memberCount, createdAt, updatedAt);
 
   @override
   String toString() {
-    return 'CommunityModel(id: $id, name: $name, description: $description, icon: $icon, banner: $banner, isPublic: $isPublic, memberCount: $memberCount, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'CommunityModel(id: $id, name: $name, description: $description, icon: $icon, banner: $banner, isPublic: $isPublic, isVoiceRoom: $isVoiceRoom, memberCount: $memberCount, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 }
 
@@ -80,6 +83,7 @@ abstract mixin class $CommunityModelCopyWith<$Res> {
       String? icon,
       String? banner,
       bool isPublic,
+      bool isVoiceRoom,
       int memberCount,
       String? createdAt,
       String? updatedAt});
@@ -104,6 +108,7 @@ class _$CommunityModelCopyWithImpl<$Res>
     Object? icon = freezed,
     Object? banner = freezed,
     Object? isPublic = null,
+    Object? isVoiceRoom = null,
     Object? memberCount = null,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
@@ -132,6 +137,10 @@ class _$CommunityModelCopyWithImpl<$Res>
       isPublic: null == isPublic
           ? _self.isPublic
           : isPublic // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isVoiceRoom: null == isVoiceRoom
+          ? _self.isVoiceRoom
+          : isVoiceRoom // ignore: cast_nullable_to_non_nullable
               as bool,
       memberCount: null == memberCount
           ? _self.memberCount
@@ -249,6 +258,7 @@ extension CommunityModelPatterns on CommunityModel {
             String? icon,
             String? banner,
             bool isPublic,
+            bool isVoiceRoom,
             int memberCount,
             String? createdAt,
             String? updatedAt)?
@@ -265,6 +275,7 @@ extension CommunityModelPatterns on CommunityModel {
             _that.icon,
             _that.banner,
             _that.isPublic,
+            _that.isVoiceRoom,
             _that.memberCount,
             _that.createdAt,
             _that.updatedAt);
@@ -295,6 +306,7 @@ extension CommunityModelPatterns on CommunityModel {
             String? icon,
             String? banner,
             bool isPublic,
+            bool isVoiceRoom,
             int memberCount,
             String? createdAt,
             String? updatedAt)
@@ -310,6 +322,7 @@ extension CommunityModelPatterns on CommunityModel {
             _that.icon,
             _that.banner,
             _that.isPublic,
+            _that.isVoiceRoom,
             _that.memberCount,
             _that.createdAt,
             _that.updatedAt);
@@ -339,6 +352,7 @@ extension CommunityModelPatterns on CommunityModel {
             String? icon,
             String? banner,
             bool isPublic,
+            bool isVoiceRoom,
             int memberCount,
             String? createdAt,
             String? updatedAt)?
@@ -354,6 +368,7 @@ extension CommunityModelPatterns on CommunityModel {
             _that.icon,
             _that.banner,
             _that.isPublic,
+            _that.isVoiceRoom,
             _that.memberCount,
             _that.createdAt,
             _that.updatedAt);
@@ -373,6 +388,7 @@ class _CommunityModel implements CommunityModel {
       this.icon,
       this.banner,
       this.isPublic = true,
+      this.isVoiceRoom = false,
       this.memberCount = 0,
       this.createdAt,
       this.updatedAt});
@@ -392,6 +408,9 @@ class _CommunityModel implements CommunityModel {
   @override
   @JsonKey()
   final bool isPublic;
+  @override
+  @JsonKey()
+  final bool isVoiceRoom;
   @override
   @JsonKey()
   final int memberCount;
@@ -428,6 +447,8 @@ class _CommunityModel implements CommunityModel {
             (identical(other.banner, banner) || other.banner == banner) &&
             (identical(other.isPublic, isPublic) ||
                 other.isPublic == isPublic) &&
+            (identical(other.isVoiceRoom, isVoiceRoom) ||
+                other.isVoiceRoom == isVoiceRoom) &&
             (identical(other.memberCount, memberCount) ||
                 other.memberCount == memberCount) &&
             (identical(other.createdAt, createdAt) ||
@@ -439,11 +460,11 @@ class _CommunityModel implements CommunityModel {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, description, icon,
-      banner, isPublic, memberCount, createdAt, updatedAt);
+      banner, isPublic, isVoiceRoom, memberCount, createdAt, updatedAt);
 
   @override
   String toString() {
-    return 'CommunityModel(id: $id, name: $name, description: $description, icon: $icon, banner: $banner, isPublic: $isPublic, memberCount: $memberCount, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'CommunityModel(id: $id, name: $name, description: $description, icon: $icon, banner: $banner, isPublic: $isPublic, isVoiceRoom: $isVoiceRoom, memberCount: $memberCount, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 }
 
@@ -462,6 +483,7 @@ abstract mixin class _$CommunityModelCopyWith<$Res>
       String? icon,
       String? banner,
       bool isPublic,
+      bool isVoiceRoom,
       int memberCount,
       String? createdAt,
       String? updatedAt});
@@ -486,6 +508,7 @@ class __$CommunityModelCopyWithImpl<$Res>
     Object? icon = freezed,
     Object? banner = freezed,
     Object? isPublic = null,
+    Object? isVoiceRoom = null,
     Object? memberCount = null,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
@@ -514,6 +537,10 @@ class __$CommunityModelCopyWithImpl<$Res>
       isPublic: null == isPublic
           ? _self.isPublic
           : isPublic // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isVoiceRoom: null == isVoiceRoom
+          ? _self.isVoiceRoom
+          : isVoiceRoom // ignore: cast_nullable_to_non_nullable
               as bool,
       memberCount: null == memberCount
           ? _self.memberCount
