@@ -59,6 +59,7 @@ model User {
   posts            Post[]
   postLikes        PostLike[]
   comments         Comment[]
+  stories          Story[]
 
   // Friend Relations
   friendRequestsSent     FriendRequest[] @relation("FriendRequestsSent")
@@ -273,4 +274,14 @@ model FriendRequest {
   createdAt  DateTime     @default(now())
   
   @@unique([senderId, receiverId])
+}
+
+model Story {
+  id        String   @id @default(uuid())
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  imageUrl  String?
+  videoUrl  String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 }

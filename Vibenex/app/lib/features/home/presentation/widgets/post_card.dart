@@ -9,6 +9,8 @@ import '../../domain/repositories/post_repository.dart';
 import '../widgets/comment_bottom_sheet.dart';
 import '../../bloc/comment_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_constants.dart';
 
 class PostCard extends StatefulWidget {
   final PostModel post;
@@ -90,6 +92,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                       AvatarWidget(
                         imageUrl: widget.post.author.avatar,
                         radius: 20,
+                        onTap: () => context.push('/user/${widget.post.author.id}'),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -99,14 +102,17 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                             Row(
                               children: [
                                 Flexible(
-                                  child: Text(
-                                    widget.post.author.name,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
+                                  child: GestureDetector(
+                                    onTap: () => context.push('/user/${widget.post.author.id}'),
+                                    child: Text(
+                                      widget.post.author.name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                                 if (widget.post.author.isVerified)
@@ -260,7 +266,9 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildImageGrid(List<String> imageUrls) {
+  Widget _buildImageGrid(List<String> rawUrls) {
+    final imageUrls = rawUrls.map((url) => url.startsWith('http') ? url : '${AppConstants.baseUrl}$url').toList();
+    
     if (imageUrls.length == 1) {
       return CachedNetworkImage(
         imageUrl: imageUrls[0],

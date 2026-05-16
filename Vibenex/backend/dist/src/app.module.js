@@ -21,6 +21,7 @@ const discussions_module_1 = require("./discussions/discussions.module");
 const channels_module_1 = require("./channels/channels.module");
 const posts_module_1 = require("./posts/posts.module");
 const friends_module_1 = require("./friends/friends.module");
+const stories_module_1 = require("./stories/stories.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -40,6 +41,7 @@ exports.AppModule = AppModule = __decorate([
             reactions_module_1.ReactionsModule,
             posts_module_1.PostsModule,
             friends_module_1.FriendsModule,
+            stories_module_1.StoriesModule,
         ],
         controllers: [],
         providers: [],

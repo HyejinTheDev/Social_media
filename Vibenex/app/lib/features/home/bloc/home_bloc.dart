@@ -1,18 +1,21 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../core/constants/home_mock_data.dart';
+
 import 'home_event.dart';
 import 'home_state.dart';
 
 import '../domain/repositories/post_repository.dart';
+import '../domain/repositories/story_repository.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final PostRepository _postRepository;
+  final StoryRepository _storyRepository;
 
-  HomeBloc(this._postRepository) : super(const HomeState()) {
+  HomeBloc(this._postRepository, this._storyRepository) : super(const HomeState()) {
     on<HomeLoadRequested>(_onLoadRequested);
     on<HomeRefreshed>(_onRefreshed);
     on<HomePostLikeToggled>(_onPostLikeToggled);
     on<HomePostCreated>(_onPostCreated);
+    on<HomeStoryCreated>(_onStoryCreated);
   }
 
   Future<void> _onLoadRequested(HomeLoadRequested event, Emitter<HomeState> emit) async {
@@ -20,10 +23,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     
     try {
       final posts = await _postRepository.getFeed(page: 1, limit: 10);
+      final stories = await _storyRepository.getFeed();
+      
       emit(state.copyWith(
         status: HomeStatus.loaded,
         posts: posts,
-        stories: HomeMockData.stories, // Keep stories mock for now
+        stories: stories,
       ));
     } catch (e) {
       emit(state.copyWith(status: HomeStatus.error, errorMessage: e.toString()));
@@ -33,10 +38,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Future<void> _onRefreshed(HomeRefreshed event, Emitter<HomeState> emit) async {
     try {
       final posts = await _postRepository.getFeed(page: 1, limit: 10);
+      final stories = await _storyRepository.getFeed();
+      
       emit(state.copyWith(
         status: HomeStatus.loaded,
         posts: posts,
-        stories: HomeMockData.stories,
+        stories: stories,
       ));
     } catch (e) {
       emit(state.copyWith(status: HomeStatus.error, errorMessage: e.toString()));
@@ -95,6 +102,22 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       emit(state.copyWith(posts: updatedPosts));
     } catch (e) {
       // Handle error
+    }
+  }
+
+  Future<void> _onStoryCreated(HomeStoryCreated event, Emitter<HomeState> emit) async {
+    try {
+      // 1. Upload ảnh
+      final url = await _postRepository.uploadMedia(event.file);
+      
+      // 2. Tạo story
+      final newStory = await _storyRepository.createStory(imageUrl: url);
+      
+      // 3. Cập nhật state
+      final updatedStories = [newStory, ...state.stories];
+      emit(state.copyWith(stories: updatedStories));
+    } catch (e) {
+      print('Lỗi tạo story: $e');
     }
   }
 }

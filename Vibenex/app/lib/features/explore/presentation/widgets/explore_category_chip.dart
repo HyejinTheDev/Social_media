@@ -24,14 +24,12 @@ class ExploreCategoryChip extends StatelessWidget {
           color: isSelected ? AppColors.primary : AppColors.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? AppColors.onPrimary : AppColors.textFog,
-              fontSize: 13,
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-            ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? AppColors.onPrimary : AppColors.textFog,
+            fontSize: 13,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
           ),
         ),
       ),

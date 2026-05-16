@@ -87,18 +87,24 @@ class RoomCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       // Participant count
-                      Row(
-                        children: [
-                          const Icon(Icons.person, size: 14, color: AppColors.textFog),
-                          const SizedBox(width: 4),
-                          Text(
-                            '$participantCount người đang tham gia',
-                            style: const TextStyle(
-                              color: AppColors.textFog,
-                              fontSize: 13,
+                      Flexible(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.person, size: 14, color: AppColors.textFog),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                '$participantCount tham gia',
+                                style: const TextStyle(
+                                  color: AppColors.textFog,
+                                  fontSize: 13,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),

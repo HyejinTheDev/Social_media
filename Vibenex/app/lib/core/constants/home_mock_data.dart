@@ -12,34 +12,34 @@ class HomeMockData {
   static final List<StoryModel> stories = [
     StoryModel(
       id: 'story_self',
-      userName: 'Bạn',
-      userAvatar: 'https://i.pravatar.cc/150?u=self',
+      author: PostAuthor(id: 'self', name: 'Bạn', avatar: 'https://i.pravatar.cc/150?u=self'),
       isOwn: true,
       isViewed: false,
+      createdAt: DateTime.now(),
     ),
     StoryModel(
       id: 'story_1',
-      userName: 'Alice Nguyen',
-      userAvatar: 'https://i.pravatar.cc/150?u=alice',
+      author: PostAuthor(id: 'alice', name: 'Alice Nguyen', avatar: 'https://i.pravatar.cc/150?u=alice'),
       isViewed: false,
+      createdAt: DateTime.now(),
     ),
     StoryModel(
       id: 'story_2',
-      userName: 'Bob Tran',
-      userAvatar: 'https://i.pravatar.cc/150?u=bob',
+      author: PostAuthor(id: 'bob', name: 'Bob Tran', avatar: 'https://i.pravatar.cc/150?u=bob'),
       isViewed: false,
+      createdAt: DateTime.now(),
     ),
     StoryModel(
       id: 'story_3',
-      userName: 'Hyejin',
-      userAvatar: 'https://i.pravatar.cc/150?u=hyejin',
+      author: PostAuthor(id: 'hyejin', name: 'Hyejin', avatar: 'https://i.pravatar.cc/150?u=hyejin'),
       isViewed: true,
+      createdAt: DateTime.now(),
     ),
     StoryModel(
       id: 'story_4',
-      userName: 'Charlie',
-      userAvatar: 'https://i.pravatar.cc/150?u=charlie',
+      author: PostAuthor(id: 'charlie', name: 'Charlie', avatar: 'https://i.pravatar.cc/150?u=charlie'),
       isViewed: true,
+      createdAt: DateTime.now(),
     ),
   ];
 

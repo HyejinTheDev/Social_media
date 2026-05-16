@@ -35,3 +35,12 @@ class HomePostCreated extends HomeEvent {
   @override
   List<Object?> get props => [content, images, video];
 }
+
+class HomeStoryCreated extends HomeEvent {
+  final File file;
+
+  const HomeStoryCreated({required this.file});
+
+  @override
+  List<Object?> get props => [file];
+}

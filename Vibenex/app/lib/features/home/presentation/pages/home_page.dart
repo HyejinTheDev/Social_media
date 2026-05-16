@@ -7,7 +7,7 @@ import '../../../../core/widgets/vibenex_app_bar.dart';
 import '../../bloc/home_bloc.dart';
 import '../../bloc/home_event.dart';
 import '../../bloc/home_state.dart';
-import '../widgets/create_post_bar.dart';
+import '../../../../features/auth/bloc/auth_bloc.dart';
 import '../widgets/post_card.dart';
 import '../widgets/story_row.dart';
 
@@ -43,6 +43,11 @@ class _HomePageState extends State<HomePage> {
             );
           }
 
+          final currentUser = context.read<AuthBloc>().state is AuthAuthenticated
+              ? (context.read<AuthBloc>().state as AuthAuthenticated).user
+              : null;
+          final currentAvatar = currentUser?.avatar ?? 'https://i.pravatar.cc/150?u=self';
+
           return RefreshIndicator(
             onRefresh: () async {
               context.read<HomeBloc>().add(HomeRefreshed());
@@ -52,19 +57,16 @@ class _HomePageState extends State<HomePage> {
                 SliverToBoxAdapter(
                   child: Column(
                     children: [
-                      const CreatePostBar(
-                        currentUserAvatar: 'https://i.pravatar.cc/150?u=self',
+                      const SizedBox(height: 12),
+                      StoryRow(
+                        stories: state.stories,
+                        currentUserAvatar: currentAvatar,
                       ),
-                      const Divider(height: 1, color: AppColors.borderTwilight),
-                      if (state.stories.isNotEmpty) ...[
-                        const SizedBox(height: 12),
-                        StoryRow(stories: state.stories),
-                        const SizedBox(height: 12),
-                        Container(
-                          height: 8,
-                          color: AppColors.backgroundDeep,
-                        ),
-                      ],
+                      const SizedBox(height: 12),
+                      Container(
+                        height: 8,
+                        color: AppColors.backgroundDeep,
+                      ),
                     ],
                   ),
                 ),

@@ -6,6 +6,7 @@ class ExploreState extends Equatable {
   final ExploreStatus status;
   final String query;
   final List<UserModel> users;
+  final List<CommunityModel> communities;
   final int total;
   final String? errorMessage;
 
@@ -13,6 +14,7 @@ class ExploreState extends Equatable {
     this.status = ExploreStatus.initial,
     this.query = '',
     this.users = const [],
+    this.communities = const [],
     this.total = 0,
     this.errorMessage,
   });
@@ -21,6 +23,7 @@ class ExploreState extends Equatable {
     ExploreStatus? status,
     String? query,
     List<UserModel>? users,
+    List<CommunityModel>? communities,
     int? total,
     String? errorMessage,
   }) {
@@ -28,11 +31,12 @@ class ExploreState extends Equatable {
       status: status ?? this.status,
       query: query ?? this.query,
       users: users ?? this.users,
+      communities: communities ?? this.communities,
       total: total ?? this.total,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 
   @override
-  List<Object?> get props => [status, query, users, total, errorMessage];
+  List<Object?> get props => [status, query, users, communities, total, errorMessage];
 }

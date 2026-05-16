@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../constants/app_constants.dart';
 
 class AvatarWidget extends StatelessWidget {
   final String? imageUrl;
@@ -27,13 +28,18 @@ class AvatarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
+    String? finalImageUrl = imageUrl;
+    if (finalImageUrl != null && finalImageUrl.isNotEmpty && !finalImageUrl.startsWith('http')) {
+      finalImageUrl = '${AppConstants.baseUrl}$finalImageUrl';
+    }
+
     Widget avatar = CircleAvatar(
       radius: radius,
       backgroundColor: colorScheme.primaryContainer,
-      backgroundImage: imageUrl != null && imageUrl!.isNotEmpty
-          ? CachedNetworkImageProvider(imageUrl!)
+      backgroundImage: finalImageUrl != null && finalImageUrl.isNotEmpty
+          ? CachedNetworkImageProvider(finalImageUrl)
           : null,
-      child: imageUrl == null || imageUrl!.isEmpty
+      child: finalImageUrl == null || finalImageUrl.isEmpty
           ? _buildInitials(context)
           : null,
     );

@@ -17,6 +17,9 @@ import '../../features/home/data/datasources/post_api_service.dart';
 import '../../features/home/data/repositories/post_repository_impl.dart';
 import '../../features/home/domain/repositories/post_repository.dart';
 import '../../features/home/bloc/home_bloc.dart';
+import '../../features/home/data/datasources/story_api_service.dart';
+import '../../features/home/data/repositories/story_repository_impl.dart';
+import '../../features/home/domain/repositories/story_repository.dart';
 
 import '../../features/chat/data/datasources/chat_api_service.dart';
 import '../../features/chat/data/datasources/socket_service.dart';
@@ -75,7 +78,10 @@ Future<void> configureDependencies() async {
   );
 
 
-  getIt.registerFactory(() => ExploreBloc(api: getIt()));
+  getIt.registerFactory(() => ExploreBloc(
+    profileApi: getIt<ProfileApiService>(),
+    communityApi: getIt<CommunityApiService>(),
+  ));
 
   // ─── Home ───
   getIt.registerLazySingleton<PostApiService>(
@@ -84,8 +90,17 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<PostRepository>(
     () => PostRepositoryImpl(getIt<PostApiService>()),
   );
+  getIt.registerLazySingleton<StoryApiService>(
+    () => StoryApiService(getIt<DioClient>().dio),
+  );
+  getIt.registerLazySingleton<StoryRepository>(
+    () => StoryRepositoryImpl(getIt<StoryApiService>()),
+  );
   getIt.registerFactory<HomeBloc>(
-    () => HomeBloc(getIt<PostRepository>()),
+    () => HomeBloc(
+      getIt<PostRepository>(),
+      getIt<StoryRepository>(),
+    ),
   );
 
   // ─── Chat ───

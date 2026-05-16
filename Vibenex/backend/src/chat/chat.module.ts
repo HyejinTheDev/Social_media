@@ -9,7 +9,7 @@ import { PrismaModule } from '../prisma/prisma.module';
   imports: [
     PrismaModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'vibenex-jwt-secret-key-2024',
+      secret: process.env.JWT_SECRET || 'vibenex-jwt-secret-key-2026',
       signOptions: { expiresIn: '7d' },
     }),
   ],

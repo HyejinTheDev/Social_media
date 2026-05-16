@@ -47,32 +47,31 @@ class RecentlyCreatedCard extends StatelessWidget {
                 ),
                 
                 // Nửa dưới (Title & Stats)
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 24, 12, 12), // Padding top chừa chỗ cho icon
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            color: AppColors.textSilver,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 24, 12, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          color: AppColors.textSilver,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          memberCount,
-                          style: TextStyle(
-                            color: AppColors.onSurfaceVariant.withValues(alpha: 0.8),
-                            fontSize: 11,
-                          ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        memberCount,
+                        style: TextStyle(
+                          color: AppColors.onSurfaceVariant.withValues(alpha: 0.8),
+                          fontSize: 11,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ],

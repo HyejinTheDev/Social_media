@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_gradients.dart';
 import '../../../../core/widgets/avatar_widget.dart';
 import '../../domain/models/home_models.dart';
 
 class StoryRow extends StatelessWidget {
   final List<StoryModel> stories;
+  final String currentUserAvatar;
 
-  const StoryRow({super.key, required this.stories});
+  const StoryRow({
+    super.key,
+    required this.stories,
+    required this.currentUserAvatar,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,9 +21,15 @@ class StoryRow extends StatelessWidget {
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
-        itemCount: stories.length,
+        itemCount: stories.length + 1,
         itemBuilder: (context, index) {
-          final story = stories[index];
+          if (index == 0) {
+            return Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: _CreateStoryItem(avatar: currentUserAvatar),
+            );
+          }
+          final story = stories[index - 1];
           return Padding(
             padding: const EdgeInsets.only(right: 12),
             child: _StoryItem(story: story),
@@ -35,34 +47,80 @@ class _StoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Stack(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(3),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: !story.isViewed && !story.isOwn
-                    ? AppGradients.primary
-                    : null,
-                color: story.isViewed || story.isOwn
-                    ? Colors.transparent
-                    : null,
-                border: story.isViewed || story.isOwn
-                    ? Border.all(
-                        color: Theme.of(context).dividerColor,
-                        width: 2,
-                      )
-                    : null,
+    return GestureDetector(
+      onTap: () {
+        // View story - To be implemented
+      },
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: !story.isViewed ? AppGradients.primary : null,
+                  color: story.isViewed ? Colors.transparent : null,
+                  border: story.isViewed
+                      ? Border.all(
+                          color: Theme.of(context).dividerColor,
+                          width: 2,
+                        )
+                      : null,
+                ),
+                child: AvatarWidget(
+                  imageUrl: story.author.avatar,
+                  radius: 32,
+                ),
               ),
-              child: AvatarWidget(
-                imageUrl: story.userAvatar,
-                radius: 32,
-              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: 74,
+            child: Text(
+              story.author.name,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodySmall,
             ),
-            if (story.isOwn)
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CreateStoryItem extends StatelessWidget {
+  final String avatar;
+
+  const _CreateStoryItem({required this.avatar});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/create-story'),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Theme.of(context).dividerColor,
+                    width: 2,
+                  ),
+                ),
+                child: AvatarWidget(
+                  imageUrl: avatar,
+                  radius: 32,
+                ),
+              ),
               Positioned(
                 bottom: 0,
                 right: 0,
@@ -82,22 +140,23 @@ class _StoryItem extends StatelessWidget {
                   ),
                 ),
               ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: 74,
-          child: Text(
-            story.userName,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontWeight: story.isOwn ? FontWeight.w600 : FontWeight.normal,
-                ),
+            ],
           ),
-        ),
-      ],
+          const SizedBox(height: 8),
+          SizedBox(
+            width: 74,
+            child: Text(
+              'Bạn',
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

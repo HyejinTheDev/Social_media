@@ -12,6 +12,7 @@ import { DiscussionsModule } from './discussions/discussions.module';
 import { ChannelsModule } from './channels/channels.module';
 import { PostsModule } from './posts/posts.module';
 import { FriendsModule } from './friends/friends.module';
+import { StoriesModule } from './stories/stories.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { FriendsModule } from './friends/friends.module';
     ReactionsModule,
     PostsModule,
     FriendsModule,
+    StoriesModule,
   ],
   controllers: [],
   providers: [],

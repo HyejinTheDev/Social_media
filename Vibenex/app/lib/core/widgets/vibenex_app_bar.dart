@@ -9,8 +9,20 @@ class VibenexAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return AppBar(
+      leading: IconButton(
+        icon: Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [AppColors.brandViolet, Color(0xFF7C3AED)],
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          padding: const EdgeInsets.all(6),
+          child: const Icon(Icons.add, color: Colors.white, size: 18),
+        ),
+        onPressed: () => context.push('/create-post'),
+      ),
       title: const Text(
         'Vibenex',
         style: TextStyle(
@@ -19,51 +31,8 @@ class VibenexAppBar extends StatelessWidget implements PreferredSizeWidget {
           color: AppColors.brandViolet,
         ),
       ),
+      centerTitle: true,
       actions: [
-        IconButton(
-          icon: const Icon(Icons.search),
-          onPressed: () {
-            context.push('/explore');
-          },
-        ),
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.mail_outline),
-              onPressed: () {
-                context.push('/chat');
-              },
-            ),
-            // TODO: Replace with real unread message count
-            /*
-            Positioned(
-              right: 8,
-              top: 8,
-              child: Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                constraints: const BoxConstraints(
-                  minWidth: 14,
-                  minHeight: 14,
-                ),
-                child: const Text(
-                  '2',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 8,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-            */
-          ],
-        ),
         BlocBuilder<NotificationBloc, NotificationState>(
           builder: (context, state) {
             final unreadCount = state.unreadCount;

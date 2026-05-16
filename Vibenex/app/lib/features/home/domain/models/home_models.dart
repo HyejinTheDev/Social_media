@@ -95,18 +95,32 @@ class PostModel {
 
 class StoryModel {
   final String id;
-  final String userName;
-  final String userAvatar;
+  final PostAuthor author;
+  final String? imageUrl;
+  final String? videoUrl;
   final bool isOwn;
   final bool isViewed;
+  final DateTime createdAt;
 
   StoryModel({
     required this.id,
-    required this.userName,
-    required this.userAvatar,
+    required this.author,
+    this.imageUrl,
+    this.videoUrl,
     this.isOwn = false,
     this.isViewed = false,
+    required this.createdAt,
   });
+
+  factory StoryModel.fromJson(Map<String, dynamic> json) {
+    return StoryModel(
+      id: json['id'] ?? '',
+      author: PostAuthor.fromJson(json['author'] ?? {}),
+      imageUrl: json['imageUrl'],
+      videoUrl: json['videoUrl'],
+      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
+    );
+  }
 }
 
 class CommentModel {
