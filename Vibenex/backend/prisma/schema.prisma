@@ -22,6 +22,8 @@ enum ChannelType {
   TEXT
   ANNOUNCEMENT
   SHOWCASE
+  LIVE_CHAT
+  VOICE
 }
 
 enum NotificationType {
@@ -52,14 +54,18 @@ model User {
   // Relations
   communityMemberships CommunityMember[]
   discussions          Discussion[]
+  channelMessages      ChannelMessage[]
   replies              Reply[]
   reactions            Reaction[]
   
-  // Post Relations
+  // Post & Short Relations
   posts            Post[]
   postLikes        PostLike[]
   comments         Comment[]
   stories          Story[]
+  shorts           Short[]
+  shortLikes       ShortLike[]
+  shortComments    ShortComment[]
 
   // Friend Relations
   friendRequestsSent     FriendRequest[] @relation("FriendRequestsSent")
@@ -116,8 +122,20 @@ model Channel {
   position    Int          @default(0)
   
   discussions Discussion[]
+  messages    ChannelMessage[]
   
   createdAt   DateTime     @default(now())
+}
+
+model ChannelMessage {
+  id        String   @id @default(uuid())
+  channelId String
+  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id])
+  content   String
+  imageUrl  String?
+  createdAt DateTime @default(now())
 }
 
 model Discussion {
@@ -284,4 +302,48 @@ model Story {
   videoUrl  String?
   expiresAt DateTime
   createdAt DateTime @default(now())
+}
+
+model Short {
+  id           String     @id @default(uuid())
+  authorId     String
+  author       User       @relation(fields: [authorId], references: [id])
+  caption      String?
+  videoUrl     String
+  thumbnailUrl String?
+  likeCount    Int        @default(0)
+  commentCount Int        @default(0)
+  shareCount   Int        @default(0)
+  
+  likes        ShortLike[]
+  comments     ShortComment[]
+  
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model ShortLike {
+  id        String   @id @default(uuid())
+  shortId   String
+  short     Short    @relation(fields: [shortId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  
+  createdAt DateTime @default(now())
+  
+  @@unique([shortId, userId])
+}
+
+model ShortComment {
+  id        String    @id @default(uuid())
+  shortId   String
+  short     Short      @relation(fields: [shortId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id])
+  content   String
+  parentId  String?
+  parent    ShortComment?  @relation("ShortCommentThread", fields: [parentId], references: [id])
+  children  ShortComment[] @relation("ShortCommentThread")
+  
+  createdAt DateTime  @default(now())
 }

@@ -13,6 +13,7 @@ import { ChannelsModule } from './channels/channels.module';
 import { PostsModule } from './posts/posts.module';
 import { FriendsModule } from './friends/friends.module';
 import { StoriesModule } from './stories/stories.module';
+import { ShortsModule } from './shorts/shorts.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { StoriesModule } from './stories/stories.module';
     PostsModule,
     FriendsModule,
     StoriesModule,
+    ShortsModule,
   ],
   controllers: [],
   providers: [],

@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const notifications_service_1 = require("../notifications/notifications.service");
 let PostsService = class PostsService {
     prisma;
-    constructor(prisma) {
+    notificationsService;
+    constructor(prisma, notificationsService) {
         this.prisma = prisma;
+        this.notificationsService = notificationsService;
     }
     async getFeed(page, limit) {
         const skip = (page - 1) * limit;
@@ -144,10 +147,15 @@ let PostsService = class PostsService {
             await this.prisma.postLike.create({
                 data: { postId, userId }
             });
-            await this.prisma.post.update({
+            const updatedPost = await this.prisma.post.update({
                 where: { id: postId },
-                data: { likeCount: { increment: 1 } }
+                data: { likeCount: { increment: 1 } },
+                include: { author: true },
             });
+            if (updatedPost.authorId !== userId) {
+                const liker = await this.prisma.user.findUnique({ where: { id: userId } });
+                await this.notificationsService.createNotification(updatedPost.authorId, 'LIKE', 'Lượt thích mới', `${liker?.name || liker?.username} đã thích bài viết của bạn.`, { postId });
+            }
             return { liked: true };
         }
     }
@@ -176,16 +184,20 @@ let PostsService = class PostsService {
                 }
             }
         });
-        await this.prisma.post.update({
+        const post = await this.prisma.post.update({
             where: { id: postId },
             data: { commentCount: { increment: 1 } }
         });
+        if (post.authorId !== authorId) {
+            await this.notificationsService.createNotification(post.authorId, 'COMMENT', 'Bình luận mới', `${comment.author.name || comment.author.username} đã bình luận: "${content}"`, { postId, commentId: comment.id });
+        }
         return comment;
     }
 };
 exports.PostsService = PostsService;
 exports.PostsService = PostsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notifications_service_1.NotificationsService])
 ], PostsService);
 //# sourceMappingURL=posts.service.js.map

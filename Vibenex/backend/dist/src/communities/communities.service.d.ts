@@ -71,4 +71,42 @@ export declare class CommunitiesService {
         role: import("@prisma/client").$Enums.CommunityRole;
         joinedAt: Date;
     }>;
+    getChannelMessages(channelId: string, page: number, limit: number): Promise<{
+        data: ({
+            sender: {
+                id: string;
+                name: string;
+                username: string;
+                avatar: string | null;
+            };
+        } & {
+            id: string;
+            createdAt: Date;
+            content: string;
+            channelId: string;
+            imageUrl: string | null;
+            senderId: string;
+        })[];
+        meta: {
+            total: number;
+            page: number;
+            limit: number;
+            totalPages: number;
+        };
+    }>;
+    sendChannelMessage(channelId: string, senderId: string, content: string, imageUrl?: string): Promise<{
+        sender: {
+            id: string;
+            name: string;
+            username: string;
+            avatar: string | null;
+        };
+    } & {
+        id: string;
+        createdAt: Date;
+        content: string;
+        channelId: string;
+        imageUrl: string | null;
+        senderId: string;
+    }>;
 }

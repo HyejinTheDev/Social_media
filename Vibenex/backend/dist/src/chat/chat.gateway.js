@@ -17,14 +17,17 @@ const websockets_1 = require("@nestjs/websockets");
 const socket_io_1 = require("socket.io");
 const jwt_1 = require("@nestjs/jwt");
 const chat_service_1 = require("./chat.service");
+const communities_service_1 = require("../communities/communities.service");
 let ChatGateway = class ChatGateway {
     chatService;
     jwtService;
+    communitiesService;
     server;
     onlineUsers = new Map();
-    constructor(chatService, jwtService) {
+    constructor(chatService, jwtService, communitiesService) {
         this.chatService = chatService;
         this.jwtService = jwtService;
+        this.communitiesService = communitiesService;
     }
     async handleConnection(client) {
         try {
@@ -91,6 +94,26 @@ let ChatGateway = class ChatGateway {
             readBy: userId,
         });
     }
+    handleJoinChannel(client, data) {
+        client.join(`channel:${data.channelId}`);
+        console.log(`User ${client.data.userId} joined channel:${data.channelId}`);
+    }
+    handleLeaveChannel(client, data) {
+        client.leave(`channel:${data.channelId}`);
+    }
+    async handleSendChannelMessage(client, data) {
+        const senderId = client.data.userId;
+        if (!senderId)
+            return;
+        try {
+            const message = await this.communitiesService.sendChannelMessage(data.channelId, senderId, data.content, data.imageUrl);
+            this.server.to(`channel:${data.channelId}`).emit('channel:message:new', message);
+            return message;
+        }
+        catch (e) {
+            client.emit('error', { message: e.message });
+        }
+    }
     sendToUser(userId, event, data) {
         this.server.to(`user:${userId}`).emit(event, data);
     }
@@ -146,12 +169,37 @@ __decorate([
     __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
     __metadata("design:returntype", Promise)
 ], ChatGateway.prototype, "handleMarkRead", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('channel:join'),
+    __param(0, (0, websockets_1.ConnectedSocket)()),
+    __param(1, (0, websockets_1.MessageBody)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:returntype", void 0)
+], ChatGateway.prototype, "handleJoinChannel", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('channel:leave'),
+    __param(0, (0, websockets_1.ConnectedSocket)()),
+    __param(1, (0, websockets_1.MessageBody)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:returntype", void 0)
+], ChatGateway.prototype, "handleLeaveChannel", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('channel:message:send'),
+    __param(0, (0, websockets_1.ConnectedSocket)()),
+    __param(1, (0, websockets_1.MessageBody)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:returntype", Promise)
+], ChatGateway.prototype, "handleSendChannelMessage", null);
 exports.ChatGateway = ChatGateway = __decorate([
     (0, websockets_1.WebSocketGateway)({
         cors: { origin: '*' },
         namespace: '/chat',
     }),
     __metadata("design:paramtypes", [chat_service_1.ChatService,
-        jwt_1.JwtService])
+        jwt_1.JwtService,
+        communities_service_1.CommunitiesService])
 ], ChatGateway);
 //# sourceMappingURL=chat.gateway.js.map

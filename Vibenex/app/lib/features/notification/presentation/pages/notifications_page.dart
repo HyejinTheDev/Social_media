@@ -143,7 +143,7 @@ class _NotificationTile extends StatelessWidget {
         if (data != null) {
           if (type == 'LIKE' || type == 'COMMENT') {
             if (data['postId'] != null) {
-              context.push('/post/${data['postId']}');
+              context.go('/home');
             }
           } else if (type == 'FOLLOW') {
             if (data['followerId'] != null) {

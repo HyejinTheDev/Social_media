@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 import '../../../core/utils/error_mapper.dart';
 import '../../auth/domain/models/auth_models.dart';
 import '../../home/domain/models/home_models.dart';
@@ -108,9 +109,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     
     try {
       await _friendRepository.sendRequest(event.userId);
-      print('Friend request sent successfully to ${event.userId}');
+      debugPrint('Friend request sent successfully to ${event.userId}');
     } catch (e) {
-      print('Friend request failed: $e');
+      debugPrint('Friend request failed: $e');
       // Revert on failure
       emit(current);
     }

@@ -51,4 +51,13 @@ export class CommunitiesController {
   join(@Request() req, @Param('communityId') communityId: string) {
     return this.communitiesService.join(communityId, req.user.sub);
   }
+
+  @Get('channels/:channelId/messages')
+  getChannelMessages(
+    @Param('channelId') channelId: string,
+    @Query('page') page = '1',
+    @Query('limit') limit = '20',
+  ) {
+    return this.communitiesService.getChannelMessages(channelId, parseInt(page), parseInt(limit));
+  }
 }

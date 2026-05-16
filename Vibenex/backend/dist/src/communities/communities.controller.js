@@ -36,6 +36,9 @@ let CommunitiesController = class CommunitiesController {
     join(req, communityId) {
         return this.communitiesService.join(communityId, req.user.sub);
     }
+    getChannelMessages(channelId, page = '1', limit = '20') {
+        return this.communitiesService.getChannelMessages(channelId, parseInt(page), parseInt(limit));
+    }
 };
 exports.CommunitiesController = CommunitiesController;
 __decorate([
@@ -77,6 +80,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], CommunitiesController.prototype, "join", null);
+__decorate([
+    (0, common_1.Get)('channels/:channelId/messages'),
+    __param(0, (0, common_1.Param)('channelId')),
+    __param(1, (0, common_1.Query)('page')),
+    __param(2, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:returntype", void 0)
+], CommunitiesController.prototype, "getChannelMessages", null);
 exports.CommunitiesController = CommunitiesController = __decorate([
     (0, common_1.Controller)('communities'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

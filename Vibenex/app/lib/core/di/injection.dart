@@ -34,6 +34,9 @@ import '../../features/discussion/data/datasources/discussion_api_service.dart';
 import '../../features/discussion/data/repositories/discussion_repository_impl.dart';
 import '../../features/discussion/domain/repositories/discussion_repository.dart';
 import '../../features/discussion/bloc/discussion_bloc.dart';
+import '../../features/shorts/bloc/short_bloc.dart';
+import '../../features/shorts/data/datasources/short_api_service.dart';
+import '../../features/shorts/data/repositories/short_repository.dart';
 
 final getIt = GetIt.instance;
 
@@ -138,5 +141,13 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<NotificationApiService>(
     () => NotificationApiService(getIt<DioClient>().dio),
   );
-  getIt.registerFactory(() => NotificationBloc(api: getIt()));
+  getIt.registerFactory(() => NotificationBloc(api: getIt(), socket: getIt()));
+  // ─── Shorts ───
+  getIt.registerLazySingleton<ShortApiService>(
+    () => ShortApiService(getIt<DioClient>().dio),
+  );
+  getIt.registerLazySingleton<ShortRepository>(
+    () => ShortRepositoryImpl(getIt<ShortApiService>()),
+  );
+  getIt.registerFactory(() => ShortBloc(repository: getIt()));
 }

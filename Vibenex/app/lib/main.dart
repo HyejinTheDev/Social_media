@@ -48,6 +48,7 @@ class VibenexApp extends StatelessWidget {
           if (state is AuthAuthenticated) {
             AppRouter.authNotifier.setAuthenticated(true);
             getIt<SocketService>().connect();
+            context.read<NotificationBloc>().add(FetchUnreadCount());
           } else if (state is AuthUnauthenticated || state is AuthError) {
             AppRouter.authNotifier.setAuthenticated(false);
             getIt<SocketService>().disconnect();

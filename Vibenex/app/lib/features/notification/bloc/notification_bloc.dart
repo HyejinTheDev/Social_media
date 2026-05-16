@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/utils/error_mapper.dart';
+import '../../chat/data/datasources/socket_service.dart';
 import '../data/datasources/notification_api_service.dart';
 import 'notification_event.dart';
 import 'notification_state.dart';
@@ -9,15 +11,31 @@ export 'notification_state.dart';
 
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   final NotificationApiService _api;
+  final SocketService _socket;
+  StreamSubscription? _notificationSub;
 
-  NotificationBloc({required NotificationApiService api})
-      : _api = api,
+  NotificationBloc({
+    required NotificationApiService api,
+    required SocketService socket,
+  })  : _api = api,
+        _socket = socket,
         super(const NotificationState()) {
     on<LoadNotifications>(_onLoadNotifications);
     on<LoadMoreNotifications>(_onLoadMoreNotifications);
     on<MarkNotificationAsRead>(_onMarkAsRead);
     on<MarkAllNotificationsAsRead>(_onMarkAllAsRead);
     on<FetchUnreadCount>(_onFetchUnreadCount);
+    on<NotificationReceived>(_onNotificationReceived);
+
+    _notificationSub = _socket.onNewNotification.listen((data) {
+      add(NotificationReceived(data));
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _notificationSub?.cancel();
+    return super.close();
   }
 
   Future<void> _onLoadNotifications(LoadNotifications event, Emitter<NotificationState> emit) async {
@@ -91,5 +109,16 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       final count = await _api.getUnreadCount();
       emit(state.copyWith(unreadCount: count));
     } catch (_) {}
+  }
+
+  Future<void> _onNotificationReceived(NotificationReceived event, Emitter<NotificationState> emit) async {
+    final newNotification = event.notification;
+    final updatedList = [newNotification, ...state.notifications];
+    final unreadCount = state.unreadCount + 1;
+    
+    emit(state.copyWith(
+      notifications: updatedList,
+      unreadCount: unreadCount,
+    ));
   }
 }

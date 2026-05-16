@@ -118,7 +118,7 @@ class _ExplorePageState extends State<ExplorePage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.search_off, color: AppColors.textFog, size: 48),
+                        const Icon(Icons.search_off, color: AppColors.textFog, size: 48),
                         const SizedBox(height: 12),
                         Text(
                           'Không tìm thấy kết quả cho "${state.query}"',
@@ -266,7 +266,7 @@ class _ExplorePageState extends State<ExplorePage> {
                 ],
               ),
             ),
-            Text('Tham gia', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 13)),
+            const Text('Tham gia', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 13)),
           ],
         ),
       ),
@@ -340,16 +340,44 @@ class _ExplorePageState extends State<ExplorePage> {
         '@${user.username}',
         style: const TextStyle(color: AppColors.textFog, fontSize: 13),
       ),
-      trailing: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.primary),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: const Text(
-          'Xem',
-          style: TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w600),
-        ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Nút Nhắn tin
+          GestureDetector(
+            onTap: () => context.push('/chat/new/${user.id}', extra: {
+              'id': user.id,
+              'name': user.name ?? user.username,
+              'username': user.username,
+              'avatar': user.avatar,
+              'isVerified': user.isVerified ?? false,
+            }),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.chat_bubble_outline, color: AppColors.primary, size: 18),
+            ),
+          ),
+          const SizedBox(width: 8),
+          // Nút Xem profile
+          GestureDetector(
+            onTap: () => context.push('/profile/${user.id}'),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.primary),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text(
+                'Xem',
+                style: TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+        ],
       ),
       onTap: () => context.push('/profile/${user.id}'),
     );
@@ -389,7 +417,7 @@ class _ExplorePageState extends State<ExplorePage> {
           style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
         ),
       ),
-      onTap: () {},
+      onTap: () => context.push('/communities/${community.id}'),
     );
   }
 }

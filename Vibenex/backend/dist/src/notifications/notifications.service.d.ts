@@ -1,8 +1,10 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationType } from '@prisma/client';
+import { ChatGateway } from '../chat/chat.gateway';
 export declare class NotificationsService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private chatGateway;
+    constructor(prisma: PrismaService, chatGateway: ChatGateway);
     createNotification(userId: string, type: NotificationType, title: string, body: string, data?: any): Promise<{
         data: import("@prisma/client/runtime/client").JsonValue | null;
         id: string;

@@ -13,10 +13,13 @@ exports.FriendsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const client_1 = require("@prisma/client");
+const notifications_service_1 = require("../notifications/notifications.service");
 let FriendsService = class FriendsService {
     prisma;
-    constructor(prisma) {
+    notificationsService;
+    constructor(prisma, notificationsService) {
         this.prisma = prisma;
+        this.notificationsService = notificationsService;
     }
     async sendRequest(senderId, receiverId) {
         if (senderId === receiverId) {
@@ -33,12 +36,15 @@ let FriendsService = class FriendsService {
         if (existingRequest) {
             throw new common_1.BadRequestException('Friend request already exists or already friends');
         }
-        return this.prisma.friendRequest.create({
+        const request = await this.prisma.friendRequest.create({
             data: {
                 senderId,
                 receiverId
             }
         });
+        const sender = await this.prisma.user.findUnique({ where: { id: senderId } });
+        await this.notificationsService.createNotification(receiverId, 'FOLLOW', 'Yêu cầu kết bạn', `${sender?.name || sender?.username} đã gửi lời mời kết bạn.`, { followerId: senderId, requestId: request.id });
+        return request;
     }
     async acceptRequest(requestId, userId) {
         const request = await this.prisma.friendRequest.findUnique({
@@ -117,6 +123,7 @@ let FriendsService = class FriendsService {
 exports.FriendsService = FriendsService;
 exports.FriendsService = FriendsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notifications_service_1.NotificationsService])
 ], FriendsService);
 //# sourceMappingURL=friends.service.js.map

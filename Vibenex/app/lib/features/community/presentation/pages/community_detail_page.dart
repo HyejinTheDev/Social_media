@@ -189,10 +189,22 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
                   return _ChannelTile(
                     channel: channel,
                     onTap: () {
-                      context.push(
-                        '/communities/${widget.communityId}/channels/${channel.id}',
-                        extra: {'channelName': channel.name, 'communityName': community.name},
-                      );
+                      if (channel.type == 'LIVE_CHAT') {
+                        context.push(
+                          '/communities/${widget.communityId}/live-chat/${channel.id}',
+                          extra: {'channelName': channel.name, 'communityName': community.name},
+                        );
+                      } else if (channel.type == 'VOICE') {
+                        context.push(
+                          '/communities/${widget.communityId}/voice-room/${channel.id}',
+                          extra: {'channelName': channel.name, 'communityName': community.name},
+                        );
+                      } else {
+                        context.push(
+                          '/communities/${widget.communityId}/channels/${channel.id}',
+                          extra: {'channelName': channel.name, 'communityName': community.name},
+                        );
+                      }
                     },
                   );
                 },
@@ -217,6 +229,10 @@ class _ChannelTile extends StatelessWidget {
         return Icons.campaign_outlined;
       case 'SHOWCASE':
         return Icons.auto_awesome_outlined;
+      case 'LIVE_CHAT':
+        return Icons.chat_bubble_outline;
+      case 'VOICE':
+        return Icons.mic_none;
       default:
         return Icons.tag;
     }

@@ -30,6 +30,10 @@ async function main() {
   await prisma.comment.deleteMany();
   await prisma.postLike.deleteMany();
   await prisma.post.deleteMany();
+  await prisma.shortComment.deleteMany();
+  await prisma.shortLike.deleteMany();
+  await prisma.short.deleteMany();
+  await prisma.story.deleteMany();
   await prisma.user.deleteMany();
 
   // Create Users
@@ -275,6 +279,41 @@ async function main() {
   });
 
   console.log('Created friends');
+
+  // Create Shorts
+  await prisma.short.createMany({
+    data: [
+      {
+        authorId: user1.id,
+        caption: 'Học code hiệu quả trong 1 phút 💻🚀',
+        videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop',
+        likeCount: 15,
+        commentCount: 3,
+        shareCount: 2,
+      },
+      {
+        authorId: user2.id,
+        caption: 'Review góc setup làm việc chill nhất ☕',
+        videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?q=80&w=2070&auto=format&fit=crop',
+        likeCount: 42,
+        commentCount: 5,
+        shareCount: 10,
+      },
+      {
+        authorId: user3.id,
+        caption: 'Vlog đi chơi cuối tuần cùng bạn thân ✨',
+        videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=2070&auto=format&fit=crop',
+        likeCount: 8,
+        commentCount: 1,
+        shareCount: 0,
+      }
+    ]
+  });
+
+  console.log('Created shorts');
   console.log('Seed completed successfully!');
   console.log('\\n--- Test Accounts ---');
   console.log('1. hyejin@example.com / password123');

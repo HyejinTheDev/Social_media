@@ -17,6 +17,7 @@ exports.CommunitiesModule = CommunitiesModule = __decorate([
     (0, common_1.Module)({
         controllers: [communities_controller_1.CommunitiesController],
         providers: [communities_service_1.CommunitiesService],
+        exports: [communities_service_1.CommunitiesService],
     })
 ], CommunitiesModule);
 //# sourceMappingURL=communities.module.js.map

@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { FriendStatus } from '@prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class FriendsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async sendRequest(senderId: string, receiverId: string) {
     if (senderId === receiverId) {
@@ -24,12 +28,23 @@ export class FriendsService {
       throw new BadRequestException('Friend request already exists or already friends');
     }
 
-    return this.prisma.friendRequest.create({
+    const request = await this.prisma.friendRequest.create({
       data: {
         senderId,
         receiverId
       }
     });
+
+    const sender = await this.prisma.user.findUnique({ where: { id: senderId } });
+    await this.notificationsService.createNotification(
+      receiverId,
+      'FOLLOW',
+      'Yêu cầu kết bạn',
+      `${sender?.name || sender?.username} đã gửi lời mời kết bạn.`,
+      { followerId: senderId, requestId: request.id }
+    );
+
+    return request;
   }
 
   async acceptRequest(requestId: string, userId: string) {

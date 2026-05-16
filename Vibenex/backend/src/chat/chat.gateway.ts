@@ -11,6 +11,8 @@ import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { ChatService } from './chat.service';
 
+import { CommunitiesService } from '../communities/communities.service';
+
 @WebSocketGateway({
   cors: { origin: '*' },
   namespace: '/chat',
@@ -25,6 +27,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private chatService: ChatService,
     private jwtService: JwtService,
+    private communitiesService: CommunitiesService,
   ) {}
 
   async handleConnection(client: Socket) {
@@ -133,6 +136,46 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       conversationId: data.conversationId,
       readBy: userId,
     });
+  }
+
+  @SubscribeMessage('channel:join')
+  handleJoinChannel(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { channelId: string },
+  ) {
+    client.join(`channel:${data.channelId}`);
+    console.log(`User ${client.data.userId} joined channel:${data.channelId}`);
+  }
+
+  @SubscribeMessage('channel:leave')
+  handleLeaveChannel(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { channelId: string },
+  ) {
+    client.leave(`channel:${data.channelId}`);
+  }
+
+  @SubscribeMessage('channel:message:send')
+  async handleSendChannelMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { channelId: string; content: string; imageUrl?: string },
+  ) {
+    const senderId = client.data.userId;
+    if (!senderId) return;
+
+    try {
+      const message = await this.communitiesService.sendChannelMessage(
+        data.channelId,
+        senderId,
+        data.content,
+        data.imageUrl,
+      );
+
+      this.server.to(`channel:${data.channelId}`).emit('channel:message:new', message);
+      return message;
+    } catch (e) {
+      client.emit('error', { message: e.message });
+    }
   }
 
   // Helper: send message to a specific user

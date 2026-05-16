@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 import 'home_event.dart';
 import 'home_state.dart';
@@ -117,7 +118,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       final updatedStories = [newStory, ...state.stories];
       emit(state.copyWith(stories: updatedStories));
     } catch (e) {
-      print('Lỗi tạo story: $e');
+      debugPrint('Lỗi tạo story: $e');
     }
   }
 }

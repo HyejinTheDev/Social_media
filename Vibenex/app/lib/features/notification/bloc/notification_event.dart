@@ -22,3 +22,11 @@ class MarkNotificationAsRead extends NotificationEvent {
 class MarkAllNotificationsAsRead extends NotificationEvent {}
 
 class FetchUnreadCount extends NotificationEvent {}
+
+class NotificationReceived extends NotificationEvent {
+  final Map<String, dynamic> notification;
+  const NotificationReceived(this.notification);
+
+  @override
+  List<Object?> get props => [notification];
+}

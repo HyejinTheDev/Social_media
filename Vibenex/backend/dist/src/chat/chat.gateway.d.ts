@@ -2,12 +2,14 @@ import { OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { ChatService } from './chat.service';
+import { CommunitiesService } from '../communities/communities.service';
 export declare class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private chatService;
     private jwtService;
+    private communitiesService;
     server: Server;
     private onlineUsers;
-    constructor(chatService: ChatService, jwtService: JwtService);
+    constructor(chatService: ChatService, jwtService: JwtService, communitiesService: CommunitiesService);
     handleConnection(client: Socket): Promise<void>;
     handleDisconnect(client: Socket): void;
     handleSendMessage(client: Socket, data: {
@@ -44,6 +46,31 @@ export declare class ChatGateway implements OnGatewayConnection, OnGatewayDiscon
     handleMarkRead(client: Socket, data: {
         conversationId: string;
     }): Promise<void>;
+    handleJoinChannel(client: Socket, data: {
+        channelId: string;
+    }): void;
+    handleLeaveChannel(client: Socket, data: {
+        channelId: string;
+    }): void;
+    handleSendChannelMessage(client: Socket, data: {
+        channelId: string;
+        content: string;
+        imageUrl?: string;
+    }): Promise<({
+        sender: {
+            id: string;
+            name: string;
+            username: string;
+            avatar: string | null;
+        };
+    } & {
+        id: string;
+        createdAt: Date;
+        content: string;
+        channelId: string;
+        imageUrl: string | null;
+        senderId: string;
+    }) | undefined>;
     sendToUser(userId: string, event: string, data: any): void;
     isUserOnline(userId: string): boolean;
     getOnlineUserIds(): string[];

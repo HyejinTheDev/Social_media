@@ -1,9 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '@prisma/client';
 
 @Injectable()
 export class PostsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async getFeed(page: number, limit: number) {
     const skip = (page - 1) * limit;
@@ -138,10 +143,23 @@ export class PostsService {
       await this.prisma.postLike.create({
         data: { postId, userId }
       });
-      await this.prisma.post.update({
+      const updatedPost = await this.prisma.post.update({
         where: { id: postId },
-        data: { likeCount: { increment: 1 } }
+        data: { likeCount: { increment: 1 } },
+        include: { author: true },
       });
+      
+      if (updatedPost.authorId !== userId) {
+        const liker = await this.prisma.user.findUnique({ where: { id: userId } });
+        await this.notificationsService.createNotification(
+          updatedPost.authorId,
+          'LIKE',
+          'Lượt thích mới',
+          `${liker?.name || liker?.username} đã thích bài viết của bạn.`,
+          { postId }
+        );
+      }
+      
       return { liked: true };
     }
   }
@@ -173,10 +191,20 @@ export class PostsService {
       }
     });
 
-    await this.prisma.post.update({
+    const post = await this.prisma.post.update({
       where: { id: postId },
       data: { commentCount: { increment: 1 } }
     });
+
+    if (post.authorId !== authorId) {
+      await this.notificationsService.createNotification(
+        post.authorId,
+        'COMMENT',
+        'Bình luận mới',
+        `${comment.author.name || comment.author.username} đã bình luận: "${content}"`,
+        { postId, commentId: comment.id }
+      );
+    }
 
     return comment;
   }

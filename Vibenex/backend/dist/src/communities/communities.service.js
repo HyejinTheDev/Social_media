@@ -106,6 +106,46 @@ let CommunitiesService = class CommunitiesService {
         });
         return member;
     }
+    async getChannelMessages(channelId, page, limit) {
+        const skip = (page - 1) * limit;
+        const [messages, total] = await Promise.all([
+            this.prisma.channelMessage.findMany({
+                where: { channelId },
+                skip,
+                take: limit,
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    sender: {
+                        select: { id: true, name: true, username: true, avatar: true },
+                    },
+                },
+            }),
+            this.prisma.channelMessage.count({ where: { channelId } }),
+        ]);
+        return {
+            data: messages,
+            meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+        };
+    }
+    async sendChannelMessage(channelId, senderId, content, imageUrl) {
+        const channel = await this.prisma.channel.findUnique({ where: { id: channelId } });
+        if (!channel)
+            throw new common_1.NotFoundException('Channel not found');
+        const message = await this.prisma.channelMessage.create({
+            data: {
+                channelId,
+                senderId,
+                content,
+                imageUrl,
+            },
+            include: {
+                sender: {
+                    select: { id: true, name: true, username: true, avatar: true },
+                },
+            },
+        });
+        return message;
+    }
 };
 exports.CommunitiesService = CommunitiesService;
 exports.CommunitiesService = CommunitiesService = __decorate([

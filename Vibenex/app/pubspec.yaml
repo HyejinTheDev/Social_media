@@ -55,7 +55,7 @@ dependencies:
   url_launcher: ^6.2.4
   timeago: ^3.6.1
   uuid: ^4.3.3
-  connectivity_plus: ^7.1.1
+  connectivity_plus: 6.1.0
 
   # Realtime Chat
   socket_io_client: ^3.0.2
@@ -64,6 +64,7 @@ dependencies:
   desktop_drop: ^0.7.1
   visibility_detector: ^0.4.0+2
   badges: ^3.2.0
+  zego_uikit_prebuilt_live_audio_room: 3.16.10
 
 dev_dependencies:
   flutter_test:

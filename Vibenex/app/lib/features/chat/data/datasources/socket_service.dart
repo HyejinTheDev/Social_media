@@ -10,11 +10,15 @@ class SocketService {
   final _typingController = StreamController<Map<String, dynamic>>.broadcast();
   final _readController = StreamController<Map<String, dynamic>>.broadcast();
   final _onlineController = StreamController<Map<String, dynamic>>.broadcast();
+  final _notificationController = StreamController<Map<String, dynamic>>.broadcast();
+  final _channelMessageController = StreamController<Map<String, dynamic>>.broadcast();
 
   Stream<Map<String, dynamic>> get onNewMessage => _messageController.stream;
   Stream<Map<String, dynamic>> get onTyping => _typingController.stream;
   Stream<Map<String, dynamic>> get onRead => _readController.stream;
   Stream<Map<String, dynamic>> get onOnlineStatus => _onlineController.stream;
+  Stream<Map<String, dynamic>> get onNewNotification => _notificationController.stream;
+  Stream<Map<String, dynamic>> get onNewChannelMessage => _channelMessageController.stream;
 
   bool get isConnected => _socket?.connected ?? false;
 
@@ -62,6 +66,14 @@ class SocketService {
       _onlineController.add(Map<String, dynamic>.from(data));
     });
 
+    _socket!.on('notification:new', (data) {
+      _notificationController.add(Map<String, dynamic>.from(data));
+    });
+
+    _socket!.on('channel:message:new', (data) {
+      _channelMessageController.add(Map<String, dynamic>.from(data));
+    });
+
     _socket!.connect();
   }
 
@@ -92,6 +104,23 @@ class SocketService {
     _socket?.emit('message:read', {'conversationId': conversationId});
   }
 
+  // --- Channel Methods ---
+  void joinChannel(String channelId) {
+    _socket?.emit('channel:join', {'channelId': channelId});
+  }
+
+  void leaveChannel(String channelId) {
+    _socket?.emit('channel:leave', {'channelId': channelId});
+  }
+
+  void sendChannelMessage(String channelId, String content, {String? imageUrl}) {
+    _socket?.emit('channel:message:send', {
+      'channelId': channelId,
+      'content': content,
+      if (imageUrl != null) 'imageUrl': imageUrl,
+    });
+  }
+
   void disconnect() {
     _socket?.disconnect();
     _socket?.dispose();
@@ -104,5 +133,7 @@ class SocketService {
     _typingController.close();
     _readController.close();
     _onlineController.close();
+    _notificationController.close();
+    _channelMessageController.close();
   }
 }

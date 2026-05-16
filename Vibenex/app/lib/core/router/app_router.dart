@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../di/injection.dart';
+import '../../features/chat/data/datasources/chat_api_service.dart';
 import '../theme/app_colors.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/auth/presentation/pages/onboarding_page.dart';
@@ -14,6 +15,8 @@ import '../../features/community/presentation/pages/communities_page.dart';
 import '../../features/community/presentation/pages/create_community_page.dart';
 import '../../features/discussion/bloc/discussion_bloc.dart';
 import '../../features/community/presentation/pages/community_detail_page.dart';
+import '../../features/community/presentation/pages/live_chat_channel_page.dart';
+import '../../features/community/presentation/pages/voice_room_page.dart';
 import '../../features/discussion/presentation/pages/channel_page.dart';
 import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/bloc/profile_bloc.dart';
@@ -26,6 +29,7 @@ import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/home/presentation/pages/create_post_page.dart';
 import '../../features/home/presentation/pages/create_story_page.dart';
 import '../../features/shorts/presentation/pages/shorts_page.dart';
+import '../../features/shorts/bloc/short_bloc.dart';
 import '../../features/notification/bloc/notification_bloc.dart';
 import '../../features/notification/presentation/pages/notifications_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
@@ -199,6 +203,46 @@ class AppRouter {
           );
         },
       ),
+      // Live Chat Channel route
+      GoRoute(
+        path: '/communities/:communityId/live-chat/:channelId',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (context, state) {
+          final channelId = state.pathParameters['channelId']!;
+          final communityId = state.pathParameters['communityId']!;
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return _slideTransition(
+            context,
+            state,
+            LiveChatChannelPage(
+              communityId: communityId,
+              channelId: channelId,
+              channelName: extra['channelName'] ?? 'live',
+              communityName: extra['communityName'] ?? '',
+            ),
+          );
+        },
+      ),
+      // Voice Room route
+      GoRoute(
+        path: '/communities/:communityId/voice-room/:channelId',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (context, state) {
+          final channelId = state.pathParameters['channelId']!;
+          final communityId = state.pathParameters['communityId']!;
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return _slideTransition(
+            context,
+            state,
+            VoiceRoomPage(
+              communityId: communityId,
+              channelId: channelId,
+              channelName: extra['channelName'] ?? 'voice',
+              communityName: extra['communityName'] ?? '',
+            ),
+          );
+        },
+      ),
       // Profile by user ID
       GoRoute(
         path: '/profile/:userId',
@@ -251,8 +295,11 @@ class AppRouter {
           ),
           GoRoute(
             path: '/shorts',
-            pageBuilder: (_, __) => const NoTransitionPage(
-              child: ShortsPage(),
+            pageBuilder: (_, __) => NoTransitionPage(
+              child: BlocProvider.value(
+                value: getIt<ShortBloc>(),
+                child: const ShortsPage(),
+              ),
             ),
           ),
           GoRoute(
@@ -266,6 +313,50 @@ class AppRouter {
           ),
         ],
       ),
+      // ─── Chat routes ───
+      GoRoute(
+        path: '/chat/new/:userId',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final userId = state.pathParameters['userId']!;
+          final otherUser = state.extra as Map<String, dynamic>?;
+          return FutureBuilder(
+            future: getIt<ChatApiService>().getOrCreateConversation(userId),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const Scaffold(
+                  backgroundColor: AppColors.background,
+                  body: Center(child: CircularProgressIndicator(color: AppColors.brandViolet)),
+                );
+              }
+              if (snapshot.hasError) {
+                return const Scaffold(
+                  backgroundColor: AppColors.background,
+                  appBar: null,
+                  body: Center(child: Text('Lỗi tạo cuộc trò chuyện', style: TextStyle(color: AppColors.textFog))),
+                );
+              }
+              final conv = snapshot.data!;
+              return BlocProvider(
+                create: (_) => getIt<ChatBloc>(),
+                child: ChatPage(conversationId: conv['id'], otherUser: otherUser),
+              );
+            },
+          );
+        },
+      ),
+      GoRoute(
+        path: '/chat/:conversationId',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final conversationId = state.pathParameters['conversationId']!;
+          final otherUser = state.extra as Map<String, dynamic>?;
+          return BlocProvider(
+            create: (_) => getIt<ChatBloc>(),
+            child: ChatPage(conversationId: conversationId, otherUser: otherUser),
+          );
+        },
+      ),
       GoRoute(
         path: '/create-post',
         builder: (context, state) => CreatePostPage(
@@ -275,6 +366,16 @@ class AppRouter {
       GoRoute(
         path: '/create-story',
         builder: (context, state) => const CreateStoryPage(),
+      ),
+      GoRoute(
+        path: '/notifications',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          return BlocProvider.value(
+            value: getIt<NotificationBloc>(),
+            child: const NotificationsPage(),
+          );
+        },
       ),
     ],
   );

@@ -13,6 +13,7 @@ const chat_service_1 = require("./chat.service");
 const chat_controller_1 = require("./chat.controller");
 const chat_gateway_1 = require("./chat.gateway");
 const prisma_module_1 = require("../prisma/prisma.module");
+const communities_module_1 = require("../communities/communities.module");
 let ChatModule = class ChatModule {
 };
 exports.ChatModule = ChatModule;
@@ -20,6 +21,7 @@ exports.ChatModule = ChatModule = __decorate([
     (0, common_1.Module)({
         imports: [
             prisma_module_1.PrismaModule,
+            communities_module_1.CommunitiesModule,
             jwt_1.JwtModule.register({
                 secret: process.env.JWT_SECRET || 'vibenex-jwt-secret-key-2026',
                 signOptions: { expiresIn: '7d' },

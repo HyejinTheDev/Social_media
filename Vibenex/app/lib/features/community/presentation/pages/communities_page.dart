@@ -170,9 +170,13 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
             ],
             isVoiceRoom: true,
             onTap: () {
-               ScaffoldMessenger.of(context).showSnackBar(
-                 const SnackBar(content: Text('Tính năng Voice Room đang được phát triển')),
-               );
+              context.push(
+                '/communities/mock-community/voice-room/mock-voice-channel',
+                extra: {
+                  'channelName': 'Flutter Vietnam Chill ☕️',
+                  'communityName': 'Cộng đồng Lập trình',
+                },
+              );
             },
           ),
           const SizedBox(height: 12),
@@ -185,9 +189,13 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
             ],
             isVoiceRoom: false,
             onTap: () {
-               ScaffoldMessenger.of(context).showSnackBar(
-                 const SnackBar(content: Text('Tính năng Chat Room đang được phát triển')),
-               );
+              context.push(
+                '/communities/mock-community/live-chat/mock-chat-channel',
+                extra: {
+                  'channelName': 'Review UI/UX tháng 5',
+                  'communityName': 'Cộng đồng Thiết kế',
+                },
+              );
             },
           ),
         ],

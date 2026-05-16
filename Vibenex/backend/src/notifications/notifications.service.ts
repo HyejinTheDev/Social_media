@@ -1,10 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationType } from '@prisma/client';
+import { ChatGateway } from '../chat/chat.gateway';
 
 @Injectable()
 export class NotificationsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private chatGateway: ChatGateway,
+  ) {}
 
   async createNotification(
     userId: string,
@@ -13,7 +17,7 @@ export class NotificationsService {
     body: string,
     data?: any,
   ) {
-    return this.prisma.notification.create({
+    const notification = await this.prisma.notification.create({
       data: {
         userId,
         type,
@@ -22,6 +26,10 @@ export class NotificationsService {
         data: data ? data : undefined,
       },
     });
+
+    this.chatGateway.sendToUser(userId, 'notification:new', notification);
+
+    return notification;
   }
 
   async getNotifications(userId: string, page = 1, limit = 20) {
