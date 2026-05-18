@@ -164,11 +164,26 @@ class _ProfilePageState extends State<ProfilePage> {
     if (isOwn) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        child: OutlinedButton.icon(
-          onPressed: () => context.push('/edit-profile'),
-          icon: const Icon(Icons.edit_outlined, size: 18),
-          label: const Text('Chỉnh sửa hồ sơ'),
-          style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 44), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => context.push('/edit-profile'),
+                icon: const Icon(Icons.edit_outlined, size: 18),
+                label: const Text('Chỉnh sửa'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 44), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => context.push('/friends'),
+                icon: const Icon(Icons.people_outline, size: 18),
+                label: const Text('Bạn bè'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 44), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+              ),
+            ),
+          ],
         ),
       );
     }

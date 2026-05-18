@@ -48,6 +48,7 @@ abstract class UserModel with _$UserModel {
     String? coverPhoto,
     @Default(0) int reputation,
     @Default(false) bool isVerified,
+    @Default('USER') String role,
     String? createdAt,
   }) = _UserModel;
 

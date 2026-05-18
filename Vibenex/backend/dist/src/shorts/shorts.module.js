@@ -12,12 +12,13 @@ const shorts_controller_1 = require("./shorts.controller");
 const shorts_service_1 = require("./shorts.service");
 const prisma_module_1 = require("../prisma/prisma.module");
 const notifications_module_1 = require("../notifications/notifications.module");
+const cloudinary_module_1 = require("../cloudinary/cloudinary.module");
 let ShortsModule = class ShortsModule {
 };
 exports.ShortsModule = ShortsModule;
 exports.ShortsModule = ShortsModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, notifications_module_1.NotificationsModule],
+        imports: [prisma_module_1.PrismaModule, notifications_module_1.NotificationsModule, cloudinary_module_1.CloudinaryModule],
         controllers: [shorts_controller_1.ShortsController],
         providers: [shorts_service_1.ShortsService]
     })

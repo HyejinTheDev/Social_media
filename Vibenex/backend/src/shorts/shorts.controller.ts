@@ -1,12 +1,30 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Request, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ShortsService } from './shorts.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+
+const uploadOptions = {
+  storage: memoryStorage(),
+  limits: { fileSize: 100 * 1024 * 1024 }, // 100MB for shorts
+  fileFilter: (_, file, cb) => {
+    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Chỉ hỗ trợ file ảnh hoặc video'), false);
+    }
+  },
+};
 
 @ApiTags('shorts')
 @Controller('shorts')
 export class ShortsController {
-  constructor(private readonly shortsService: ShortsService) {}
+  constructor(
+    private readonly shortsService: ShortsService,
+    private readonly cloudinaryService: CloudinaryService
+  ) {}
 
   @Get('feed')
   @ApiOperation({ summary: 'Get shorts feed' })
@@ -32,6 +50,23 @@ export class ShortsController {
     @Body() body: { videoUrl: string; caption?: string; thumbnailUrl?: string }
   ) {
     return this.shortsService.createShort(req.user.sub, body.videoUrl, body.caption, body.thumbnailUrl);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Post('upload')
+  @ApiOperation({ summary: 'Upload short video or thumbnail to Cloudinary' })
+  @UseInterceptors(FileInterceptor('file', uploadOptions))
+  async uploadMedia(@UploadedFile() file: Express.Multer.File) {
+    const isVideo = file.mimetype.startsWith('video/');
+    const result = isVideo 
+      ? await this.cloudinaryService.uploadVideo(file)
+      : await this.cloudinaryService.uploadImage(file);
+      
+    return {
+      url: result.secure_url,
+      type: isVideo ? 'video' : 'image',
+    };
   }
 
   @UseGuards(JwtAuthGuard)

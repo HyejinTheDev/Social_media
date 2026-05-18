@@ -29,11 +29,18 @@ import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/home/presentation/pages/create_post_page.dart';
 import '../../features/home/presentation/pages/create_story_page.dart';
 import '../../features/shorts/presentation/pages/shorts_page.dart';
+import '../../features/shorts/presentation/pages/create_short_page.dart';
 import '../../features/shorts/bloc/short_bloc.dart';
 import '../../features/notification/bloc/notification_bloc.dart';
 import '../../features/notification/presentation/pages/notifications_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/settings/presentation/pages/change_password_page.dart';
+import '../../features/profile/presentation/pages/friends_list_page.dart';
+import '../../features/admin/presentation/pages/admin_dashboard_page.dart';
+import '../../features/admin/presentation/pages/admin_users_page.dart';
+import '../../features/admin/presentation/pages/admin_posts_page.dart';
+import '../../features/admin/presentation/pages/admin_shorts_page.dart';
+import '../../features/admin/presentation/pages/admin_communities_page.dart';
 
 class AuthNotifier extends ChangeNotifier {
   bool _isAuthenticated = false;
@@ -84,6 +91,14 @@ class AppRouter {
       GoRoute(path: '/login', parentNavigatorKey: rootNavigatorKey, builder: (_, __) => const LoginPage()),
       GoRoute(path: '/register', parentNavigatorKey: rootNavigatorKey, builder: (_, __) => const RegisterPage()),
       GoRoute(path: '/forgot-password', parentNavigatorKey: rootNavigatorKey, builder: (_, __) => const ForgotPasswordPage()),
+
+      // ─── Admin Routes ───
+      GoRoute(path: '/admin', parentNavigatorKey: rootNavigatorKey, pageBuilder: (ctx, state) => _slideTransition(ctx, state, const AdminDashboardPage())),
+      GoRoute(path: '/admin/users', parentNavigatorKey: rootNavigatorKey, pageBuilder: (ctx, state) => _slideTransition(ctx, state, const AdminUsersPage())),
+      GoRoute(path: '/admin/posts', parentNavigatorKey: rootNavigatorKey, pageBuilder: (ctx, state) => _slideTransition(ctx, state, const AdminPostsPage())),
+      GoRoute(path: '/admin/shorts', parentNavigatorKey: rootNavigatorKey, pageBuilder: (ctx, state) => _slideTransition(ctx, state, const AdminShortsPage())),
+      GoRoute(path: '/admin/communities', parentNavigatorKey: rootNavigatorKey, pageBuilder: (ctx, state) => _slideTransition(ctx, state, const AdminCommunitiesPage())),
+
       // Edit profile (full screen, outside shell)
       GoRoute(
         path: '/edit-profile',
@@ -147,7 +162,13 @@ class AppRouter {
           );
         },
       ),
-      // Settings routes
+      // Shorts routes
+      GoRoute(
+        path: '/create-short',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (context, state) => _slideTransition(context, state, const CreateShortPage()),
+      ),
+      // Explore routes
       GoRoute(
         path: '/settings',
         parentNavigatorKey: rootNavigatorKey,
@@ -157,6 +178,12 @@ class AppRouter {
         path: '/change-password',
         parentNavigatorKey: rootNavigatorKey,
         builder: (_, __) => const ChangePasswordPage(),
+      ),
+      // Friends list
+      GoRoute(
+        path: '/friends',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (context, state) => _slideTransition(context, state, const FriendsListPage()),
       ),
       // Create community page
       GoRoute(

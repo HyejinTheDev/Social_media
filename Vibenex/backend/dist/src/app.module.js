@@ -23,6 +23,8 @@ const posts_module_1 = require("./posts/posts.module");
 const friends_module_1 = require("./friends/friends.module");
 const stories_module_1 = require("./stories/stories.module");
 const shorts_module_1 = require("./shorts/shorts.module");
+const cloudinary_module_1 = require("./cloudinary/cloudinary.module");
+const admin_module_1 = require("./admin/admin.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -44,6 +46,8 @@ exports.AppModule = AppModule = __decorate([
             friends_module_1.FriendsModule,
             stories_module_1.StoriesModule,
             shorts_module_1.ShortsModule,
+            cloudinary_module_1.CloudinaryModule,
+            admin_module_1.AdminModule,
         ],
         controllers: [],
         providers: [],

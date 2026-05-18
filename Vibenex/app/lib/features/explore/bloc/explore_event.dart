@@ -6,6 +6,10 @@ abstract class ExploreEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+class LoadExploreSuggestions extends ExploreEvent {
+  const LoadExploreSuggestions();
+}
+
 class ExploreQueryChanged extends ExploreEvent {
   final String query;
   const ExploreQueryChanged(this.query);

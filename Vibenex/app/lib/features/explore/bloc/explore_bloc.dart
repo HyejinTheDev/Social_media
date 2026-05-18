@@ -24,13 +24,19 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
     on<ExploreQueryChanged>(_onQueryChanged);
     on<ExploreSubmitted>(_onSubmit);
     on<ExploreCleared>(_onCleared);
+    on<LoadExploreSuggestions>(_onLoadSuggestions);
+  }
+
+  Future<void> _onLoadSuggestions(LoadExploreSuggestions event, Emitter<ExploreState> emit) async {
+    await _performSearch('', emit);
   }
 
   Future<void> _onQueryChanged(ExploreQueryChanged event, Emitter<ExploreState> emit) async {
     emit(state.copyWith(query: event.query));
 
     if (event.query.trim().isEmpty) {
-      emit(state.copyWith(status: ExploreStatus.initial, users: [], communities: []));
+      // Khi xóa hết search, fetch lại gợi ý
+      await _performSearch('', emit);
       return;
     }
 
@@ -82,8 +88,9 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
     }
   }
 
-  void _onCleared(ExploreCleared event, Emitter<ExploreState> emit) {
+  void _onCleared(ExploreCleared event, Emitter<ExploreState> emit) async {
     emit(const ExploreState());
+    await _performSearch('', emit);
   }
 
   @override

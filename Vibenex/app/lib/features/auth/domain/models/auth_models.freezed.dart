@@ -1068,6 +1068,7 @@ mixin _$UserModel {
   String? get coverPhoto;
   int get reputation;
   bool get isVerified;
+  String get role;
   String? get createdAt;
 
   /// Create a copy of UserModel
@@ -1098,6 +1099,7 @@ mixin _$UserModel {
                 other.reputation == reputation) &&
             (identical(other.isVerified, isVerified) ||
                 other.isVerified == isVerified) &&
+            (identical(other.role, role) || other.role == role) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt));
   }
@@ -1105,11 +1107,11 @@ mixin _$UserModel {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, email, name, username, bio,
-      avatar, coverPhoto, reputation, isVerified, createdAt);
+      avatar, coverPhoto, reputation, isVerified, role, createdAt);
 
   @override
   String toString() {
-    return 'UserModel(id: $id, email: $email, name: $name, username: $username, bio: $bio, avatar: $avatar, coverPhoto: $coverPhoto, reputation: $reputation, isVerified: $isVerified, createdAt: $createdAt)';
+    return 'UserModel(id: $id, email: $email, name: $name, username: $username, bio: $bio, avatar: $avatar, coverPhoto: $coverPhoto, reputation: $reputation, isVerified: $isVerified, role: $role, createdAt: $createdAt)';
   }
 }
 
@@ -1128,6 +1130,7 @@ abstract mixin class $UserModelCopyWith<$Res> {
       String? coverPhoto,
       int reputation,
       bool isVerified,
+      String role,
       String? createdAt});
 }
 
@@ -1152,6 +1155,7 @@ class _$UserModelCopyWithImpl<$Res> implements $UserModelCopyWith<$Res> {
     Object? coverPhoto = freezed,
     Object? reputation = null,
     Object? isVerified = null,
+    Object? role = null,
     Object? createdAt = freezed,
   }) {
     return _then(_self.copyWith(
@@ -1191,6 +1195,10 @@ class _$UserModelCopyWithImpl<$Res> implements $UserModelCopyWith<$Res> {
           ? _self.isVerified
           : isVerified // ignore: cast_nullable_to_non_nullable
               as bool,
+      role: null == role
+          ? _self.role
+          : role // ignore: cast_nullable_to_non_nullable
+              as String,
       createdAt: freezed == createdAt
           ? _self.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -1302,6 +1310,7 @@ extension UserModelPatterns on UserModel {
             String? coverPhoto,
             int reputation,
             bool isVerified,
+            String role,
             String? createdAt)?
         $default, {
     required TResult orElse(),
@@ -1319,6 +1328,7 @@ extension UserModelPatterns on UserModel {
             _that.coverPhoto,
             _that.reputation,
             _that.isVerified,
+            _that.role,
             _that.createdAt);
       case _:
         return orElse();
@@ -1350,6 +1360,7 @@ extension UserModelPatterns on UserModel {
             String? coverPhoto,
             int reputation,
             bool isVerified,
+            String role,
             String? createdAt)
         $default,
   ) {
@@ -1366,6 +1377,7 @@ extension UserModelPatterns on UserModel {
             _that.coverPhoto,
             _that.reputation,
             _that.isVerified,
+            _that.role,
             _that.createdAt);
       case _:
         throw StateError('Unexpected subclass');
@@ -1396,6 +1408,7 @@ extension UserModelPatterns on UserModel {
             String? coverPhoto,
             int reputation,
             bool isVerified,
+            String role,
             String? createdAt)?
         $default,
   ) {
@@ -1412,6 +1425,7 @@ extension UserModelPatterns on UserModel {
             _that.coverPhoto,
             _that.reputation,
             _that.isVerified,
+            _that.role,
             _that.createdAt);
       case _:
         return null;
@@ -1432,6 +1446,7 @@ class _UserModel implements UserModel {
       this.coverPhoto,
       this.reputation = 0,
       this.isVerified = false,
+      this.role = 'USER',
       this.createdAt});
   factory _UserModel.fromJson(Map<String, dynamic> json) =>
       _$UserModelFromJson(json);
@@ -1456,6 +1471,9 @@ class _UserModel implements UserModel {
   @override
   @JsonKey()
   final bool isVerified;
+  @override
+  @JsonKey()
+  final String role;
   @override
   final String? createdAt;
 
@@ -1492,6 +1510,7 @@ class _UserModel implements UserModel {
                 other.reputation == reputation) &&
             (identical(other.isVerified, isVerified) ||
                 other.isVerified == isVerified) &&
+            (identical(other.role, role) || other.role == role) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt));
   }
@@ -1499,11 +1518,11 @@ class _UserModel implements UserModel {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, email, name, username, bio,
-      avatar, coverPhoto, reputation, isVerified, createdAt);
+      avatar, coverPhoto, reputation, isVerified, role, createdAt);
 
   @override
   String toString() {
-    return 'UserModel(id: $id, email: $email, name: $name, username: $username, bio: $bio, avatar: $avatar, coverPhoto: $coverPhoto, reputation: $reputation, isVerified: $isVerified, createdAt: $createdAt)';
+    return 'UserModel(id: $id, email: $email, name: $name, username: $username, bio: $bio, avatar: $avatar, coverPhoto: $coverPhoto, reputation: $reputation, isVerified: $isVerified, role: $role, createdAt: $createdAt)';
   }
 }
 
@@ -1525,6 +1544,7 @@ abstract mixin class _$UserModelCopyWith<$Res>
       String? coverPhoto,
       int reputation,
       bool isVerified,
+      String role,
       String? createdAt});
 }
 
@@ -1549,6 +1569,7 @@ class __$UserModelCopyWithImpl<$Res> implements _$UserModelCopyWith<$Res> {
     Object? coverPhoto = freezed,
     Object? reputation = null,
     Object? isVerified = null,
+    Object? role = null,
     Object? createdAt = freezed,
   }) {
     return _then(_UserModel(
@@ -1588,6 +1609,10 @@ class __$UserModelCopyWithImpl<$Res> implements _$UserModelCopyWith<$Res> {
           ? _self.isVerified
           : isVerified // ignore: cast_nullable_to_non_nullable
               as bool,
+      role: null == role
+          ? _self.role
+          : role // ignore: cast_nullable_to_non_nullable
+              as String,
       createdAt: freezed == createdAt
           ? _self.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable

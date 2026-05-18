@@ -11,6 +11,11 @@ datasource db {
 
 // ==================== ENUMS ====================
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 enum CommunityRole {
   OWNER
   ADMIN
@@ -50,6 +55,7 @@ model User {
   coverPhoto       String?
   reputation       Int                 @default(0)
   isVerified       Boolean             @default(false)
+  role             UserRole            @default(USER)
   
   // Relations
   communityMemberships CommunityMember[]

@@ -22,8 +22,17 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Dispatch sự kiện tải gợi ý ban đầu
+    context.read<ExploreBloc>().add(const LoadExploreSuggestions());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
       backgroundColor: AppColors.backgroundDeep,
       appBar: AppBar(
         backgroundColor: AppColors.backgroundDeep,
@@ -93,16 +102,23 @@ class _ExplorePageState extends State<ExplorePage> {
           ),
 
           // Body: Default or Search Results
+          // Tabs
+          const TabBar(
+            indicatorColor: AppColors.primary,
+            labelColor: AppColors.primary,
+            unselectedLabelColor: AppColors.textFog,
+            tabs: [
+              Tab(text: 'Người dùng'),
+              Tab(text: 'Phòng / Cộng đồng'),
+            ],
+          ),
+
+          // Body: TabBarView
           Expanded(
             child: BlocBuilder<ExploreBloc, ExploreState>(
               builder: (context, state) {
-                if (state.status == ExploreStatus.initial) {
-                  return _buildDefaultContent();
-                }
                 if (state.status == ExploreStatus.loading) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: AppColors.primary),
-                  );
+                  return const Center(child: CircularProgressIndicator(color: AppColors.primary));
                 }
                 if (state.status == ExploreStatus.error) {
                   return Center(
@@ -112,210 +128,56 @@ class _ExplorePageState extends State<ExplorePage> {
                     ),
                   );
                 }
-                // Loaded
-                if (state.users.isEmpty && state.communities.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.search_off, color: AppColors.textFog, size: 48),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Không tìm thấy kết quả cho "${state.query}"',
-                          style: const TextStyle(color: AppColors.textFog, fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                return _buildSearchResults(state);
+                // Loaded (either suggestions or search results)
+                return TabBarView(
+                  children: [
+                    _buildUserList(state.users, state.query),
+                    _buildCommunityList(state.communities, state.query),
+                  ],
+                );
               },
             ),
           ),
         ],
       ),
+    ),
+    );
+  }
+
+  Widget _buildUserList(List users, String query) {
+    if (users.isEmpty) {
+      return Center(
+        child: Text(
+          query.isEmpty ? 'Không có gợi ý người dùng' : 'Không tìm thấy người dùng "$query"',
+          style: const TextStyle(color: AppColors.textFog, fontSize: 14),
+        ),
+      );
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.only(bottom: 100),
+      itemCount: users.length,
+      itemBuilder: (context, index) => _buildUserTile(users[index]),
+    );
+  }
+
+  Widget _buildCommunityList(List communities, String query) {
+    if (communities.isEmpty) {
+      return Center(
+        child: Text(
+          query.isEmpty ? 'Không có gợi ý phòng' : 'Không tìm thấy phòng "$query"',
+          style: const TextStyle(color: AppColors.textFog, fontSize: 14),
+        ),
+      );
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.only(bottom: 100),
+      itemCount: communities.length,
+      itemBuilder: (context, index) => _buildCommunityTile(communities[index]),
     );
   }
 
   /// Default content when no search is active
-  Widget _buildDefaultContent() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 100),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Suggestions header
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
-            child: Text(
-              'Gợi ý cho bạn',
-              style: TextStyle(
-                color: AppColors.textSilver,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-
-          // Featured card
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF1a1a2e), Color(0xFF16213e)],
-                ),
-                border: Border.all(color: AppColors.borderTwilight.withValues(alpha: 0.5)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: Colors.black45,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: const Icon(Icons.code, color: Colors.lightBlueAccent, size: 26),
-                      ),
-                      const SizedBox(width: 14),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Flutter Developers',
-                              style: TextStyle(color: AppColors.textSilver, fontSize: 18, fontWeight: FontWeight.w800),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Cộng đồng Flutter lớn nhất trên Vibenex',
-                              style: TextStyle(color: AppColors.textFog, fontSize: 13),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      const Text('12.4K thành viên', style: TextStyle(color: AppColors.textSilver, fontSize: 12)),
-                      const SizedBox(width: 16),
-                      Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.statusEmerald, shape: BoxShape.circle)),
-                      const SizedBox(width: 6),
-                      const Text('892 online', style: TextStyle(color: AppColors.textFog, fontSize: 12)),
-                      const Spacer(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(20)),
-                        child: const Text('Tham gia', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Popular section
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 24, 16, 12),
-            child: Text('Cộng đồng phổ biến', style: TextStyle(color: AppColors.textSilver, fontSize: 16, fontWeight: FontWeight.w700)),
-          ),
-          _buildStaticTile(Icons.integration_instructions, 'React Native', '5.2K thành viên'),
-          _buildStaticTile(Icons.memory, 'AI & ML', '18.9K thành viên'),
-          _buildStaticTile(Icons.cloud_queue, 'DevOps', '3.4K thành viên'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStaticTile(IconData icon, String title, String members) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceContainerHigh.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(color: AppColors.surfaceContainerHighest, borderRadius: BorderRadius.circular(12)),
-              child: Icon(icon, color: AppColors.primary, size: 22),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: const TextStyle(color: AppColors.textSilver, fontSize: 15, fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 4),
-                  Text(members, style: TextStyle(color: AppColors.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 12)),
-                ],
-              ),
-            ),
-            const Text('Tham gia', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 13)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Search results showing both users and communities
-  Widget _buildSearchResults(ExploreState state) {
-    return ListView(
-      padding: const EdgeInsets.only(bottom: 100),
-      children: [
-        // Users section
-        if (state.users.isNotEmpty) ...[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: Row(
-              children: [
-                const Icon(Icons.people_outline, color: AppColors.textFog, size: 18),
-                const SizedBox(width: 8),
-                Text(
-                  'Người dùng (${state.users.length})',
-                  style: const TextStyle(color: AppColors.textFog, fontSize: 13, fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-          ),
-          ...state.users.map((user) => _buildUserTile(user)),
-        ],
-
-        // Communities section
-        if (state.communities.isNotEmpty) ...[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Row(
-              children: [
-                const Icon(Icons.groups_outlined, color: AppColors.textFog, size: 18),
-                const SizedBox(width: 8),
-                Text(
-                  'Cộng đồng (${state.communities.length})',
-                  style: const TextStyle(color: AppColors.textFog, fontSize: 13, fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-          ),
-          ...state.communities.map((community) => _buildCommunityTile(community)),
-        ],
-      ],
-    );
-  }
+  // Removed old default content methods
 
   Widget _buildUserTile(user) {
     return ListTile(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../auth/bloc/auth_bloc.dart';
 import '../../bloc/short_bloc.dart';
 import '../widgets/short_video_player.dart';
@@ -34,7 +35,9 @@ class _ShortsPageState extends State<ShortsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: BlocBuilder<ShortBloc, ShortState>(
+      body: Stack(
+        children: [
+          BlocBuilder<ShortBloc, ShortState>(
         builder: (context, state) {
           if (state.status == ShortStatus.initial || state.status == ShortStatus.loading && state.shorts.isEmpty) {
             return const Center(child: CircularProgressIndicator());
@@ -189,7 +192,26 @@ class _ShortsPageState extends State<ShortsPage> {
           );
         },
       ),
-    );
+      // Overlay Camera button
+      Positioned(
+        top: 48,
+        right: 16,
+        child: IconButton(
+          icon: const Icon(Icons.camera_alt, color: Colors.white, size: 28),
+          onPressed: () async {
+            final result = await context.push('/create-short');
+            if (result == true) {
+              final authState = context.read<AuthBloc>().state;
+              if (authState is AuthAuthenticated) {
+                context.read<ShortBloc>().add(LoadShorts(authState.user.id));
+              }
+            }
+          },
+        ),
+      ),
+    ],
+  ),
+);
   }
 
   Widget _buildAction({

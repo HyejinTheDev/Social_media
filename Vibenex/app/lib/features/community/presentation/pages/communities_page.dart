@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/shimmer_widgets.dart';
 import '../../bloc/community_bloc.dart';
 import '../../domain/models/community_models.dart';
 import '../widgets/room_card.dart';
@@ -68,7 +69,7 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: GestureDetector(
-        onTap: () => context.go('/search'),
+        onTap: () => context.go('/explore'),
         child: Container(
           height: 46,
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -98,12 +99,9 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
     return BlocBuilder<CommunityBloc, CommunityState>(
       builder: (context, state) {
         if (state is CommunityLoading) {
-          return const SliverToBoxAdapter(
-            child: Center(
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: CircularProgressIndicator(color: AppColors.brandViolet),
-              ),
+          return SliverToBoxAdapter(
+            child: Column(
+              children: List.generate(4, (_) => const RoomShimmer()),
             ),
           );
         }
@@ -132,27 +130,11 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
 
         if (state is CommunityLoaded) {
           if (state.communities.isEmpty) {
-            return SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Icon(Icons.mic_none, color: AppColors.textFog.withValues(alpha: 0.5), size: 64),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Chưa có phòng nào',
-                        style: TextStyle(color: AppColors.textFog, fontSize: 16),
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Bấm nút "Tạo" bên dưới để tạo phòng đầu tiên!',
-                        style: TextStyle(color: AppColors.textFog, fontSize: 13),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
+            return const SliverToBoxAdapter(
+              child: EmptyStateWidget(
+                icon: Icons.mic_none,
+                title: 'Chưa có phòng nào',
+                subtitle: 'Bấm nút "Tạo" bên dưới để tạo phòng đầu tiên!',
               ),
             );
           }

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 
 class ShortApiService {
@@ -33,6 +34,14 @@ class ShortApiService {
       'caption': caption,
       'thumbnailUrl': thumbnailUrl,
     });
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> uploadShortMedia(File file) async {
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(file.path),
+    });
+    final response = await _dio.post('/shorts/upload', data: formData);
     return response.data;
   }
 

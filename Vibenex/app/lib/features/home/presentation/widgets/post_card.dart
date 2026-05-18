@@ -11,6 +11,7 @@ import '../../bloc/comment_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../auth/bloc/auth_bloc.dart';
 
 class PostCard extends StatefulWidget {
   final PostModel post;
@@ -158,7 +159,62 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                       ),
                       IconButton(
                         icon: const Icon(Icons.more_vert),
-                        onPressed: () {},
+                        onPressed: () {
+                          final currentUserId = context.read<AuthBloc>().state is AuthAuthenticated 
+                              ? (context.read<AuthBloc>().state as AuthAuthenticated).user.id 
+                              : null;
+                          final isOwnPost = currentUserId == widget.post.author.id;
+
+                          showModalBottomSheet(
+                            context: context,
+                            backgroundColor: AppColors.surfaceMidnight,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                            ),
+                            builder: (context) {
+                              return SafeArea(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (isOwnPost)
+                                      ListTile(
+                                        leading: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                                        title: const Text('Xóa bài viết', style: TextStyle(color: Colors.redAccent)),
+                                        onTap: () {
+                                          context.pop();
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text('Tính năng xóa đang được phát triển')),
+                                          );
+                                        },
+                                      )
+                                    else ...[
+                                      ListTile(
+                                        leading: const Icon(Icons.person_remove_outlined, color: AppColors.textSilver),
+                                        title: Text('Hủy kết bạn với ${widget.post.author.name}', style: const TextStyle(color: AppColors.textSilver)),
+                                        onTap: () {
+                                          context.pop();
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text('Đã hủy kết bạn')),
+                                          );
+                                        },
+                                      ),
+                                      ListTile(
+                                        leading: const Icon(Icons.report_outlined, color: Colors.orangeAccent),
+                                        title: const Text('Báo cáo bài viết', style: TextStyle(color: Colors.orangeAccent)),
+                                        onTap: () {
+                                          context.pop();
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text('Đã gửi báo cáo vi phạm')),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        },
                         color: colorScheme.onSurfaceVariant,
                       ),
                     ],

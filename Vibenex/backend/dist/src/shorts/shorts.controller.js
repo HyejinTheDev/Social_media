@@ -17,10 +17,27 @@ const common_1 = require("@nestjs/common");
 const shorts_service_1 = require("./shorts.service");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const swagger_1 = require("@nestjs/swagger");
+const platform_express_1 = require("@nestjs/platform-express");
+const multer_1 = require("multer");
+const cloudinary_service_1 = require("../cloudinary/cloudinary.service");
+const uploadOptions = {
+    storage: (0, multer_1.memoryStorage)(),
+    limits: { fileSize: 100 * 1024 * 1024 },
+    fileFilter: (_, file, cb) => {
+        if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+            cb(null, true);
+        }
+        else {
+            cb(new Error('Chỉ hỗ trợ file ảnh hoặc video'), false);
+        }
+    },
+};
 let ShortsController = class ShortsController {
     shortsService;
-    constructor(shortsService) {
+    cloudinaryService;
+    constructor(shortsService, cloudinaryService) {
         this.shortsService = shortsService;
+        this.cloudinaryService = cloudinaryService;
     }
     getFeed(page = '1', limit = '10') {
         return this.shortsService.getFeed(parseInt(page, 10), parseInt(limit, 10));
@@ -30,6 +47,16 @@ let ShortsController = class ShortsController {
     }
     createShort(req, body) {
         return this.shortsService.createShort(req.user.sub, body.videoUrl, body.caption, body.thumbnailUrl);
+    }
+    async uploadMedia(file) {
+        const isVideo = file.mimetype.startsWith('video/');
+        const result = isVideo
+            ? await this.cloudinaryService.uploadVideo(file)
+            : await this.cloudinaryService.uploadImage(file);
+        return {
+            url: result.secure_url,
+            type: isVideo ? 'video' : 'image',
+        };
     }
     toggleLike(req, id) {
         return this.shortsService.toggleLike(id, req.user.sub);
@@ -73,6 +100,17 @@ __decorate([
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.Post)('upload'),
+    (0, swagger_1.ApiOperation)({ summary: 'Upload short video or thumbnail to Cloudinary' }),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', uploadOptions)),
+    __param(0, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ShortsController.prototype, "uploadMedia", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Post)(':id/like'),
     (0, swagger_1.ApiOperation)({ summary: 'Toggle like on a short' }),
     __param(0, (0, common_1.Request)()),
@@ -104,6 +142,7 @@ __decorate([
 exports.ShortsController = ShortsController = __decorate([
     (0, swagger_1.ApiTags)('shorts'),
     (0, common_1.Controller)('shorts'),
-    __metadata("design:paramtypes", [shorts_service_1.ShortsService])
+    __metadata("design:paramtypes", [shorts_service_1.ShortsService,
+        cloudinary_service_1.CloudinaryService])
 ], ShortsController);
 //# sourceMappingURL=shorts.controller.js.map

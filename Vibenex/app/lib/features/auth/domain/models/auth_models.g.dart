@@ -58,6 +58,7 @@ _UserModel _$UserModelFromJson(Map<String, dynamic> json) => _UserModel(
       coverPhoto: json['coverPhoto'] as String?,
       reputation: (json['reputation'] as num?)?.toInt() ?? 0,
       isVerified: json['isVerified'] as bool? ?? false,
+      role: json['role'] as String? ?? 'USER',
       createdAt: json['createdAt'] as String?,
     );
 
@@ -72,6 +73,7 @@ Map<String, dynamic> _$UserModelToJson(_UserModel instance) =>
       'coverPhoto': instance.coverPhoto,
       'reputation': instance.reputation,
       'isVerified': instance.isVerified,
+      'role': instance.role,
       'createdAt': instance.createdAt,
     };
 

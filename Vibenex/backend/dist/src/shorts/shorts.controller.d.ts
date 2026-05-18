@@ -1,7 +1,9 @@
 import { ShortsService } from './shorts.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 export declare class ShortsController {
     private readonly shortsService;
-    constructor(shortsService: ShortsService);
+    private readonly cloudinaryService;
+    constructor(shortsService: ShortsService, cloudinaryService: CloudinaryService);
     getFeed(page?: string, limit?: string): Promise<{
         data: ({
             _count: {
@@ -84,6 +86,10 @@ export declare class ShortsController {
         shareCount: number;
         caption: string | null;
         thumbnailUrl: string | null;
+    }>;
+    uploadMedia(file: Express.Multer.File): Promise<{
+        url: any;
+        type: string;
     }>;
     toggleLike(req: any, id: string): Promise<{
         liked: boolean;

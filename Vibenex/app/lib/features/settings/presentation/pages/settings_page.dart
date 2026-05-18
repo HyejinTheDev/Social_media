@@ -82,6 +82,28 @@ class SettingsPage extends StatelessWidget {
               },
             ),
 
+            // Admin section (only for admin users)
+            Builder(
+              builder: (context) {
+                final authState = context.read<AuthBloc>().state;
+                if (authState is AuthAuthenticated && authState.user.role == 'ADMIN') {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 24),
+                      const _SectionTitle(title: 'Quản trị'),
+                      _SettingsTile(
+                        icon: Icons.admin_panel_settings,
+                        title: 'Admin Dashboard',
+                        onTap: () => context.push('/admin'),
+                      ),
+                    ],
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+
             const SizedBox(height: 48),
             // Danger zone
             OutlinedButton.icon(

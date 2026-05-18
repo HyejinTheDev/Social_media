@@ -14,6 +14,8 @@ import { PostsModule } from './posts/posts.module';
 import { FriendsModule } from './friends/friends.module';
 import { StoriesModule } from './stories/stories.module';
 import { ShortsModule } from './shorts/shorts.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { ShortsModule } from './shorts/shorts.module';
     FriendsModule,
     StoriesModule,
     ShortsModule,
+    CloudinaryModule,
+    AdminModule,
   ],
   controllers: [],
   providers: [],
