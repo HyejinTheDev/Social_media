@@ -55,7 +55,7 @@ class _VoiceRoomPageState extends State<VoiceRoomPage> with TickerProviderStateM
     final authState = getIt<AuthBloc>().state;
     if (authState is AuthAuthenticated) {
       _userId = authState.user.id;
-      _userName = authState.user.name ?? authState.user.username;
+      _userName = authState.user.name;
       _userAvatar = authState.user.avatar;
     }
 

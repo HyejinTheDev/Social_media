@@ -309,6 +309,73 @@ async function main() {
         ]
     });
     console.log('Created shorts');
+    const voiceRoom = await prisma.community.create({
+        data: {
+            name: 'Flutter Vietnam Chill ☕️',
+            slug: 'flutter-vn-chill',
+            description: 'Phòng voice chill cùng anh em Flutter',
+            isPublic: true,
+            isVoiceRoom: true,
+            memberCount: 3,
+            channels: { create: [{ name: 'voice-main', type: client_1.ChannelType.VOICE }] },
+        },
+    });
+    const chatRoom = await prisma.community.create({
+        data: {
+            name: 'Review UI/UX tháng 5',
+            slug: 'review-uiux-t5',
+            description: 'Phòng chat review thiết kế',
+            isPublic: true,
+            isVoiceRoom: false,
+            memberCount: 2,
+            channels: { create: [{ name: 'chat-main', type: client_1.ChannelType.LIVE_CHAT }] },
+        },
+    });
+    const gamingRoom = await prisma.community.create({
+        data: {
+            name: 'Gaming Night 🎮',
+            slug: 'gaming-night',
+            description: 'Phòng voice chơi game tối thứ 7',
+            isPublic: true,
+            isVoiceRoom: true,
+            memberCount: 2,
+            channels: { create: [{ name: 'voice-gaming', type: client_1.ChannelType.VOICE }] },
+        },
+    });
+    await prisma.communityMember.createMany({
+        data: [
+            { communityId: voiceRoom.id, userId: user3.id, role: client_1.CommunityRole.OWNER },
+            { communityId: voiceRoom.id, userId: user1.id, role: client_1.CommunityRole.MEMBER },
+            { communityId: voiceRoom.id, userId: user2.id, role: client_1.CommunityRole.MEMBER },
+            { communityId: chatRoom.id, userId: user2.id, role: client_1.CommunityRole.OWNER },
+            { communityId: chatRoom.id, userId: user3.id, role: client_1.CommunityRole.MEMBER },
+            { communityId: gamingRoom.id, userId: user1.id, role: client_1.CommunityRole.OWNER },
+            { communityId: gamingRoom.id, userId: user3.id, role: client_1.CommunityRole.MEMBER },
+        ],
+    });
+    console.log('Created voice & chat rooms');
+    const now = new Date();
+    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    await prisma.story.createMany({
+        data: [
+            {
+                authorId: user3.id,
+                imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800',
+                expiresAt: tomorrow,
+            },
+            {
+                authorId: user1.id,
+                imageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800',
+                expiresAt: tomorrow,
+            },
+            {
+                authorId: user2.id,
+                imageUrl: 'https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=800',
+                expiresAt: tomorrow,
+            },
+        ],
+    });
+    console.log('Created stories');
     console.log('Seed completed successfully!');
     console.log('\\n--- Test Accounts ---');
     console.log('1. hyejin@example.com / password123');

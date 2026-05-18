@@ -39,6 +39,9 @@ let CommunitiesController = class CommunitiesController {
     leave(req, communityId) {
         return this.communitiesService.leave(communityId, req.user.sub);
     }
+    update(req, id, body) {
+        return this.communitiesService.update(id, req.user.sub, body);
+    }
     remove(req, id) {
         return this.communitiesService.remove(id, req.user.sub);
     }
@@ -94,6 +97,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], CommunitiesController.prototype, "leave", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", void 0)
+], CommunitiesController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Request)()),

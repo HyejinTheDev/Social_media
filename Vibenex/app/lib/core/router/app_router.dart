@@ -431,7 +431,7 @@ class _ShellWithNav extends StatelessWidget {
                 _NavItem(
                   icon: Icons.people_outline,
                   activeIcon: Icons.people,
-                  label: 'Cộng đồng',
+                  label: 'Phòng',
                   isSelected: currentIndex == 2,
                   onTap: () => context.go('/communities'),
                 ),

@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Delete,
   Body,
   Param,
@@ -56,6 +57,15 @@ export class CommunitiesController {
   @Post(':communityId/leave')
   leave(@Request() req, @Param('communityId') communityId: string) {
     return this.communitiesService.leave(communityId, req.user.sub);
+  }
+
+  @Patch(':id')
+  update(
+    @Request() req,
+    @Param('id') id: string,
+    @Body() body: { name?: string; description?: string; isVoiceRoom?: boolean },
+  ) {
+    return this.communitiesService.update(id, req.user.sub, body);
   }
 
   @Delete(':id')

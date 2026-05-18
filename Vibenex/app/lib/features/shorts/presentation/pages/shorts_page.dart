@@ -86,7 +86,7 @@ class _ShortsPageState extends State<ShortsPage> {
               final short = state.shorts[index];
               return Stack(
                 children: [
-                  ShortVideoPlayer(videoUrl: short.videoUrl),
+                  ShortVideoPlayer(videoUrl: short.videoUrl, thumbnailUrl: short.thumbnailUrl),
                   // Overlay UI
                   Positioned(
                     bottom: 0,

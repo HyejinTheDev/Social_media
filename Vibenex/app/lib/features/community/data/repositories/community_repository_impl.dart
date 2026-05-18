@@ -46,4 +46,13 @@ class CommunityRepositoryImpl implements CommunityRepository {
   Future<void> deleteCommunity(String id) {
     return api.deleteCommunity(id);
   }
+
+  @override
+  Future<CommunityModel> updateCommunity(String id, String? name, String? description, bool? isVoiceRoom) {
+    final body = <String, dynamic>{};
+    if (name != null) body['name'] = name;
+    if (description != null) body['description'] = description;
+    if (isVoiceRoom != null) body['isVoiceRoom'] = isVoiceRoom;
+    return api.updateCommunity(id, body);
+  }
 }

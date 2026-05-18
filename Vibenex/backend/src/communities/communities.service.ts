@@ -123,6 +123,24 @@ export class CommunitiesService {
     return { message: 'Left community' };
   }
 
+  async update(communityId: string, userId: string, data: { name?: string; description?: string; isVoiceRoom?: boolean }) {
+    const member = await this.prisma.communityMember.findUnique({
+      where: { communityId_userId: { communityId, userId } },
+    });
+    if (!member || !['OWNER', 'ADMIN'].includes(member.role)) {
+      throw new ForbiddenException('Only owner or admin can edit');
+    }
+
+    return this.prisma.community.update({
+      where: { id: communityId },
+      data: {
+        ...(data.name && { name: data.name }),
+        ...(data.description !== undefined && { description: data.description }),
+        ...(data.isVoiceRoom !== undefined && { isVoiceRoom: data.isVoiceRoom }),
+      },
+    });
+  }
+
   async remove(communityId: string, userId: string) {
     const member = await this.prisma.communityMember.findUnique({
       where: { communityId_userId: { communityId, userId } },

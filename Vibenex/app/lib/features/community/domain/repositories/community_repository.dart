@@ -8,4 +8,5 @@ abstract class CommunityRepository {
   Future<void> joinCommunity(String communityId);
   Future<void> leaveCommunity(String communityId);
   Future<void> deleteCommunity(String id);
+  Future<CommunityModel> updateCommunity(String id, String? name, String? description, bool? isVoiceRoom);
 }

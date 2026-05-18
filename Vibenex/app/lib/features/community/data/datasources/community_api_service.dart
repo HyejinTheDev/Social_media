@@ -32,4 +32,7 @@ abstract class CommunityApiService {
 
   @DELETE('/communities/{id}')
   Future<void> deleteCommunity(@Path('id') String id);
+
+  @PATCH('/communities/{id}')
+  Future<CommunityModel> updateCommunity(@Path('id') String id, @Body() Map<String, dynamic> body);
 }

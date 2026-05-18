@@ -4,8 +4,9 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 class ShortVideoPlayer extends StatefulWidget {
   final String videoUrl;
+  final String? thumbnailUrl;
   
-  const ShortVideoPlayer({super.key, required this.videoUrl});
+  const ShortVideoPlayer({super.key, required this.videoUrl, this.thumbnailUrl});
 
   @override
   State<ShortVideoPlayer> createState() => _ShortVideoPlayerState();
@@ -15,17 +16,28 @@ class _ShortVideoPlayerState extends State<ShortVideoPlayer> {
   late VideoPlayerController _controller;
   bool _isInitialized = false;
   bool _isPlaying = true;
+  bool _hasError = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl))
-      ..initialize().then((_) {
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+    _controller.initialize().then((_) {
+      if (mounted) {
         setState(() {
           _isInitialized = true;
           _controller.setLooping(true);
         });
-      });
+      }
+    }).catchError((e) {
+      if (mounted) setState(() => _hasError = true);
+    });
+    // Timeout: if not loaded after 5s, show thumbnail
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted && !_isInitialized && !_hasError) {
+        setState(() => _hasError = true);
+      }
+    });
   }
 
   @override
@@ -71,7 +83,28 @@ class _ShortVideoPlayerState extends State<ShortVideoPlayer> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            if (_isInitialized)
+            if (_hasError)
+              // Show thumbnail fallback when video fails
+              widget.thumbnailUrl != null
+                  ? Image.network(
+                      widget.thumbnailUrl!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: Colors.grey[900],
+                        child: const Center(
+                          child: Icon(Icons.videocam_off, color: Colors.white54, size: 64),
+                        ),
+                      ),
+                    )
+                  : Container(
+                      color: Colors.grey[900],
+                      child: const Center(
+                        child: Icon(Icons.videocam_off, color: Colors.white54, size: 64),
+                      ),
+                    )
+            else if (_isInitialized)
               SizedBox.expand(
                 child: FittedBox(
                   fit: BoxFit.cover,

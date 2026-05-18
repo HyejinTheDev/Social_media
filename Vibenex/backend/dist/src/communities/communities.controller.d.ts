@@ -6,28 +6,30 @@ export declare class CommunitiesController {
         communities: {
             id: string;
             name: string;
-            createdAt: Date;
-            updatedAt: Date;
             slug: string;
             description: string | null;
             icon: string | null;
             banner: string | null;
             isPublic: boolean;
+            isVoiceRoom: boolean;
             memberCount: number;
+            createdAt: Date;
+            updatedAt: Date;
         }[];
         total: number;
     }>;
     findOne(id: string): Promise<{
         id: string;
         name: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
         description: string | null;
         icon: string | null;
         banner: string | null;
         isPublic: boolean;
+        isVoiceRoom: boolean;
         memberCount: number;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     create(req: any, body: {
         name: string;
@@ -35,25 +37,36 @@ export declare class CommunitiesController {
         isPublic?: boolean;
         isVoiceRoom?: boolean;
     }): Promise<{
+        channels: {
+            id: string;
+            name: string;
+            description: string | null;
+            createdAt: Date;
+            type: import("@prisma/client").$Enums.ChannelType;
+            position: number;
+            communityId: string;
+        }[];
+    } & {
         id: string;
         name: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
         description: string | null;
         icon: string | null;
         banner: string | null;
         isPublic: boolean;
+        isVoiceRoom: boolean;
         memberCount: number;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     getChannels(communityId: string): Promise<{
         id: string;
         name: string;
-        createdAt: Date;
         description: string | null;
-        communityId: string;
+        createdAt: Date;
         type: import("@prisma/client").$Enums.ChannelType;
         position: number;
+        communityId: string;
     }[]>;
     join(req: any, communityId: string): Promise<{
         id: string;
@@ -64,6 +77,23 @@ export declare class CommunitiesController {
     }>;
     leave(req: any, communityId: string): Promise<{
         message: string;
+    }>;
+    update(req: any, id: string, body: {
+        name?: string;
+        description?: string;
+        isVoiceRoom?: boolean;
+    }): Promise<{
+        id: string;
+        name: string;
+        slug: string;
+        description: string | null;
+        icon: string | null;
+        banner: string | null;
+        isPublic: boolean;
+        isVoiceRoom: boolean;
+        memberCount: number;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     remove(req: any, id: string): Promise<{
         message: string;
@@ -79,10 +109,10 @@ export declare class CommunitiesController {
         } & {
             id: string;
             createdAt: Date;
-            content: string;
             channelId: string;
-            imageUrl: string | null;
             senderId: string;
+            content: string;
+            imageUrl: string | null;
         })[];
         meta: {
             total: number;

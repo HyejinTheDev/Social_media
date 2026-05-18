@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_gradients.dart';
 import '../../../../core/widgets/avatar_widget.dart';
 import '../../domain/models/home_models.dart';
+import '../pages/story_viewer_page.dart';
 
 class StoryRow extends StatelessWidget {
   final List<StoryModel> stories;
@@ -32,7 +33,19 @@ class StoryRow extends StatelessWidget {
           final story = stories[index - 1];
           return Padding(
             padding: const EdgeInsets.only(right: 12),
-            child: _StoryItem(story: story),
+            child: _StoryItem(
+              story: story,
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => StoryViewerPage(
+                      stories: stories,
+                      initialIndex: index - 1,
+                    ),
+                  ),
+                );
+              },
+            ),
           );
         },
       ),
@@ -42,15 +55,14 @@ class StoryRow extends StatelessWidget {
 
 class _StoryItem extends StatelessWidget {
   final StoryModel story;
+  final VoidCallback? onTap;
 
-  const _StoryItem({required this.story});
+  const _StoryItem({required this.story, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        // View story - To be implemented
-      },
+      onTap: onTap,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

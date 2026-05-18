@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../bloc/community_bloc.dart';
 import '../../domain/models/community_models.dart';
 import '../widgets/room_card.dart';
+import 'edit_room_page.dart';
 
 class CommunitiesPage extends StatefulWidget {
   const CommunitiesPage({super.key});
@@ -27,7 +28,8 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final result = await context.push('/create-community');
-          if (result == true && mounted) {
+          if (!mounted) return;
+          if (result == true) {
             context.read<CommunityBloc>().add(const LoadCommunitiesRequested());
           }
         },
@@ -213,15 +215,18 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
             icon: const Icon(Icons.more_vert, color: AppColors.textFog, size: 22),
             color: AppColors.surfaceContainerHigh,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            onSelected: (value) {
+            onSelected: (value) async {
               switch (value) {
                 case 'share':
                   _shareViaChatDialog(community);
                   break;
                 case 'edit':
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Chức năng sửa đang phát triển')),
+                  final result = await Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => EditRoomPage(community: community)),
                   );
+                  if (result == true && mounted) {
+                    context.read<CommunityBloc>().add(const LoadCommunitiesRequested());
+                  }
                   break;
                 case 'delete':
                   _confirmDeleteCommunity(community);
@@ -287,7 +292,7 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.brandViolet),
               onPressed: () {
                 Navigator.pop(ctx);
-                context.push('/messages');
+                context.push('/chat');
               },
               child: const Text('Mở tin nhắn', style: TextStyle(color: Colors.white)),
             ),
