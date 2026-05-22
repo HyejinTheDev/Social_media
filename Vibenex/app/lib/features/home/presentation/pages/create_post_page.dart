@@ -131,6 +131,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                       children: [
                         AvatarWidget(
                           imageUrl: currentUser?.avatar,
+                          name: currentUser?.name,
                           radius: 20,
                         ),
                         const SizedBox(width: 12),

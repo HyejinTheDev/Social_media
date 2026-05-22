@@ -4,9 +4,10 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/avatar_widget.dart';
 
 class CreatePostBar extends StatelessWidget {
-  final String currentUserAvatar;
+  final String? currentUserAvatar;
+  final String? currentUserName;
 
-  const CreatePostBar({super.key, required this.currentUserAvatar});
+  const CreatePostBar({super.key, this.currentUserAvatar, this.currentUserName});
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +20,7 @@ class CreatePostBar extends StatelessWidget {
         children: [
           AvatarWidget(
             imageUrl: currentUserAvatar,
+            name: currentUserName,
             radius: 20,
           ),
           const SizedBox(width: 12),

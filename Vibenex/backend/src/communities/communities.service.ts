@@ -21,11 +21,26 @@ export class CommunitiesService {
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { createdAt: 'desc' },
+        include: {
+          members: {
+            take: 3,
+            include: { user: { select: { avatar: true, name: true } } },
+          },
+        },
       }),
       this.prisma.community.count({ where }),
     ]);
 
-    return { communities, total };
+    const mappedCommunities = communities.map(c => {
+      const { members, ...rest } = c;
+      return {
+        ...rest,
+        participantAvatars: members.map(m => m.user.avatar).filter(a => a != null),
+        participantNames: members.map(m => m.user.name),
+      };
+    });
+
+    return { communities: mappedCommunities, total };
   }
 
   async findById(id: string) {

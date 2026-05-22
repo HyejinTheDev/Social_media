@@ -6,6 +6,7 @@ class RoomCard extends StatelessWidget {
   final String roomName;
   final int participantCount;
   final List<String> speakerAvatars;
+  final List<String> speakerNames;
   final bool isVoiceRoom;
   final VoidCallback? onTap;
   final Widget? trailing;
@@ -15,6 +16,7 @@ class RoomCard extends StatelessWidget {
     required this.roomName,
     required this.participantCount,
     required this.speakerAvatars,
+    this.speakerNames = const [],
     this.isVoiceRoom = true,
     this.onTap,
     this.trailing,
@@ -62,54 +64,57 @@ class RoomCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      // Speaker avatars stack
-                      SizedBox(
-                        width: speakerAvatars.length * 20.0 + 10,
-                        height: 28,
-                        child: Stack(
-                          children: List.generate(
-                            speakerAvatars.length,
-                            (index) => Positioned(
-                              left: index * 20.0,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: AppColors.surfaceMidnight, width: 2),
-                                ),
-                                child: AvatarWidget(
-                                  imageUrl: speakerAvatars[index],
-                                  radius: 12,
+                  if (participantCount > 0)
+                    Row(
+                      children: [
+                        // Member avatars stack (use names for initials)
+                        if (speakerNames.isNotEmpty)
+                          SizedBox(
+                            width: speakerNames.length * 20.0 + 10,
+                            height: 28,
+                            child: Stack(
+                              children: List.generate(
+                                speakerNames.length,
+                                (index) => Positioned(
+                                  left: index * 20.0,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: AppColors.surfaceMidnight, width: 2),
+                                    ),
+                                    child: AvatarWidget(
+                                      imageUrl: index < speakerAvatars.length ? speakerAvatars[index] : null,
+                                      name: speakerNames[index],
+                                      radius: 12,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Participant count
-                      Flexible(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.person, size: 14, color: AppColors.textFog),
-                            const SizedBox(width: 4),
-                            Flexible(
-                              child: Text(
-                                '$participantCount tham gia',
-                                style: const TextStyle(
-                                  color: AppColors.textFog,
-                                  fontSize: 13,
+                        if (speakerNames.isNotEmpty) const SizedBox(width: 8),
+                        // Participant count
+                        Flexible(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.person, size: 14, color: AppColors.textFog),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  '$participantCount tham gia',
+                                  style: const TextStyle(
+                                    color: AppColors.textFog,
+                                    fontSize: 13,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                 ],
               ),
             ),

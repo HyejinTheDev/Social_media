@@ -16,6 +16,14 @@ _CommunityModel _$CommunityModelFromJson(Map<String, dynamic> json) =>
       isPublic: json['isPublic'] as bool? ?? true,
       isVoiceRoom: json['isVoiceRoom'] as bool? ?? false,
       memberCount: (json['memberCount'] as num?)?.toInt() ?? 0,
+      participantAvatars: (json['participantAvatars'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      participantNames: (json['participantNames'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
       createdAt: json['createdAt'] as String?,
       updatedAt: json['updatedAt'] as String?,
     );
@@ -30,6 +38,8 @@ Map<String, dynamic> _$CommunityModelToJson(_CommunityModel instance) =>
       'isPublic': instance.isPublic,
       'isVoiceRoom': instance.isVoiceRoom,
       'memberCount': instance.memberCount,
+      'participantAvatars': instance.participantAvatars,
+      'participantNames': instance.participantNames,
       'createdAt': instance.createdAt,
       'updatedAt': instance.updatedAt,
     };

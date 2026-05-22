@@ -230,10 +230,10 @@ class _VoiceRoomPageState extends State<VoiceRoomPage> with TickerProviderStateM
                     padding: const EdgeInsets.all(20),
                     child: GridView.builder(
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 20,
-                        crossAxisSpacing: 20,
-                        childAspectRatio: 0.8,
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 16,
+                        childAspectRatio: 1.0,
                       ),
                       itemCount: _participants.length,
                       itemBuilder: (context, index) {
@@ -286,90 +286,96 @@ class _VoiceRoomPageState extends State<VoiceRoomPage> with TickerProviderStateM
     final isMe = participant['userId'] == _userId;
     final isSpeaking = !isMuted;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Avatar with speaking indicator
-        AnimatedBuilder(
-          animation: _pulseAnimation,
-          builder: (context, child) {
-            final scale = isSpeaking ? _pulseAnimation.value : 1.0;
-            return Transform.scale(
-              scale: scale,
-              child: Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isSpeaking ? Colors.greenAccent : Colors.transparent,
-                    width: 3,
-                  ),
-                  boxShadow: isSpeaking
-                      ? [
-                          BoxShadow(
-                            color: Colors.greenAccent.withValues(alpha: 0.3),
-                            blurRadius: 16,
-                            spreadRadius: 2,
-                          ),
-                        ]
-                      : null,
-                ),
-                child: CircleAvatar(
-                  radius: 33,
-                  backgroundColor: AppColors.brandViolet.withValues(alpha: 0.3),
-                  backgroundImage: avatar != null ? NetworkImage(avatar) : null,
-                  child: avatar == null
-                      ? Text(
-                          username.isNotEmpty ? username[0].toUpperCase() : '?',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        )
-                      : null,
-                ),
-              ),
-            );
-          },
-        ),
-        const SizedBox(height: 8),
-
-        // Username
-        Text(
-          isMe ? '$username (Bạn)' : username,
-          style: TextStyle(
-            color: isMe ? AppColors.brandViolet : AppColors.textSilver,
-            fontSize: 12,
-            fontWeight: isMe ? FontWeight.bold : FontWeight.normal,
+    return AnimatedBuilder(
+      animation: _pulseAnimation,
+      builder: (context, child) {
+        return Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E2E), // Dark card background
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isSpeaking ? Colors.greenAccent : Colors.transparent,
+              width: isSpeaking ? 2 : 0,
+            ),
+            boxShadow: isSpeaking
+                ? [
+                    BoxShadow(
+                      color: Colors.greenAccent.withValues(alpha: 0.2),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    )
+                  ]
+                : null,
           ),
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: 4),
-
-        // Mic status
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isMuted ? Icons.mic_off : Icons.mic,
-              size: 14,
-              color: isMuted ? Colors.red.shade300 : Colors.greenAccent,
-            ),
-            const SizedBox(width: 2),
-            Text(
-              isMuted ? 'Tắt mic' : 'Đang nói',
-              style: TextStyle(
-                fontSize: 10,
-                color: isMuted ? Colors.red.shade300 : Colors.greenAccent,
+          child: Stack(
+            children: [
+              // Center Avatar
+              Center(
+                child: AnimatedBuilder(
+                  animation: _pulseAnimation,
+                  builder: (context, child) {
+                    final scale = isSpeaking ? _pulseAnimation.value : 1.0;
+                    return Transform.scale(
+                      scale: scale,
+                      child: CircleAvatar(
+                        radius: 36,
+                        backgroundColor: AppColors.brandViolet.withValues(alpha: 0.3),
+                        backgroundImage: avatar != null ? NetworkImage(avatar) : null,
+                        child: avatar == null
+                            ? Text(
+                                username.isNotEmpty ? username[0].toUpperCase() : '?',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                            : null,
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
+
+              // Username and mic status at bottom left/right
+              Positioned(
+                left: 12,
+                right: 12,
+                bottom: 12,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        isMe ? '$username (Bạn)' : username,
+                        style: TextStyle(
+                          color: isMe ? AppColors.brandViolet : Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: isMuted ? Colors.red.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.4),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        isMuted ? Icons.mic_off : Icons.mic,
+                        size: 14,
+                        color: isMuted ? Colors.red.shade300 : Colors.greenAccent,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

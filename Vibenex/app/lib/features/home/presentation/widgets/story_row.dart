@@ -7,12 +7,14 @@ import '../pages/story_viewer_page.dart';
 
 class StoryRow extends StatelessWidget {
   final List<StoryModel> stories;
-  final String currentUserAvatar;
+  final String? currentUserAvatar;
+  final String? currentUserName;
 
   const StoryRow({
     super.key,
     required this.stories,
-    required this.currentUserAvatar,
+    this.currentUserAvatar,
+    this.currentUserName,
   });
 
   @override
@@ -27,7 +29,7 @@ class StoryRow extends StatelessWidget {
           if (index == 0) {
             return Padding(
               padding: const EdgeInsets.only(right: 12),
-              child: _CreateStoryItem(avatar: currentUserAvatar),
+              child: _CreateStoryItem(avatar: currentUserAvatar, name: currentUserName),
             );
           }
           final story = stories[index - 1];
@@ -106,9 +108,10 @@ class _StoryItem extends StatelessWidget {
 }
 
 class _CreateStoryItem extends StatelessWidget {
-  final String avatar;
+  final String? avatar;
+  final String? name;
 
-  const _CreateStoryItem({required this.avatar});
+  const _CreateStoryItem({this.avatar, this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -130,6 +133,7 @@ class _CreateStoryItem extends StatelessWidget {
                 ),
                 child: AvatarWidget(
                   imageUrl: avatar,
+                  name: name,
                   radius: 32,
                 ),
               ),

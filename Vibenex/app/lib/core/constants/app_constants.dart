@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
+
 class AppConstants {
   AppConstants._();
 
   // API
-    static const String baseUrl = 'http://10.0.2.2:3001'; // Android Emulator → 10.0.2.2 = localhost máy host
+  static const String baseUrl = kIsWeb ? 'http://localhost:3001' : 'http://10.0.2.2:3001';
   static const String baseUrlWeb = 'http://localhost:3001';
 
   // Storage Keys

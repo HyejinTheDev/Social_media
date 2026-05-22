@@ -49,3 +49,10 @@ class AuthChangePasswordRequested extends AuthEvent {
 }
 
 class AuthDeleteAccountRequested extends AuthEvent {}
+
+class AuthUserUpdated extends AuthEvent {
+  final UserModel user;
+  const AuthUserUpdated(this.user);
+  @override
+  List<Object?> get props => [user];
+}

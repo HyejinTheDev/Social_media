@@ -10,6 +10,7 @@ import '../../../../core/widgets/avatar_widget.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/image_drop_zone.dart';
 import '../../bloc/profile_bloc.dart';
+import '../../../../features/auth/bloc/auth_bloc.dart';
 import '../widgets/image_picker_sheet.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -100,6 +101,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           });
         }
         if (state is ProfileLoaded && _initialized) {
+          context.read<AuthBloc>().add(AuthUserUpdated(state.user));
           ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
             content: const Text('Đã cập nhật hồ sơ'),
             behavior: SnackBarBehavior.floating, backgroundColor: Colors.green,

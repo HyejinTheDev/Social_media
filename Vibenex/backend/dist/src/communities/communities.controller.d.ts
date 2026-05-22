@@ -4,10 +4,10 @@ export declare class CommunitiesController {
     constructor(communitiesService: CommunitiesService);
     findAll(page?: string, limit?: string, search?: string): Promise<{
         communities: {
+            participantAvatars: string[];
+            participantNames: string[];
             id: string;
             name: string;
-            createdAt: Date;
-            updatedAt: Date;
             slug: string;
             description: string | null;
             icon: string | null;
@@ -15,14 +15,14 @@ export declare class CommunitiesController {
             isPublic: boolean;
             isVoiceRoom: boolean;
             memberCount: number;
+            createdAt: Date;
+            updatedAt: Date;
         }[];
         total: number;
     }>;
     findOne(id: string): Promise<{
         id: string;
         name: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
         description: string | null;
         icon: string | null;
@@ -30,6 +30,8 @@ export declare class CommunitiesController {
         isPublic: boolean;
         isVoiceRoom: boolean;
         memberCount: number;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     create(req: any, body: {
         name: string;
@@ -40,8 +42,8 @@ export declare class CommunitiesController {
         channels: {
             id: string;
             name: string;
-            createdAt: Date;
             description: string | null;
+            createdAt: Date;
             communityId: string;
             type: import("@prisma/client").$Enums.ChannelType;
             position: number;
@@ -49,8 +51,6 @@ export declare class CommunitiesController {
     } & {
         id: string;
         name: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
         description: string | null;
         icon: string | null;
@@ -58,12 +58,14 @@ export declare class CommunitiesController {
         isPublic: boolean;
         isVoiceRoom: boolean;
         memberCount: number;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     getChannels(communityId: string): Promise<{
         id: string;
         name: string;
-        createdAt: Date;
         description: string | null;
+        createdAt: Date;
         communityId: string;
         type: import("@prisma/client").$Enums.ChannelType;
         position: number;
@@ -71,9 +73,9 @@ export declare class CommunitiesController {
     join(req: any, communityId: string): Promise<{
         id: string;
         role: import("@prisma/client").$Enums.CommunityRole;
-        joinedAt: Date;
-        userId: string;
         communityId: string;
+        userId: string;
+        joinedAt: Date;
     }>;
     leave(req: any, communityId: string): Promise<{
         message: string;
@@ -85,8 +87,6 @@ export declare class CommunitiesController {
     }): Promise<{
         id: string;
         name: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
         description: string | null;
         icon: string | null;
@@ -94,6 +94,8 @@ export declare class CommunitiesController {
         isPublic: boolean;
         isVoiceRoom: boolean;
         memberCount: number;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     remove(req: any, id: string): Promise<{
         message: string;
@@ -109,10 +111,10 @@ export declare class CommunitiesController {
         } & {
             id: string;
             createdAt: Date;
-            content: string;
             channelId: string;
-            imageUrl: string | null;
             senderId: string;
+            content: string;
+            imageUrl: string | null;
         })[];
         meta: {
             total: number;

@@ -46,7 +46,6 @@ class _HomePageState extends State<HomePage> {
           final currentUser = context.read<AuthBloc>().state is AuthAuthenticated
               ? (context.read<AuthBloc>().state as AuthAuthenticated).user
               : null;
-          final currentAvatar = currentUser?.avatar ?? 'https://i.pravatar.cc/150?u=self';
 
           return RefreshIndicator(
             onRefresh: () async {
@@ -60,7 +59,8 @@ class _HomePageState extends State<HomePage> {
                       const SizedBox(height: 12),
                       StoryRow(
                         stories: state.stories,
-                        currentUserAvatar: currentAvatar,
+                        currentUserAvatar: currentUser?.avatar,
+                        currentUserName: currentUser?.name,
                       ),
                       const SizedBox(height: 12),
                       Container(

@@ -22,6 +22,8 @@ mixin _$CommunityModel {
   bool get isPublic;
   bool get isVoiceRoom;
   int get memberCount;
+  List<String> get participantAvatars;
+  List<String> get participantNames;
   String? get createdAt;
   String? get updatedAt;
 
@@ -53,6 +55,10 @@ mixin _$CommunityModel {
                 other.isVoiceRoom == isVoiceRoom) &&
             (identical(other.memberCount, memberCount) ||
                 other.memberCount == memberCount) &&
+            const DeepCollectionEquality()
+                .equals(other.participantAvatars, participantAvatars) &&
+            const DeepCollectionEquality()
+                .equals(other.participantNames, participantNames) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -61,12 +67,24 @@ mixin _$CommunityModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, description, icon,
-      banner, isPublic, isVoiceRoom, memberCount, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      name,
+      description,
+      icon,
+      banner,
+      isPublic,
+      isVoiceRoom,
+      memberCount,
+      const DeepCollectionEquality().hash(participantAvatars),
+      const DeepCollectionEquality().hash(participantNames),
+      createdAt,
+      updatedAt);
 
   @override
   String toString() {
-    return 'CommunityModel(id: $id, name: $name, description: $description, icon: $icon, banner: $banner, isPublic: $isPublic, isVoiceRoom: $isVoiceRoom, memberCount: $memberCount, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'CommunityModel(id: $id, name: $name, description: $description, icon: $icon, banner: $banner, isPublic: $isPublic, isVoiceRoom: $isVoiceRoom, memberCount: $memberCount, participantAvatars: $participantAvatars, participantNames: $participantNames, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 }
 
@@ -85,6 +103,8 @@ abstract mixin class $CommunityModelCopyWith<$Res> {
       bool isPublic,
       bool isVoiceRoom,
       int memberCount,
+      List<String> participantAvatars,
+      List<String> participantNames,
       String? createdAt,
       String? updatedAt});
 }
@@ -110,6 +130,8 @@ class _$CommunityModelCopyWithImpl<$Res>
     Object? isPublic = null,
     Object? isVoiceRoom = null,
     Object? memberCount = null,
+    Object? participantAvatars = null,
+    Object? participantNames = null,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -146,6 +168,14 @@ class _$CommunityModelCopyWithImpl<$Res>
           ? _self.memberCount
           : memberCount // ignore: cast_nullable_to_non_nullable
               as int,
+      participantAvatars: null == participantAvatars
+          ? _self.participantAvatars
+          : participantAvatars // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      participantNames: null == participantNames
+          ? _self.participantNames
+          : participantNames // ignore: cast_nullable_to_non_nullable
+              as List<String>,
       createdAt: freezed == createdAt
           ? _self.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -260,6 +290,8 @@ extension CommunityModelPatterns on CommunityModel {
             bool isPublic,
             bool isVoiceRoom,
             int memberCount,
+            List<String> participantAvatars,
+            List<String> participantNames,
             String? createdAt,
             String? updatedAt)?
         $default, {
@@ -277,6 +309,8 @@ extension CommunityModelPatterns on CommunityModel {
             _that.isPublic,
             _that.isVoiceRoom,
             _that.memberCount,
+            _that.participantAvatars,
+            _that.participantNames,
             _that.createdAt,
             _that.updatedAt);
       case _:
@@ -308,6 +342,8 @@ extension CommunityModelPatterns on CommunityModel {
             bool isPublic,
             bool isVoiceRoom,
             int memberCount,
+            List<String> participantAvatars,
+            List<String> participantNames,
             String? createdAt,
             String? updatedAt)
         $default,
@@ -324,6 +360,8 @@ extension CommunityModelPatterns on CommunityModel {
             _that.isPublic,
             _that.isVoiceRoom,
             _that.memberCount,
+            _that.participantAvatars,
+            _that.participantNames,
             _that.createdAt,
             _that.updatedAt);
       case _:
@@ -354,6 +392,8 @@ extension CommunityModelPatterns on CommunityModel {
             bool isPublic,
             bool isVoiceRoom,
             int memberCount,
+            List<String> participantAvatars,
+            List<String> participantNames,
             String? createdAt,
             String? updatedAt)?
         $default,
@@ -370,6 +410,8 @@ extension CommunityModelPatterns on CommunityModel {
             _that.isPublic,
             _that.isVoiceRoom,
             _that.memberCount,
+            _that.participantAvatars,
+            _that.participantNames,
             _that.createdAt,
             _that.updatedAt);
       case _:
@@ -390,8 +432,12 @@ class _CommunityModel implements CommunityModel {
       this.isPublic = true,
       this.isVoiceRoom = false,
       this.memberCount = 0,
+      final List<String> participantAvatars = const [],
+      final List<String> participantNames = const [],
       this.createdAt,
-      this.updatedAt});
+      this.updatedAt})
+      : _participantAvatars = participantAvatars,
+        _participantNames = participantNames;
   factory _CommunityModel.fromJson(Map<String, dynamic> json) =>
       _$CommunityModelFromJson(json);
 
@@ -414,6 +460,26 @@ class _CommunityModel implements CommunityModel {
   @override
   @JsonKey()
   final int memberCount;
+  final List<String> _participantAvatars;
+  @override
+  @JsonKey()
+  List<String> get participantAvatars {
+    if (_participantAvatars is EqualUnmodifiableListView)
+      return _participantAvatars;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_participantAvatars);
+  }
+
+  final List<String> _participantNames;
+  @override
+  @JsonKey()
+  List<String> get participantNames {
+    if (_participantNames is EqualUnmodifiableListView)
+      return _participantNames;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_participantNames);
+  }
+
   @override
   final String? createdAt;
   @override
@@ -451,6 +517,10 @@ class _CommunityModel implements CommunityModel {
                 other.isVoiceRoom == isVoiceRoom) &&
             (identical(other.memberCount, memberCount) ||
                 other.memberCount == memberCount) &&
+            const DeepCollectionEquality()
+                .equals(other._participantAvatars, _participantAvatars) &&
+            const DeepCollectionEquality()
+                .equals(other._participantNames, _participantNames) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -459,12 +529,24 @@ class _CommunityModel implements CommunityModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, description, icon,
-      banner, isPublic, isVoiceRoom, memberCount, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      name,
+      description,
+      icon,
+      banner,
+      isPublic,
+      isVoiceRoom,
+      memberCount,
+      const DeepCollectionEquality().hash(_participantAvatars),
+      const DeepCollectionEquality().hash(_participantNames),
+      createdAt,
+      updatedAt);
 
   @override
   String toString() {
-    return 'CommunityModel(id: $id, name: $name, description: $description, icon: $icon, banner: $banner, isPublic: $isPublic, isVoiceRoom: $isVoiceRoom, memberCount: $memberCount, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'CommunityModel(id: $id, name: $name, description: $description, icon: $icon, banner: $banner, isPublic: $isPublic, isVoiceRoom: $isVoiceRoom, memberCount: $memberCount, participantAvatars: $participantAvatars, participantNames: $participantNames, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 }
 
@@ -485,6 +567,8 @@ abstract mixin class _$CommunityModelCopyWith<$Res>
       bool isPublic,
       bool isVoiceRoom,
       int memberCount,
+      List<String> participantAvatars,
+      List<String> participantNames,
       String? createdAt,
       String? updatedAt});
 }
@@ -510,6 +594,8 @@ class __$CommunityModelCopyWithImpl<$Res>
     Object? isPublic = null,
     Object? isVoiceRoom = null,
     Object? memberCount = null,
+    Object? participantAvatars = null,
+    Object? participantNames = null,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -546,6 +632,14 @@ class __$CommunityModelCopyWithImpl<$Res>
           ? _self.memberCount
           : memberCount // ignore: cast_nullable_to_non_nullable
               as int,
+      participantAvatars: null == participantAvatars
+          ? _self._participantAvatars
+          : participantAvatars // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      participantNames: null == participantNames
+          ? _self._participantNames
+          : participantNames // ignore: cast_nullable_to_non_nullable
+              as List<String>,
       createdAt: freezed == createdAt
           ? _self.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable

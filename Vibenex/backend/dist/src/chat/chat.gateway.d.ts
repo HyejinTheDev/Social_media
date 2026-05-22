@@ -27,11 +27,11 @@ export declare class ChatGateway implements OnGatewayConnection, OnGatewayDiscon
     } & {
         id: string;
         createdAt: Date;
+        senderId: string;
         content: string;
         imageUrl: string | null;
-        isRead: boolean;
-        senderId: string;
         conversationId: string;
+        isRead: boolean;
     }) | undefined>;
     handleJoinConversation(client: Socket, data: {
         conversationId: string;
@@ -66,10 +66,10 @@ export declare class ChatGateway implements OnGatewayConnection, OnGatewayDiscon
     } & {
         id: string;
         createdAt: Date;
-        content: string;
         channelId: string;
-        imageUrl: string | null;
         senderId: string;
+        content: string;
+        imageUrl: string | null;
     }) | undefined>;
     private voiceRooms;
     handleVoiceJoin(client: Socket, data: {

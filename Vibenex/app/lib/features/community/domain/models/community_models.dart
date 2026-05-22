@@ -14,6 +14,8 @@ abstract class CommunityModel with _$CommunityModel {
     @Default(true) bool isPublic,
     @Default(false) bool isVoiceRoom,
     @Default(0) int memberCount,
+    @Default([]) List<String> participantAvatars,
+    @Default([]) List<String> participantNames,
     String? createdAt,
     String? updatedAt,
   }) = _CommunityModel;

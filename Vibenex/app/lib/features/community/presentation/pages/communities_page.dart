@@ -156,20 +156,14 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
   }
 
   Widget _buildRoomItem(CommunityModel community, int index) {
-    // Generate some mock avatars for now
-    final mockAvatars = [
-      'https://i.pravatar.cc/150?u=${index + 1}',
-      'https://i.pravatar.cc/150?u=${index + 2}',
-      'https://i.pravatar.cc/150?u=${index + 3}',
-    ];
-    
     // Use real isVoiceRoom from API
     final isVoiceRoom = community.isVoiceRoom;
 
     return RoomCard(
       roomName: community.name,
-      participantCount: community.memberCount > 0 ? community.memberCount : (index + 1) * 3,
-      speakerAvatars: mockAvatars,
+      participantCount: community.memberCount,
+      speakerAvatars: community.participantAvatars,
+      speakerNames: community.participantNames,
       isVoiceRoom: isVoiceRoom,
       onTap: () {
         if (isVoiceRoom) {

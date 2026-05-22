@@ -27,8 +27,8 @@ export declare class PostsService {
             createdAt: Date;
             updatedAt: Date;
             content: string;
-            imageUrls: string[];
             authorId: string;
+            imageUrls: string[];
             videoUrl: string | null;
             likeCount: number;
             commentCount: number;
@@ -64,8 +64,8 @@ export declare class PostsService {
             createdAt: Date;
             updatedAt: Date;
             content: string;
-            imageUrls: string[];
             authorId: string;
+            imageUrls: string[];
             videoUrl: string | null;
             likeCount: number;
             commentCount: number;
@@ -90,8 +90,8 @@ export declare class PostsService {
         createdAt: Date;
         updatedAt: Date;
         content: string;
-        imageUrls: string[];
         authorId: string;
+        imageUrls: string[];
         videoUrl: string | null;
         likeCount: number;
         commentCount: number;
@@ -113,8 +113,8 @@ export declare class PostsService {
         createdAt: Date;
         updatedAt: Date;
         content: string;
-        imageUrls: string[];
         authorId: string;
+        imageUrls: string[];
         videoUrl: string | null;
         likeCount: number;
         commentCount: number;
@@ -125,8 +125,8 @@ export declare class PostsService {
         createdAt: Date;
         updatedAt: Date;
         content: string;
-        imageUrls: string[];
         authorId: string;
+        imageUrls: string[];
         videoUrl: string | null;
         likeCount: number;
         commentCount: number;
@@ -147,8 +147,8 @@ export declare class PostsService {
         createdAt: Date;
         content: string;
         authorId: string;
-        parentId: string | null;
         postId: string;
+        parentId: string | null;
     })[]>;
     createComment(postId: string, authorId: string, content: string, parentId?: string): Promise<{
         author: {
@@ -162,7 +162,7 @@ export declare class PostsService {
         createdAt: Date;
         content: string;
         authorId: string;
-        parentId: string | null;
         postId: string;
+        parentId: string | null;
     }>;
 }
