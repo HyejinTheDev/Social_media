@@ -32,14 +32,14 @@ let AdminService = class AdminService {
             where: { createdAt: { gte: sevenDaysAgo } },
         });
         const dailyUsers = await this.prisma.$queryRaw `
-      SELECT DATE(\"createdAt\") as date, COUNT(*)::int as count
+      SELECT DATE("createdAt") as date, COUNT(*)::int as count
       FROM "User"
       WHERE "createdAt" >= ${sevenDaysAgo}
       GROUP BY DATE("createdAt")
       ORDER BY date ASC
     `;
         const dailyPosts = await this.prisma.$queryRaw `
-      SELECT DATE(\"createdAt\") as date, COUNT(*)::int as count
+      SELECT DATE("createdAt") as date, COUNT(*)::int as count
       FROM "Post"
       WHERE "createdAt" >= ${sevenDaysAgo}
       GROUP BY DATE("createdAt")

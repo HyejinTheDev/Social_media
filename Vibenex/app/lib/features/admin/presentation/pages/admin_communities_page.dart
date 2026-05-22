@@ -3,7 +3,6 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../../../core/theme/app_colors.dart';
 import '../../data/admin_api_service.dart';
 import '../../../../core/di/injection.dart';
-import 'package:dio/dio.dart';
 
 class AdminCommunitiesPage extends StatefulWidget {
   const AdminCommunitiesPage({super.key});
@@ -23,7 +22,7 @@ class _AdminCommunitiesPageState extends State<AdminCommunitiesPage> {
   @override
   void initState() {
     super.initState();
-    _api = AdminApiService(getIt<Dio>());
+    _api = getIt<AdminApiService>();
     _loadCommunities();
   }
 

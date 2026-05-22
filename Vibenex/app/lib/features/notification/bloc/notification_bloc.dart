@@ -2,7 +2,8 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/utils/error_mapper.dart';
 import '../../chat/data/datasources/socket_service.dart';
-import '../data/datasources/notification_api_service.dart';
+import '../domain/models/notification_model.dart';
+import '../domain/repositories/notification_repository.dart';
 import 'notification_event.dart';
 import 'notification_state.dart';
 
@@ -10,14 +11,14 @@ export 'notification_event.dart';
 export 'notification_state.dart';
 
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
-  final NotificationApiService _api;
+  final NotificationRepository _repository;
   final SocketService _socket;
   StreamSubscription? _notificationSub;
 
   NotificationBloc({
-    required NotificationApiService api,
+    required NotificationRepository repository,
     required SocketService socket,
-  })  : _api = api,
+  })  : _repository = repository,
         _socket = socket,
         super(const NotificationState()) {
     on<LoadNotifications>(_onLoadNotifications);
@@ -41,16 +42,14 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   Future<void> _onLoadNotifications(LoadNotifications event, Emitter<NotificationState> emit) async {
     emit(state.copyWith(status: NotificationStatus.loading));
     try {
-      final unreadCount = await _api.getUnreadCount();
-      final data = await _api.getNotifications(1);
-      final list = data['notifications'] as List<dynamic>;
-      final totalPages = data['totalPages'] as int;
+      final unreadCount = await _repository.getUnreadCount();
+      final result = await _repository.getNotifications(1);
 
       emit(state.copyWith(
         status: NotificationStatus.loaded,
-        notifications: list,
+        notifications: result.notifications,
         page: 1,
-        hasMore: 1 < totalPages,
+        hasMore: 1 < result.totalPages,
         unreadCount: unreadCount,
       ));
     } catch (e) {
@@ -66,14 +65,12 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
 
     final nextPage = state.page + 1;
     try {
-      final data = await _api.getNotifications(nextPage);
-      final list = data['notifications'] as List<dynamic>;
-      final totalPages = data['totalPages'] as int;
+      final result = await _repository.getNotifications(nextPage);
 
       emit(state.copyWith(
-        notifications: [...state.notifications, ...list],
+        notifications: [...state.notifications, ...result.notifications],
         page: nextPage,
-        hasMore: nextPage < totalPages,
+        hasMore: nextPage < result.totalPages,
       ));
     } catch (_) {}
   }
@@ -82,37 +79,37 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     try {
       // Optimistic UI update
       final updatedList = state.notifications.map((n) {
-        if (n['id'] == event.id && n['isRead'] == false) {
-          return {...n, 'isRead': true};
+        if (n.id == event.id && !n.isRead) {
+          return n.copyWith(isRead: true);
         }
         return n;
       }).toList();
       
-      final unreadCount = updatedList.where((n) => n['isRead'] == false).length;
+      final unreadCount = updatedList.where((n) => !n.isRead).length;
       
       emit(state.copyWith(notifications: updatedList, unreadCount: unreadCount));
       
-      await _api.markAsRead(event.id);
+      await _repository.markAsRead(event.id);
     } catch (_) {}
   }
 
   Future<void> _onMarkAllAsRead(MarkAllNotificationsAsRead event, Emitter<NotificationState> emit) async {
     try {
-      final updatedList = state.notifications.map((n) => {...n, 'isRead': true}).toList();
+      final updatedList = state.notifications.map((n) => n.copyWith(isRead: true)).toList();
       emit(state.copyWith(notifications: updatedList, unreadCount: 0));
-      await _api.markAllAsRead();
+      await _repository.markAllAsRead();
     } catch (_) {}
   }
 
   Future<void> _onFetchUnreadCount(FetchUnreadCount event, Emitter<NotificationState> emit) async {
     try {
-      final count = await _api.getUnreadCount();
+      final count = await _repository.getUnreadCount();
       emit(state.copyWith(unreadCount: count));
     } catch (_) {}
   }
 
   Future<void> _onNotificationReceived(NotificationReceived event, Emitter<NotificationState> emit) async {
-    final newNotification = event.notification;
+    final newNotification = NotificationModel.fromJson(event.notification);
     final updatedList = [newNotification, ...state.notifications];
     final unreadCount = state.unreadCount + 1;
     

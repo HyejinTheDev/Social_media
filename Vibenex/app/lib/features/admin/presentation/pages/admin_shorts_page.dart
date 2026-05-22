@@ -4,7 +4,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/avatar_widget.dart';
 import '../../data/admin_api_service.dart';
 import '../../../../core/di/injection.dart';
-import 'package:dio/dio.dart';
 
 class AdminShortsPage extends StatefulWidget {
   const AdminShortsPage({super.key});
@@ -23,7 +22,7 @@ class _AdminShortsPageState extends State<AdminShortsPage> {
   @override
   void initState() {
     super.initState();
-    _api = AdminApiService(getIt<Dio>());
+    _api = getIt<AdminApiService>();
     _loadShorts();
   }
 

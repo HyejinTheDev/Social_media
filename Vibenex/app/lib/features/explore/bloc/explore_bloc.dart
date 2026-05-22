@@ -4,22 +4,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/utils/error_mapper.dart';
 import '../../auth/domain/models/auth_models.dart';
 import '../../community/domain/models/community_models.dart';
-import '../../profile/data/datasources/profile_api_service.dart';
-import '../../community/data/datasources/community_api_service.dart';
+import '../domain/repositories/explore_repository.dart';
 
 part 'explore_event.dart';
 part 'explore_state.dart';
 
 class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
-  final ProfileApiService _profileApi;
-  final CommunityApiService _communityApi;
+  final ExploreRepository _repository;
   Timer? _debounce;
 
   ExploreBloc({
-    required ProfileApiService profileApi,
-    required CommunityApiService communityApi,
-  })  : _profileApi = profileApi,
-        _communityApi = communityApi,
+    required ExploreRepository repository,
+  })  : _repository = repository,
         super(const ExploreState()) {
     on<ExploreQueryChanged>(_onQueryChanged);
     on<ExploreSubmitted>(_onSubmit);
@@ -65,23 +61,13 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
   Future<void> _performSearch(String query, Emitter<ExploreState> emit) async {
     emit(state.copyWith(status: ExploreStatus.loading));
     try {
-      // Search users and communities in parallel
-      final results = await Future.wait([
-        _profileApi.searchUsers(query, 1),
-        _communityApi.getCommunities(1, 10, query),
-      ]);
-
-      final userRes = results[0] as Map<String, dynamic>;
-      final communityRes = results[1] as PaginatedCommunitiesResponse;
-
-      final users = (userRes['users'] as List).map((e) => UserModel.fromJson(e)).toList();
-      final communities = communityRes.communities;
+      final result = await _repository.search(query);
 
       emit(state.copyWith(
         status: ExploreStatus.loaded,
-        users: users,
-        communities: communities,
-        total: (userRes['total'] ?? 0) + communities.length,
+        users: result.users,
+        communities: result.communities,
+        total: result.total,
       ));
     } catch (e) {
       emit(state.copyWith(status: ExploreStatus.error, errorMessage: ErrorMapper.map(e)));

@@ -4,7 +4,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/avatar_widget.dart';
 import '../../data/admin_api_service.dart';
 import '../../../../core/di/injection.dart';
-import 'package:dio/dio.dart';
 
 class AdminPostsPage extends StatefulWidget {
   const AdminPostsPage({super.key});
@@ -24,7 +23,7 @@ class _AdminPostsPageState extends State<AdminPostsPage> {
   @override
   void initState() {
     super.initState();
-    _api = AdminApiService(getIt<Dio>());
+    _api = getIt<AdminApiService>();
     _loadPosts();
   }
 

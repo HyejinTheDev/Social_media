@@ -37,6 +37,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
         _usernameC = TextEditingController(text: state.user.username);
         _bioC = TextEditingController(text: state.user.bio ?? '');
         _initialized = true;
+      } else {
+        context.read<ProfileBloc>().add(const ProfileLoadRequested());
       }
     }
   }
@@ -89,7 +91,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final cs = Theme.of(context).colorScheme;
     return BlocListener<ProfileBloc, ProfileState>(
       listener: (ctx, state) {
-        if (state is ProfileLoaded) {
+        if (state is ProfileLoaded && !_initialized) {
+          setState(() {
+            _nameC = TextEditingController(text: state.user.name);
+            _usernameC = TextEditingController(text: state.user.username);
+            _bioC = TextEditingController(text: state.user.bio ?? '');
+            _initialized = true;
+          });
+        }
+        if (state is ProfileLoaded && _initialized) {
           ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
             content: const Text('Đã cập nhật hồ sơ'),
             behavior: SnackBarBehavior.floating, backgroundColor: Colors.green,

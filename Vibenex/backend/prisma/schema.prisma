@@ -83,6 +83,7 @@ model User {
   conversations2   Conversation[] @relation("participant2")
   
   notifications    Notification[]
+  storyViews       StoryView[]
   
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
@@ -302,13 +303,27 @@ model FriendRequest {
 }
 
 model Story {
-  id        String   @id @default(uuid())
+  id        String      @id @default(uuid())
   authorId  String
-  author    User     @relation(fields: [authorId], references: [id])
+  author    User        @relation(fields: [authorId], references: [id])
   imageUrl  String?
   videoUrl  String?
+  caption   String?
+  viewCount Int         @default(0)
+  views     StoryView[]
   expiresAt DateTime
-  createdAt DateTime @default(now())
+  createdAt DateTime    @default(now())
+}
+
+model StoryView {
+  id       String   @id @default(uuid())
+  storyId  String
+  story    Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  viewerId String
+  viewer   User     @relation(fields: [viewerId], references: [id])
+  viewedAt DateTime @default(now())
+
+  @@unique([storyId, viewerId])
 }
 
 model Short {

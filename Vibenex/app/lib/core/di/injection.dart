@@ -13,6 +13,8 @@ import '../../features/profile/data/repositories/friend_repository_impl.dart';
 import '../../features/profile/domain/repositories/friend_repository.dart';
 
 import '../../features/explore/bloc/explore_bloc.dart';
+import '../../features/explore/domain/repositories/explore_repository.dart';
+import '../../features/explore/data/repositories/explore_repository_impl.dart';
 import '../../features/home/data/datasources/post_api_service.dart';
 import '../../features/home/data/repositories/post_repository_impl.dart';
 import '../../features/home/domain/repositories/post_repository.dart';
@@ -25,6 +27,8 @@ import '../../features/chat/data/datasources/chat_api_service.dart';
 import '../../features/chat/data/datasources/socket_service.dart';
 import '../../features/chat/bloc/chat_bloc.dart';
 import '../../features/notification/data/datasources/notification_api_service.dart';
+import '../../features/notification/data/repositories/notification_repository_impl.dart';
+import '../../features/notification/domain/repositories/notification_repository.dart';
 import '../../features/notification/bloc/notification_bloc.dart';
 import '../../features/community/data/datasources/community_api_service.dart';
 import '../../features/community/data/repositories/community_repository_impl.dart';
@@ -37,6 +41,7 @@ import '../../features/discussion/bloc/discussion_bloc.dart';
 import '../../features/shorts/bloc/short_bloc.dart';
 import '../../features/shorts/data/datasources/short_api_service.dart';
 import '../../features/shorts/data/repositories/short_repository.dart';
+import '../../features/admin/data/admin_api_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -81,9 +86,15 @@ Future<void> configureDependencies() async {
   );
 
 
+  // ─── Explore ───
+  getIt.registerLazySingleton<ExploreRepository>(
+    () => ExploreRepositoryImpl(
+      profileApi: getIt<ProfileApiService>(),
+      communityApi: getIt<CommunityApiService>(),
+    ),
+  );
   getIt.registerFactory(() => ExploreBloc(
-    profileApi: getIt<ProfileApiService>(),
-    communityApi: getIt<CommunityApiService>(),
+    repository: getIt<ExploreRepository>(),
   ));
 
   // ─── Home ───
@@ -141,7 +152,10 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<NotificationApiService>(
     () => NotificationApiService(getIt<DioClient>().dio),
   );
-  getIt.registerLazySingleton(() => NotificationBloc(api: getIt(), socket: getIt()));
+  getIt.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(getIt<NotificationApiService>()),
+  );
+  getIt.registerLazySingleton(() => NotificationBloc(repository: getIt(), socket: getIt()));
   // ─── Shorts ───
   getIt.registerLazySingleton<ShortApiService>(
     () => ShortApiService(getIt<DioClient>().dio),
@@ -150,4 +164,9 @@ Future<void> configureDependencies() async {
     () => ShortRepositoryImpl(getIt<ShortApiService>()),
   );
   getIt.registerFactory(() => ShortBloc(repository: getIt()));
+
+  // ─── Admin ───
+  getIt.registerLazySingleton<AdminApiService>(
+    () => AdminApiService(getIt<DioClient>().dio),
+  );
 }

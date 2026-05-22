@@ -1,10 +1,11 @@
 import 'package:equatable/equatable.dart';
+import '../domain/models/notification_model.dart';
 
 enum NotificationStatus { initial, loading, loaded, error }
 
 class NotificationState extends Equatable {
   final NotificationStatus status;
-  final List<dynamic> notifications;
+  final List<NotificationModel> notifications;
   final int page;
   final bool hasMore;
   final int unreadCount;
@@ -21,7 +22,7 @@ class NotificationState extends Equatable {
 
   NotificationState copyWith({
     NotificationStatus? status,
-    List<dynamic>? notifications,
+    List<NotificationModel>? notifications,
     int? page,
     bool? hasMore,
     int? unreadCount,

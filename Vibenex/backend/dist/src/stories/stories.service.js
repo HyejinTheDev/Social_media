@@ -17,7 +17,7 @@ let StoriesService = class StoriesService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async createStory(userId, imageUrl, videoUrl) {
+    async createStory(userId, imageUrl, videoUrl, caption) {
         const expiresAt = new Date();
         expiresAt.setHours(expiresAt.getHours() + 24);
         return this.prisma.story.create({
@@ -25,6 +25,7 @@ let StoriesService = class StoriesService {
                 authorId: userId,
                 imageUrl,
                 videoUrl,
+                caption,
                 expiresAt,
             },
             include: {
@@ -65,10 +66,68 @@ let StoriesService = class StoriesService {
                         isVerified: true,
                     },
                 },
+                views: {
+                    where: { viewerId: userId },
+                    select: { id: true },
+                },
             },
             orderBy: { createdAt: 'desc' },
         });
-        return stories;
+        return stories.map((story) => ({
+            ...story,
+            isViewed: story.views.length > 0,
+            views: undefined,
+        }));
+    }
+    async viewStory(storyId, viewerId) {
+        const story = await this.prisma.story.findUnique({ where: { id: storyId } });
+        if (!story)
+            throw new common_1.NotFoundException('Story không tồn tại');
+        if (story.authorId === viewerId)
+            return { success: true };
+        await this.prisma.storyView.upsert({
+            where: {
+                storyId_viewerId: { storyId, viewerId },
+            },
+            create: {
+                storyId,
+                viewerId,
+            },
+            update: {},
+        });
+        await this.prisma.story.update({
+            where: { id: storyId },
+            data: { viewCount: { increment: 1 } },
+        });
+        return { success: true };
+    }
+    async deleteStory(storyId, userId) {
+        const story = await this.prisma.story.findUnique({ where: { id: storyId } });
+        if (!story)
+            throw new common_1.NotFoundException('Story không tồn tại');
+        if (story.authorId !== userId)
+            throw new common_1.ForbiddenException('Bạn không có quyền xoá story này');
+        await this.prisma.story.delete({ where: { id: storyId } });
+        return { message: 'Đã xoá story' };
+    }
+    async getMyStories(userId) {
+        const now = new Date();
+        return this.prisma.story.findMany({
+            where: {
+                authorId: userId,
+                expiresAt: { gt: now },
+            },
+            include: {
+                views: {
+                    include: {
+                        viewer: {
+                            select: { id: true, name: true, username: true, avatar: true },
+                        },
+                    },
+                },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
     }
 };
 exports.StoriesService = StoriesService;

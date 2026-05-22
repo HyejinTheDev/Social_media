@@ -28,7 +28,7 @@ export class AdminService {
 
     // Daily registration stats (last 7 days)
     const dailyUsers = await this.prisma.$queryRaw`
-      SELECT DATE(\"createdAt\") as date, COUNT(*)::int as count
+      SELECT DATE("createdAt") as date, COUNT(*)::int as count
       FROM "User"
       WHERE "createdAt" >= ${sevenDaysAgo}
       GROUP BY DATE("createdAt")
@@ -36,7 +36,7 @@ export class AdminService {
     ` as { date: Date; count: number }[];
 
     const dailyPosts = await this.prisma.$queryRaw`
-      SELECT DATE(\"createdAt\") as date, COUNT(*)::int as count
+      SELECT DATE("createdAt") as date, COUNT(*)::int as count
       FROM "Post"
       WHERE "createdAt" >= ${sevenDaysAgo}
       GROUP BY DATE("createdAt")

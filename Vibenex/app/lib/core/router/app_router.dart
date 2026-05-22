@@ -331,11 +331,8 @@ class AppRouter {
           ),
           GoRoute(
             path: '/profile',
-            pageBuilder: (_, __) => NoTransitionPage(
-              child: BlocProvider(
-                create: (_) => getIt<ProfileBloc>(),
-                child: const ProfilePage(),
-              ),
+            pageBuilder: (_, __) => const NoTransitionPage(
+              child: ProfilePage(),
             ),
           ),
         ],
@@ -373,18 +370,6 @@ class AppRouter {
         },
       ),
       GoRoute(
-        path: '/chat/:conversationId',
-        parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) {
-          final conversationId = state.pathParameters['conversationId']!;
-          final otherUser = state.extra as Map<String, dynamic>?;
-          return BlocProvider(
-            create: (_) => getIt<ChatBloc>(),
-            child: ChatPage(conversationId: conversationId, otherUser: otherUser),
-          );
-        },
-      ),
-      GoRoute(
         path: '/create-post',
         builder: (context, state) => CreatePostPage(
           initialText: state.extra as String?,
@@ -393,16 +378,6 @@ class AppRouter {
       GoRoute(
         path: '/create-story',
         builder: (context, state) => const CreateStoryPage(),
-      ),
-      GoRoute(
-        path: '/notifications',
-        parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) {
-          return BlocProvider.value(
-            value: getIt<NotificationBloc>(),
-            child: const NotificationsPage(),
-          );
-        },
       ),
     ],
   );

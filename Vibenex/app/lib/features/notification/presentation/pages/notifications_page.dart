@@ -6,6 +6,7 @@ import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/error_state_widget.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../bloc/notification_bloc.dart';
+import '../../domain/models/notification_model.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -90,7 +91,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   );
                 }
 
-                final item = state.notifications[index] as Map<String, dynamic>;
+                final item = state.notifications[index];
                 return _NotificationTile(item: item);
               },
             ),
@@ -102,14 +103,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
 }
 
 class _NotificationTile extends StatelessWidget {
-  final Map<String, dynamic> item;
+  final NotificationModel item;
 
   const _NotificationTile({required this.item});
 
   @override
   Widget build(BuildContext context) {
-    final isRead = item['isRead'] == true;
-    final type = item['type'] as String;
+    final isRead = item.isRead;
+    final type = item.type;
 
     IconData icon;
     Color iconColor;
@@ -135,11 +136,11 @@ class _NotificationTile extends StatelessWidget {
     return InkWell(
       onTap: () {
         if (!isRead) {
-          context.read<NotificationBloc>().add(MarkNotificationAsRead(item['id']));
+          context.read<NotificationBloc>().add(MarkNotificationAsRead(item.id));
         }
 
         // Navigate based on type
-        final data = item['data'] as Map<String, dynamic>?;
+        final data = item.data;
         if (data != null) {
           if (type == 'LIKE' || type == 'COMMENT') {
             if (data['postId'] != null) {
@@ -172,17 +173,17 @@ class _NotificationTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    item['title'] ?? '',
+                    item.title,
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textSilver),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    item['body'] ?? '',
+                    item.body,
                     style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14),
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    timeago.format(DateTime.parse(item['createdAt']), locale: 'vi'),
+                    timeago.format(item.createdAt, locale: 'vi'),
                     style: const TextStyle(color: AppColors.textFog, fontSize: 12),
                   ),
                 ],
